@@ -1172,11 +1172,13 @@ test("a failed generation stays retryable in the palette section", async ({
   // The failure surface must be reachable without leaving the viewport.
   await expect(notice).toBeInViewport();
 
+  await retry.focus();
   await retry.click();
 
   await expect(notice).toHaveAttribute("data-state", "error");
   await expect(retry).toBeVisible();
   await expect(page.locator("#selected-country")).toHaveText("Brazil");
+  await expect(retry).toBeFocused();
 
   await retry.click();
 
@@ -1186,4 +1188,35 @@ test("a failed generation stays retryable in the palette section", async ({
   await expect(page.locator("#copy-button")).toBeEnabled();
   await expect(page.locator("#status-message")).toHaveText("BR palette is ready.");
   await expect(page.locator("#loading-state")).toBeHidden();
+});
+
+test("a palette retry does not steal focus the user moved elsewhere", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+
+  const second = createGate();
+
+  await installFlagPlanRoute(page, [
+    { ok: false },
+    { ok: false, gate: second.promise }
+  ]);
+  await openApp(page);
+
+  await startGeneration(page, "Brazil", "BR");
+
+  const retry = page.locator("#palette-retry");
+
+  await retry.focus();
+  await retry.click();
+
+  await page.locator("#country-search").focus();
+
+  second.release();
+
+  await expect(page.locator(".palette-notice")).toHaveAttribute(
+    "data-state",
+    "error"
+  );
+  await expect(page.locator("#country-search")).toBeFocused();
 });

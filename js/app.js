@@ -89,6 +89,7 @@ const state = {
   outputFileName: "",
   requestId: 0,
   generation: { status: "idle", country: null, message: "" },
+  paletteRetryHadFocus: false,
   countryCache: new Map(),
   activeAssetController: null
 };
@@ -141,6 +142,7 @@ function setGenerationState(
   elements.copyButton.disabled = !hasOutput;
 
   if (status === "ready") {
+    state.paletteRetryHadFocus = false;
     return;
   }
 
@@ -197,6 +199,11 @@ function removeRenderedPreview() {
 function renderPaletteNotice(status, country, message) {
   const notice = document.createElement("div");
 
+  // Re-rendering the section removes the control the user activated, so a
+  // repeated failure gives focus back to the replacement, and only when the
+  // previous control still owned it.
+  let restoreRetryFocus = false;
+
   notice.className = "palette-notice";
   notice.dataset.state = status;
 
@@ -221,12 +228,25 @@ function renderPaletteNotice(status, country, message) {
     retry.textContent = "Try again";
 
     notice.append(label, retry);
+
+    restoreRetryFocus = state.paletteRetryHadFocus;
+    state.paletteRetryHadFocus = false;
   } else {
     notice.textContent =
       "Select a country to generate its palette.";
+    state.paletteRetryHadFocus = false;
   }
 
   elements.paletteOptions.replaceChildren(notice);
+
+  // Removing the previous control is what dropped focus to the body, so only
+  // that case is given focus back; focus the user moved elsewhere is left be.
+  if (
+    restoreRetryFocus &&
+    document.activeElement === document.body
+  ) {
+    notice.querySelector("#palette-retry")?.focus();
+  }
 }
 
 function clearGeneratedOutput() {
@@ -1101,6 +1121,10 @@ function bindEvents() {
       ) {
         return;
       }
+
+      state.paletteRetryHadFocus =
+        document.activeElement ===
+        event.target.closest("#palette-retry");
 
       generatePalette(state.selectedCountry);
     }
