@@ -19,6 +19,7 @@ import {
 import {
   copyText,
   createBadgeSvg,
+  createFlagDataUri,
   downloadRasterizedSvg,
   downloadSvg
 } from "./svg.js";
@@ -82,6 +83,8 @@ const state = {
   noResultsStatus: "",
   selectedCountry: null,
   flagSvgText: "",
+  flagDataUri: "",
+  flagObjectUrl: "",
   palette: [],
   selectedPaletteIndex: 0,
   selectedSvg: "",
@@ -251,6 +254,8 @@ function renderPaletteNotice(status, country, message) {
 
 function clearGeneratedOutput() {
   state.flagSvgText = "";
+  setFlagObjectUrl("");
+  state.flagDataUri = "";
   state.palette = [];
   state.selectedPaletteIndex = 0;
   state.selectedSvg = "";
@@ -540,6 +545,34 @@ function updateCountrySuggestions({
 // named group: assistive technology gets the `1 of 3` model and arrow-key
 // navigation for free. Each thumbnail repeats the main preview, so it stays
 // decorative and the preview remains the one meaningful badge image.
+// One runtime flag resource per selected country. Replacing it revokes the
+// previous URL, so nothing accumulates across countries.
+function setFlagObjectUrl(flagSvgText) {
+  if (state.flagObjectUrl) {
+    URL.revokeObjectURL(state.flagObjectUrl);
+    state.flagObjectUrl = "";
+  }
+
+  if (flagSvgText) {
+    state.flagObjectUrl = URL.createObjectURL(
+      new Blob([flagSvgText], {
+        type: "image/svg+xml"
+      })
+    );
+  }
+}
+
+function createThumbnailFlag() {
+  const flag = document.createElement("img");
+
+  flag.className = "palette-thumbnail-flag";
+  flag.alt = "";
+  flag.decoding = "async";
+  flag.src = state.flagObjectUrl;
+
+  return flag;
+}
+
 function renderPalette() {
   const choices = document.createElement("div");
 
@@ -573,16 +606,12 @@ function renderPalette() {
     input.checked =
       index === state.selectedPaletteIndex;
 
+    // A thumbnail is decorative, so it renders the background and the shared
+    // runtime flag resource instead of carrying its own export-grade payload.
     thumbnail.className = "palette-thumbnail";
     thumbnail.setAttribute("aria-hidden", "true");
-    thumbnail.innerHTML = createBadgeSvg({
-      code: state.selectedCountry.code,
-      countryName: state.selectedCountry.name,
-      flagSvgText: state.flagSvgText,
-      backgroundHex: option.hex,
-      idPrefix:
-        `option-${state.selectedCountry.code.toLowerCase()}-${index}`
-    });
+    thumbnail.style.backgroundColor = option.hex;
+    thumbnail.append(createThumbnailFlag());
 
     meta.className = "palette-meta";
 
@@ -619,7 +648,7 @@ function updateSelectedOption(index) {
   state.selectedSvg = createBadgeSvg({
     code: state.selectedCountry.code,
     countryName: state.selectedCountry.name,
-    flagSvgText: state.flagSvgText,
+    flagDataUri: state.flagDataUri,
     backgroundHex: option.hex,
     idPrefix:
       `download-${state.selectedCountry.code.toLowerCase()}`
@@ -685,6 +714,9 @@ async function loadCountryAssets(country, signal) {
 
   const assets = {
     flagSvgText,
+    // Encoded once per loaded country asset and reused by the thumbnails and
+    // by every later export composition.
+    flagDataUri: createFlagDataUri(flagSvgText),
     palette
   };
 
@@ -747,6 +779,8 @@ async function generatePalette(country) {
     }
 
     state.flagSvgText = assets.flagSvgText;
+    state.flagDataUri = assets.flagDataUri;
+    setFlagObjectUrl(assets.flagSvgText);
     state.palette = assets.palette;
 
     renderPalette();

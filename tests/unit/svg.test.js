@@ -3,7 +3,8 @@ import test from "node:test";
 
 import {
   copyText,
-  createBadgeSvg
+  createBadgeSvg,
+  createFlagDataUri
 } from "../../js/svg.js";
 
 const flagSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#009739"/></svg>`;
@@ -140,4 +141,41 @@ test("the clipboard fallback cleans up when the copy command throws", async () =
   );
 
   assert.deepEqual(environment.attached, []);
+});
+
+test("a prepared flag data URI is reused instead of re-encoded", () => {
+  const flagDataUri = createFlagDataUri(flagSvg);
+
+  assert.match(flagDataUri, /^data:image\/svg\+xml;base64,/);
+
+  const fromText = createBadgeSvg({
+    code: "BR",
+    countryName: "Brazil",
+    flagSvgText: flagSvg,
+    backgroundHex: "#62B46D"
+  });
+
+  const fromPrepared = createBadgeSvg({
+    code: "BR",
+    countryName: "Brazil",
+    flagDataUri,
+    backgroundHex: "#62B46D"
+  });
+
+  assert.equal(fromPrepared, fromText);
+  assert.ok(fromPrepared.includes(flagDataUri));
+});
+
+test("a badge composed from prepared data stays self-contained", () => {
+  const svg = createBadgeSvg({
+    code: "PY",
+    countryName: "Paraguay",
+    flagDataUri: createFlagDataUri(flagSvg),
+    backgroundHex: "#8AB7FF"
+  });
+
+  assert.match(svg, /viewBox="0 0 1024 1024"/);
+  assert.match(svg, /href="data:image\/svg\+xml;base64,/);
+  assert.doesNotMatch(svg, /href="https?:\/\//);
+  assert.doesNotMatch(svg, /href="blob:/);
 });

@@ -1297,3 +1297,227 @@ test("a flag the browser cannot decode fails instead of returning a palette", as
 
   expect(outcome).toMatch(/could not be prepared|could not be processed/);
 });
+
+// A flag of the same order of magnitude as the largest real one (Ecuador's is
+// ~217 kB), generated locally so the measurement never depends on a CDN.
+function createLargeFlagSvg() {
+  const parts = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">',
+    '<rect width="1200" height="800" fill="#FFDD00"/>',
+    '<rect y="400" width="1200" height="200" fill="#0033A0"/>',
+    '<rect y="600" width="1200" height="200" fill="#CE1126"/>'
+  ];
+
+  for (let index = 0; parts.join("").length < 210_000; index += 1) {
+    const x = 380 + (index % 90) * 0.5;
+    const y = 300 + Math.floor(index / 90) * 0.5;
+
+    parts.push(
+      `<path d="M ${x.toFixed(2)} ${y.toFixed(2)} l 4.25 2.5 l -1.5 4.75 l -5.5 0 l -1.5 -4.75 z" fill="#8B5A2B" fill-opacity="0.85" stroke="#3A2A16" stroke-width="0.3"/>`
+    );
+  }
+
+  parts.push("</svg>");
+
+  return parts.join("");
+}
+
+// Records scripting and DOM work only: the assets are already cached, so no
+// network is involved, and the window ends when the third option exists rather
+// than at the next animation frame.
+async function measureCachedSelection(page, optionLocator) {
+  await page.evaluate(() => {
+    window.__perf = { start: 0, end: 0, longTasks: [] };
+
+    const observer = new PerformanceObserver(list => {
+      for (const entry of list.getEntries()) {
+        window.__perf.longTasks.push(entry.duration);
+      }
+    });
+
+    observer.observe({ entryTypes: ["longtask"] });
+
+    document.addEventListener(
+      "pointerdown",
+      () => {
+        window.__perf.start = performance.now();
+      },
+      { capture: true, once: true }
+    );
+
+    const mutations = new MutationObserver(() => {
+      if (
+        window.__perf.start > 0 &&
+        document.querySelectorAll(".palette-option").length === 3
+      ) {
+        window.__perf.end = performance.now();
+        mutations.disconnect();
+      }
+    });
+
+    mutations.observe(document.querySelector("#palette-options"), {
+      childList: true,
+      subtree: true
+    });
+  });
+
+  await optionLocator.click();
+  await expect(page.locator(".palette-option")).toHaveCount(3);
+
+  return page.evaluate(() => ({
+    duration: window.__perf.end - window.__perf.start,
+    longestTask: Math.max(0, ...window.__perf.longTasks)
+  }));
+}
+
+test("a cached country selection stays off the main thread's critical path", async ({
+  page
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop-1440",
+    "One measurement project is enough."
+  );
+
+  await installCatalogRoute(page, [{ ok: true }]);
+
+  const largeFlag = createLargeFlagSvg();
+
+  await page.route(FLAG_PATTERN, async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: "image/svg+xml",
+      body: largeFlag
+    });
+  });
+
+  await openApp(page);
+
+  // Warm the country asset cache, then measure the repeat selection.
+  await startGeneration(page, "Brazil", "BR");
+  await expect(page.locator(".palette-option")).toHaveCount(3);
+  await page.locator("#clear-search").click();
+
+  await searchCountry(page, "Brazil");
+
+  const option = page
+    .locator("#country-options [role='option']")
+    .filter({ hasText: "BR" })
+    .first();
+
+  const unthrottled = await measureCachedSelection(page, option);
+
+  await page.locator("#clear-search").click();
+  await searchCountry(page, "Brazil");
+
+  const session = await page.context().newCDPSession(page);
+
+  await session.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+
+  const throttled = await measureCachedSelection(
+    page,
+    page
+      .locator("#country-options [role='option']")
+      .filter({ hasText: "BR" })
+      .first()
+  );
+
+  await session.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+
+  testInfo.annotations.push({
+    type: "measurement",
+    description: `flag ${largeFlag.length} bytes; 1x ${unthrottled.duration.toFixed(1)} ms (longest task ${unthrottled.longestTask.toFixed(1)} ms); 4x ${throttled.duration.toFixed(1)} ms (longest task ${throttled.longestTask.toFixed(1)} ms)`
+  });
+
+  console.log(
+    `PERF flag=${largeFlag.length}B 1x=${unthrottled.duration.toFixed(1)}ms/${unthrottled.longestTask.toFixed(1)}ms 4x=${throttled.duration.toFixed(1)}ms/${throttled.longestTask.toFixed(1)}ms`
+  );
+
+  expect(unthrottled.duration).toBeLessThan(16);
+  expect(throttled.longestTask).toBeLessThan(50);
+});
+
+test("lightweight thumbnails never leak into the exported output", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagRoute(page);
+  await openApp(page);
+
+  await selectCountry(page, "Brazil", "BR");
+
+  // The three thumbnails share one runtime flag resource and carry no
+  // export-grade payload of their own.
+  const thumbnails = await page
+    .locator(".palette-thumbnail")
+    .evaluateAll(elements =>
+      elements.map(element => ({
+        svgCount: element.querySelectorAll("svg").length,
+        source: element.querySelector("img")?.getAttribute("src") ?? "",
+        background: element.style.backgroundColor
+      }))
+    );
+
+  expect(thumbnails).toHaveLength(3);
+  expect(thumbnails.every(thumbnail => thumbnail.svgCount === 0)).toBe(true);
+  expect(new Set(thumbnails.map(thumbnail => thumbnail.source)).size).toBe(1);
+  expect(thumbnails[0].source.startsWith("blob:")).toBe(true);
+  expect(new Set(thumbnails.map(thumbnail => thumbnail.background)).size).toBe(3);
+
+  const hexes = await getPaletteHexes(page);
+
+  await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
+    "fill",
+    hexes[0]
+  );
+
+  const download = await downloadCurrentFile(page);
+  const svgText = await import("node:fs/promises").then(fs =>
+    download.path().then(path => fs.readFile(path, "utf8"))
+  );
+
+  expect(svgText).toContain('viewBox="0 0 1024 1024"');
+  expect(svgText).toContain("data:image/svg+xml;base64,");
+  expect(svgText).not.toContain("blob:");
+  expect(svgText).not.toMatch(/href="https?:\/\//);
+
+  const copied = await page.evaluate(async () => {
+    const button = document.querySelector("#copy-button");
+    let captured = "";
+
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async value => { captured = value; } },
+      configurable: true
+    });
+
+    button.click();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    return captured;
+  });
+
+  expect(copied).toContain("data:image/svg+xml;base64,");
+  expect(copied).not.toContain("blob:");
+
+  // Switching color recomposes only the selected export.
+  await page.locator(".palette-option").nth(2).click();
+  await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
+    "fill",
+    hexes[2]
+  );
+
+  const revoked = await page.evaluate(async () => {
+    const before = document.querySelector(".palette-thumbnail img").src;
+
+    document.querySelector("#clear-search").click();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    const response = await fetch(before).then(
+      () => "still-live",
+      () => "revoked"
+    );
+
+    return response;
+  });
+
+  expect(revoked).toBe("revoked");
+});

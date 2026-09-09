@@ -28,16 +28,25 @@ function textToBase64(value) {
   return btoa(binary);
 }
 
+// Encoding a flag is the expensive part of composing a badge, and the result
+// only depends on the flag. Preparing it once per loaded country asset lets
+// every later composition reuse it.
+export function createFlagDataUri(flagSvgText) {
+  return `data:image/svg+xml;base64,${textToBase64(flagSvgText)}`;
+}
+
 export function createBadgeSvg({
   code,
   countryName,
   flagSvgText,
+  flagDataUri,
   backgroundHex,
   idPrefix = `badge-${code.toLowerCase()}`
 }) {
   const flagX = (SVG_SIZE - FLAG_BOX_WIDTH) / 2;
   const flagY = (SVG_SIZE - FLAG_BOX_HEIGHT) / 2;
-  const flagData = textToBase64(flagSvgText);
+  const flagHref =
+    flagDataUri ?? createFlagDataUri(flagSvgText);
   const titleId = `${idPrefix}-title`;
   const descriptionId = `${idPrefix}-description`;
   const shadowId = `${idPrefix}-flag-shadow`;
@@ -79,7 +88,7 @@ export function createBadgeSvg({
   />
 
   <image
-    href="data:image/svg+xml;base64,${flagData}"
+    href="${flagHref}"
     x="${flagX}"
     y="${flagY}"
     width="${FLAG_BOX_WIDTH}"
