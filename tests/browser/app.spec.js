@@ -929,3 +929,52 @@ test("the background palette is one exclusive radio group with decorative thumbn
   expect(new Set(cardBases).size).toBe(1);
   expect(cardBases.length).toBe(6);
 });
+
+test("a reload reuses the cached catalog instead of refetching the source", async ({
+  page
+}) => {
+  const tracker = await installCatalogRoute(page, [{ ok: true }]);
+
+  await openApp(page);
+  await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
+  expect(tracker.attempts).toBe(1);
+
+  await page.reload({ waitUntil: "networkidle" });
+
+  await expect(page.locator("#country-search")).toBeEnabled();
+  await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
+  expect(tracker.attempts).toBe(1);
+
+  const cached = await page.evaluate(() => {
+    const raw = sessionStorage.getItem(
+      "country-badge-generator.country-catalog.v2"
+    );
+    const record = JSON.parse(raw);
+
+    return {
+      schemaVersion: record.schemaVersion,
+      keys: Object.keys(record.countries[0]).sort(),
+      legacy: sessionStorage.getItem(
+        "country-badge-generator.country-data.v1"
+      )
+    };
+  });
+
+  expect(cached.schemaVersion).toBe(2);
+  expect(cached.legacy).toBeNull();
+  expect(cached.keys).toEqual([
+    "altSpellings",
+    "code",
+    "emoji",
+    "flagUrl",
+    "name",
+    "officialName",
+    "population",
+    "searchTerms"
+  ]);
+
+  await searchCountry(page, "Brazil");
+  await expect(
+    page.locator("#country-options [role='option']").first()
+  ).toContainText("BR");
+});

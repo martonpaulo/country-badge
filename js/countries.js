@@ -125,6 +125,62 @@ export function createCountryCatalog(
   return countries;
 }
 
+// The session cache stores the normalized catalog, so a hit must be validated
+// as the consumable shape instead of being rebuilt from source records. A
+// record that fails any check is rejected as a whole, so a structurally
+// plausible but incomplete cache falls back to the remote source.
+function isConsumableCountry(country) {
+  return (
+    Boolean(country) &&
+    typeof country.code === "string" &&
+    /^[A-Z]{2}$/.test(country.code) &&
+    typeof country.emoji === "string" &&
+    country.emoji.length > 0 &&
+    typeof country.name === "string" &&
+    country.name.length > 0 &&
+    typeof country.officialName === "string" &&
+    Number.isFinite(country.population) &&
+    Array.isArray(country.altSpellings) &&
+    country.altSpellings.every(
+      spelling => typeof spelling === "string"
+    ) &&
+    typeof country.flagUrl === "string" &&
+    country.flagUrl.startsWith("https://") &&
+    Array.isArray(country.searchTerms) &&
+    country.searchTerms.length > 0 &&
+    country.searchTerms.every(
+      term => typeof term === "string" && term.length > 0
+    )
+  );
+}
+
+export function validateCountryCatalog(
+  countries,
+  { minCountries = 100 } = {}
+) {
+  if (
+    !Array.isArray(countries) ||
+    countries.length < minCountries
+  ) {
+    return null;
+  }
+
+  const codes = new Set();
+
+  for (const country of countries) {
+    if (
+      !isConsumableCountry(country) ||
+      codes.has(country.code)
+    ) {
+      return null;
+    }
+
+    codes.add(country.code);
+  }
+
+  return countries;
+}
+
 function scoreCountry(country, normalizedQuery) {
   const normalizedCode =
     country.code.toLowerCase();
