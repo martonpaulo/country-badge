@@ -1220,3 +1220,80 @@ test("a palette retry does not steal focus the user moved elsewhere", async ({
   );
   await expect(page.locator("#country-search")).toBeFocused();
 });
+
+// Integration through the public facade: SVG decode and canvas sampling are
+// browser-only, so these fixtures pin the exact ordered result the extracted
+// sampler and policy must keep producing. The selection branches themselves
+// are covered without a browser in tests/unit/palette-policy.test.js.
+const SAMPLED_FLAG_FIXTURES = {
+  tricolorHorizontal: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 3"><rect width="3" height="1" fill="#D52B1E"/><rect y="1" width="3" height="1" fill="#F9E300"/><rect y="2" width="3" height="1" fill="#007934"/></svg>`,
+    hexes: ["#FACC15", "#22C55E", "#EF4444"]
+  },
+  tricolorVertical: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="#0055A4"/><rect x="1" width="1" height="2" fill="#FFFFFF"/><rect x="2" width="1" height="2" fill="#EF4135"/></svg>`,
+    hexes: ["#E0F2FE", "#EF4444", "#22D3EE"]
+  },
+  allWhite: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#FFFFFF"/></svg>`,
+    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"]
+  },
+  allBlack: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#000000"/></svg>`,
+    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"]
+  },
+  singleGreen: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#009739"/></svg>`,
+    hexes: ["#22C55E", "#D9F99D", "#FEF3C7"]
+  },
+  twoBlueYellow: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="1" fill="#0057B7"/><rect y="1" width="3" height="1" fill="#FFD700"/></svg>`,
+    hexes: ["#FACC15", "#E0F2FE", "#FEFCE8"]
+  },
+  fourColors: {
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 2"><rect width="1" height="2" fill="#7C3AED"/><rect x="1" width="1" height="2" fill="#0D9488"/><rect x="2" width="1" height="2" fill="#F97316"/><rect x="3" width="1" height="2" fill="#DB2777"/></svg>`,
+    hexes: ["#F97316", "#60A5FA", "#2DD4BF"]
+  }
+};
+
+test("sampling a flag through the facade keeps its exact ordered palette", async ({
+  page
+}) => {
+  await openApp(page);
+
+  const sampled = await page.evaluate(async fixtures => {
+    const { createDeterministicPalette } = await import("./js/palette.js");
+    const result = {};
+
+    for (const [name, fixture] of Object.entries(fixtures)) {
+      result[name] = (await createDeterministicPalette(fixture.svg)).map(
+        option => option.hex
+      );
+    }
+
+    return result;
+  }, SAMPLED_FLAG_FIXTURES);
+
+  for (const [name, fixture] of Object.entries(SAMPLED_FLAG_FIXTURES)) {
+    expect(sampled[name], name).toEqual(fixture.hexes);
+  }
+});
+
+test("a flag the browser cannot decode fails instead of returning a palette", async ({
+  page
+}) => {
+  await openApp(page);
+
+  const outcome = await page.evaluate(async () => {
+    const { createDeterministicPalette } = await import("./js/palette.js");
+
+    try {
+      await createDeterministicPalette("not an svg at all");
+      return "resolved";
+    } catch (error) {
+      return error.message;
+    }
+  });
+
+  expect(outcome).toMatch(/could not be prepared|could not be processed/);
+});
