@@ -364,6 +364,26 @@ test("layout remains usable at desktop and mobile viewports", async ({ page, vie
 
     expect(touchTargets.every(rect => rect.height >= 44)).toBe(true);
   }
+
+  // Compact density is expressed by scoped token overrides, so the panels must
+  // resolve to the compact padding and radius below 641px and to the base
+  // values above it.
+  const panel = await page.locator(".controls-panel").evaluate(element => {
+    const style = getComputedStyle(element);
+
+    return {
+      padding: style.paddingTop,
+      radius: style.borderTopLeftRadius
+    };
+  });
+
+  if (viewport.width <= 640) {
+    expect(panel).toEqual({ padding: "16px", radius: "15px" });
+  } else if (viewport.height > 900) {
+    expect(panel).toEqual({ padding: "22px", radius: "18px" });
+  } else {
+    expect(panel).toEqual({ padding: "16px", radius: "18px" });
+  }
 });
 
 test("the source note credits both data sources", async ({ page, viewport }) => {

@@ -170,3 +170,46 @@ test("no consumer bypasses the text or elevation roles with a literal", () => {
     "focus must come from the focus-ring role"
   );
 });
+
+test("recurring scales are declared once and no consumer restates them", () => {
+  const scales = [
+    "--motion-fast",
+    "--gap-compact",
+    "--text-support",
+    "--weight-strong",
+    "--panel-padding"
+  ];
+
+  for (const scale of scales) {
+    assert.ok(tokens.has(scale), `${scale} must be declared`);
+
+    const declarations = stylesheet.match(
+      new RegExp(`${scale}:`, "g")
+    );
+
+    assert.equal(
+      declarations.length,
+      scale === "--panel-padding" ? 3 : 1,
+      `${scale} must have one owner plus its scoped overrides only`
+    );
+  }
+
+  const components = stylesheet.slice(stylesheet.indexOf("@layer components"));
+
+  assert.doesNotMatch(components, /\b150ms\b/, "motion must use --motion-fast");
+  assert.doesNotMatch(components, /gap: 10px/, "compact gaps must use --gap-compact");
+  assert.doesNotMatch(components, /font-size: 0\.86rem/, "support text must use --text-support");
+  assert.doesNotMatch(components, /font-weight: 7\d\d/, "strong weight must use --weight-strong");
+  assert.doesNotMatch(components, /padding: 22px/, "panel padding must use --panel-padding");
+  assert.doesNotMatch(components, /border-radius: 15px/, "compact panels must override --radius-lg");
+});
+
+test("reduced motion stays the final authority over transitions", () => {
+  const reducedMotion = stylesheet.match(
+    /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\s{2}\}/
+  );
+
+  assert.ok(reducedMotion, "the reduced-motion override must remain");
+  assert.match(reducedMotion[0], /transition-duration: 1ms !important;/);
+  assert.match(reducedMotion[0], /animation-duration: 1ms !important;/);
+});
