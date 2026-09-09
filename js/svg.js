@@ -205,14 +205,25 @@ export async function copyText(value) {
     return;
   }
 
+  // The deprecated fallback reports failure through its return value, so a
+  // false result must not resolve as a copy, and the temporary node has to go
+  // on every exit path.
   const textarea = document.createElement("textarea");
   textarea.value = value;
   textarea.setAttribute("readonly", "");
   textarea.style.position = "fixed";
   textarea.style.opacity = "0";
 
-  document.body.append(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  textarea.remove();
+  try {
+    document.body.append(textarea);
+    textarea.select();
+
+    if (document.execCommand("copy") !== true) {
+      throw new Error(
+        "The SVG could not be copied in this browser."
+      );
+    }
+  } finally {
+    textarea.remove();
+  }
 }

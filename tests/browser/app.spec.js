@@ -789,3 +789,35 @@ test("a raster download reports the file it captured, not the next format", asyn
 
   await page.getByLabel("SVG").check();
 });
+
+test("a rejected clipboard copy reports failure and leaves downloads working", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagRoute(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: undefined,
+      configurable: true
+    });
+
+    document.execCommand = () => false;
+  });
+  await openApp(page);
+
+  await selectCountry(page, "Brazil", "BR");
+
+  await page.locator("#copy-button").click();
+
+  await expect(page.locator("#status-message")).toHaveText(
+    "The SVG could not be copied in this browser."
+  );
+  await expect(page.locator("#status-message")).toHaveAttribute("data-state", "error");
+  await expect(page.locator("body > textarea")).toHaveCount(0);
+
+  await expect(page.locator("#download-button")).toBeEnabled();
+
+  const download = await downloadCurrentFile(page);
+
+  expect(download.suggestedFilename()).toBe("BR.svg");
+});
