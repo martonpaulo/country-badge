@@ -1,9 +1,29 @@
+# Cheap validation: the Node test suite only. It needs no browser download, so
+# it runs on every change that can affect it.
+#
+# The expensive Chromium acceptance suite lives in `browser.yml` and is gated on
+# the paths it can actually observe. Splitting them keeps a documentation-only
+# change from downloading a browser to prove nothing.
 name: Validate
 
 on:
   pull_request:
+    paths:
+      - "css/**"
+      - "js/**"
+      - "tests/unit/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/validate.yml"
   push:
     branches: [main]
+    paths:
+      - "css/**"
+      - "js/**"
+      - "tests/unit/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/validate.yml"
 
 permissions:
   contents: read
@@ -28,8 +48,5 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Install Chromium for Testing
-        run: npx playwright install --with-deps --no-shell chromium
-
-      - name: Run validation
-        run: npm test
+      - name: Run unit tests
+        run: npm run test:unit

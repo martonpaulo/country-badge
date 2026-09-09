@@ -1,0 +1,64 @@
+# Expensive validation: the Chromium for Testing acceptance suite. It downloads
+# a browser and its system dependencies, so it is gated on the paths it can
+# observe — the served application, the browser tests, and the harness that
+# serves and configures them.
+#
+# A change outside those paths cannot change what this suite asserts, so it does
+# not run. The cheap Node suite is in `validate.yml`.
+name: Browser suite
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "css/**"
+      - "js/**"
+      - "tests/browser/**"
+      - "tests/support/**"
+      - "playwright.config.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/browser.yml"
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "css/**"
+      - "js/**"
+      - "tests/browser/**"
+      - "tests/support/**"
+      - "playwright.config.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/browser.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium for Testing
+        run: npx playwright install --with-deps --no-shell chromium
+
+      - name: Run the browser suite
+        run: npm run test:browser

@@ -24,7 +24,7 @@
 - Merge policy: squash merge only. The pull request title and leading `Closes` block preserve the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
-- Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit, and the `validate` workflow confirms each push.
+- Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit. In CI the cheap Node suite (`validate`) and the expensive Chromium suite (`browser-suite`) are separate workflows, each triggered only by the paths it can observe.
 - Release, signing, and secret-storage policy: GitHub Pages publishes the static site from `main`; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
 - Skills baseline revision: `18c3ac96955f83dfc985e180841c7896e23836da`
 - Skills baseline applied: `2026-09-04`
