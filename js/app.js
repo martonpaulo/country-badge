@@ -796,37 +796,46 @@ async function downloadSelectedOutput() {
     return;
   }
 
-  const format = getOutputFormat();
+  // Raster encoding is asynchronous and the user may pick the next format
+  // while it runs, so the operation reports the file it actually captured
+  // rather than whatever the controls hold when it settles.
+  const operation = {
+    format: getOutputFormat(),
+    fileName: state.outputFileName,
+    svgText: state.selectedSvg,
+    isVector: state.outputFormat === "svg"
+  };
+
   elements.downloadButton.disabled = true;
 
   try {
-    if (state.outputFormat === "svg") {
+    if (operation.isVector) {
       downloadSvg(
-        state.outputFileName,
-        state.selectedSvg
+        operation.fileName,
+        operation.svgText
       );
     } else {
       setStatus(
-        `Preparing ${format.label} download...`
+        `Preparing ${operation.fileName}...`
       );
 
       await downloadRasterizedSvg({
-        fileName: state.outputFileName,
-        svgText: state.selectedSvg,
-        mimeType: format.mimeType,
-        quality: format.quality
+        fileName: operation.fileName,
+        svgText: operation.svgText,
+        mimeType: operation.format.mimeType,
+        quality: operation.format.quality
       });
     }
 
     setStatus(
-      `Downloaded ${state.outputFileName}.`,
+      `Downloaded ${operation.fileName}.`,
       "success"
     );
   } catch (error) {
     setStatus(
       error instanceof Error
         ? error.message
-        : `${format.label} could not be downloaded in this browser.`,
+        : `${operation.fileName} could not be downloaded in this browser.`,
       "error"
     );
   } finally {

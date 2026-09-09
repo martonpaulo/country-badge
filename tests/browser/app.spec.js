@@ -728,3 +728,64 @@ test("a touch drag scrolls the suggestion list instead of selecting a country", 
   await expect(list).toBeHidden();
   await expect(page.locator("#output-name")).toHaveText(`${tapTarget.code}.svg`);
 });
+
+// Holds the raster encoding open so the next format can be selected while an
+// export is still pending.
+async function deferRasterEncoding(page) {
+  await page.addInitScript(() => {
+    const original = HTMLCanvasElement.prototype.toBlob;
+
+    window.__pendingEncodings = [];
+    window.__releaseEncoding = () => {
+      const pending = window.__pendingEncodings.shift();
+      pending?.();
+    };
+
+    HTMLCanvasElement.prototype.toBlob = function deferredToBlob(...args) {
+      window.__pendingEncodings.push(() => original.apply(this, args));
+    };
+  });
+}
+
+test("a raster download reports the file it captured, not the next format", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagRoute(page);
+  await deferRasterEncoding(page);
+  await openApp(page);
+
+  await selectCountry(page, "Brazil", "BR");
+
+  const status = page.locator("#status-message");
+  const outputName = page.locator("#output-name");
+
+  for (const step of [
+    { from: "PNG", to: "JPG" },
+    { from: "JPG", to: "PNG" }
+  ]) {
+    const started = step.from.toLowerCase();
+    const next = step.to.toLowerCase();
+
+    await page.getByLabel(step.from).check();
+    await expect(outputName).toHaveText(`BR.${started}`);
+
+    const downloadPromise = page.waitForEvent("download");
+
+    await page.locator("#download-button").click();
+    await expect(status).toHaveText(`Preparing BR.${started}...`);
+
+    await page.getByLabel(step.to).check();
+    await expect(outputName).toHaveText(`BR.${next}`);
+
+    await page.evaluate(() => window.__releaseEncoding());
+
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toBe(`BR.${started}`);
+    await expect(status).toHaveText(`Downloaded BR.${started}.`);
+    await expect(outputName).toHaveText(`BR.${next}`);
+  }
+
+  await page.getByLabel("SVG").check();
+});
