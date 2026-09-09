@@ -7,7 +7,7 @@
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge-generator` (public)
 - Public identifiers: repository slug `country-badge-generator`; the private npm package name is development metadata, not a published package.
-- Landing page: `https://martonpaulo.github.io/country-badge-generator/`, hosted from `main:/` by GitHub Pages in this repository.
+- Landing page: `https://martonpaulo.com/country-badge-generator/`, hosted from `main:/` by GitHub Pages in this repository. The `github.io` address redirects here, so the canonical, `og:`/`twitter:` and sitemap references all use the custom domain.
 - License: `MIT`
 - Copyright: 2026 Marton Paulo
 - Development language: English.

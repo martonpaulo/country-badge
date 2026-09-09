@@ -67,6 +67,14 @@ const SHOTS = [
 
 const COUNTRY = "Brazil";
 
+// The social card is a composed graphic, not a window, so it is rendered
+// offscreen at the exact size the social platforms crop to.
+const SOCIAL_CARD = {
+  width: 1200,
+  height: 630,
+  output: "social-card.png"
+};
+
 function run(command, args) {
   return execFileSync(command, args, { encoding: "utf8" }).trim();
 }
@@ -165,6 +173,59 @@ async function captureShot(shot, baseURL, workingDirectory) {
   console.log(`${shot.name}: ${published}`);
 }
 
+async function captureSocialCard(baseURL) {
+  const browser = await chromium.launch({
+    headless: true,
+    channel: "chromium"
+  });
+
+  try {
+    const page = await browser.newPage({
+      viewport: SOCIAL_CARD,
+      deviceScaleFactor: 1
+    });
+
+    await page.setContent(`<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    width: ${SOCIAL_CARD.width}px;
+    height: ${SOCIAL_CARD.height}px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 64px;
+    gap: 40px;
+    background: linear-gradient(140deg, #eef3f8, #f6f7fb 60%, #e7f0ff);
+    color: #18202d;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  h1 { font-size: 62px; font-weight: 760; line-height: 1.04; letter-spacing: -0.02em; }
+  p { margin-top: 22px; font-size: 27px; line-height: 1.35; color: #465365; }
+  img { width: 100%; }
+</style></head>
+<body>
+  <div>
+    <h1>Country Badge Generator</h1>
+    <p>Three deterministic, flag-inspired backgrounds for any country. Download SVG, PNG, or JPG.</p>
+  </div>
+  <img src="${baseURL}assets/screenshots/desktop.webp" alt="">
+</body>
+</html>`);
+
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({
+      path: join(OUTPUT_DIRECTORY, "..", SOCIAL_CARD.output),
+      type: "png"
+    });
+
+    console.log(`social card: assets/${SOCIAL_CARD.output}`);
+  } finally {
+    await browser.close();
+  }
+}
+
 const workingDirectory = join(
   tmpdir(),
   `country-badge-generator-shots-${process.pid}`
@@ -189,6 +250,8 @@ try {
   for (const shot of SHOTS) {
     await captureShot(shot, baseURL, workingDirectory);
   }
+
+  await captureSocialCard(baseURL);
 } finally {
   staticServer.kill();
   removeServeRoot();
