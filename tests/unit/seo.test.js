@@ -19,7 +19,7 @@ const robots = await readFile(
 
 // The one URL that answers 200: the site's own subdomain. The github.io
 // address is only the DNS target, so nothing may point at it.
-const CANONICAL = "https://badges.martonpaulo.com/";
+const CANONICAL = "https://countrybadge.martonpaulo.com/";
 
 function metaContent(attribute, name) {
   const match = page.match(

@@ -145,7 +145,7 @@ for repository policy, validation, and contribution rules.
 The project is published by GitHub Pages at:
 
 ```text
-https://badges.martonpaulo.com/
+https://countrybadge.martonpaulo.com/
 ```
 
 Deployment requirements:

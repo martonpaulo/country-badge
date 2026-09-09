@@ -7,7 +7,7 @@
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge` (public)
 - Public identifiers: repository slug `country-badge`; the private npm package name is development metadata, not a published package.
-- Landing page: `https://badges.martonpaulo.com/`, hosted from `main:/` by GitHub Pages in this repository (custom domain in `CNAME`). The canonical, `og:`/`twitter:`, sitemap and robots references all use that origin.
+- Landing page: `https://countrybadge.martonpaulo.com/`, hosted from `main:/` by GitHub Pages in this repository (custom domain in `CNAME`). The canonical, `og:`/`twitter:`, sitemap and robots references all use that origin.
 - License: `MIT`
 - Copyright: 2026 Marton Paulo
 - Development language: English.

@@ -30,7 +30,7 @@ The product succeeds when a user can select a supported country, compare three v
 
 ## Constraints
 
-- GitHub Pages serves the repository root at `https://badges.martonpaulo.com/`.
+- GitHub Pages serves the repository root at `https://countrybadge.martonpaulo.com/`.
 - All product processing happens in the browser.
 - Country data comes from the pinned `world-countries` source; flags come from FlagCDN.
 - Local modules and assets use relative URLs.
