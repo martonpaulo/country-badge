@@ -2,6 +2,7 @@
   "name": "country-badge-generator",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "start": "python3 -m http.server 8080",

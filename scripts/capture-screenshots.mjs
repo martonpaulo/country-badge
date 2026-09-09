@@ -36,10 +36,7 @@ import { fileURLToPath } from "node:url";
 
 import { chromium } from "@playwright/test";
 
-import {
-  removeServeRoot,
-  resolveServeTarget
-} from "../tests/support/static-server.js";
+import { resolveServeTarget } from "../tests/support/static-server.js";
 
 // A fixed port keeps the address bar in the capture identical between runs.
 const SERVE_PORT = "4173";
@@ -254,6 +251,5 @@ try {
   await captureSocialCard(baseURL);
 } finally {
   staticServer.kill();
-  removeServeRoot();
   rmSync(workingDirectory, { recursive: true, force: true });
 }

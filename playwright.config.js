@@ -6,7 +6,6 @@ const { command, baseURL } = await resolveServeTarget();
 
 export default defineConfig({
   testDir: "./tests/browser",
-  globalTeardown: "./tests/support/global-teardown.js",
   timeout: 90_000,
   expect: {
     timeout: 10_000

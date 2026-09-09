@@ -94,15 +94,14 @@ npm run test:browser
 npm test
 ```
 
-Browser tests serve the checkout through a temporary directory under the
-`/country-badge-generator/` path segment, on a port chosen at run time:
+Browser tests serve the checkout at the site root, on a port chosen at run time:
 
 ```text
-http://127.0.0.1:<port>/country-badge-generator/
+http://127.0.0.1:<port>/
 ```
 
-That mirrors the GitHub Pages repository subpath without depending on the checkout directory's own
-name, so the suite runs from a Git worktree and from two checkouts at the same time.
+That mirrors the published origin, and the run-time port lets two checkouts run the suite at the
+same time.
 
 Browser acceptance targets the Playwright-owned Chromium for Testing build. Brave, Gecko, WebKit,
 and installed branded Chrome builds are not acceptance targets.
@@ -143,16 +142,16 @@ for repository policy, validation, and contribution rules.
 
 ## GitHub Pages Deployment
 
-The project is designed for GitHub Pages at:
+The project is published by GitHub Pages at:
 
 ```text
-https://martonpaulo.github.io/country-badge-generator/
+https://country-badge.martonpaulo.com/
 ```
 
 Deployment requirements:
 
 - Serve files directly from the repository root.
-- Keep `.nojekyll` in place.
+- Keep `CNAME` and `.nojekyll` in place.
 - Keep all local asset and module paths relative, such as `./js/app.js`.
 - Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or routing rewrites.
 

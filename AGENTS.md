@@ -5,9 +5,9 @@
 - Project name: `country-badge-generator`
 - Public name: `Country Badge Generator`
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
-- Repository: `martonpaulo/country-badge-generator` (public)
-- Public identifiers: repository slug `country-badge-generator`; the private npm package name is development metadata, not a published package.
-- Landing page: `https://martonpaulo.com/country-badge-generator/`, hosted from `main:/` by GitHub Pages in this repository. The `github.io` address redirects here, so the canonical, `og:`/`twitter:` and sitemap references all use the custom domain.
+- Repository: `martonpaulo/country-badge` (public)
+- Public identifiers: repository slug `country-badge`; the private npm package name is development metadata, not a published package.
+- Landing page: `https://country-badge.martonpaulo.com/`, hosted from `main:/` by GitHub Pages in this repository (custom domain in `CNAME`). The canonical, `og:`/`twitter:`, sitemap and robots references all use that origin.
 - License: `MIT`
 - Copyright: 2026 Marton Paulo
 - Development language: English.
@@ -43,7 +43,7 @@ Treat these values as stable project decisions. Change an established identifier
 ## Existing project patterns
 
 - Keep the app static: HTML, CSS, and native ES modules served directly from the repository root.
-- Keep all local module and asset URLs relative so GitHub Pages works under the repository subpath.
+- Keep all local module and asset URLs relative so the site works from any origin or path.
 - Keep external I/O in focused adapters such as `country-service.js` and `flag-service.js`; keep deterministic country and palette rules out of transport code.
 - Keep `app.js` as the composition and DOM-event boundary. Move substantial pure policy or reusable service behavior behind a smaller module interface instead of adding more unrelated responsibility there.
 - Surface recoverable failures through the existing field or global status elements. Do not hide a failure behind a success-shaped default.

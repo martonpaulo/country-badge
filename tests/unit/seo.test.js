@@ -12,9 +12,14 @@ const sitemap = await readFile(
   "utf8"
 );
 
-// The one URL that answers 200: the github.io address redirects to the
-// account's custom domain, so nothing may point at it.
-const CANONICAL = "https://martonpaulo.com/country-badge-generator/";
+const robots = await readFile(
+  new URL("../../robots.txt", import.meta.url),
+  "utf8"
+);
+
+// The one URL that answers 200: the site's own subdomain. The github.io
+// address is only the DNS target, so nothing may point at it.
+const CANONICAL = "https://country-badge.martonpaulo.com/";
 
 function metaContent(attribute, name) {
   const match = page.match(
@@ -95,6 +100,12 @@ test("the sitemap lists the canonical URL and nothing outside it", () => {
   );
 
   assert.deepEqual(locations, [CANONICAL]);
+});
+
+test("robots.txt allows crawling and points at the sitemap", () => {
+  assert.match(robots, /^User-agent: \*$/m);
+  assert.match(robots, /^Allow: \/$/m);
+  assert.match(robots, new RegExp(`^Sitemap: ${CANONICAL}sitemap.xml$`, "m"));
 });
 
 test("the document has one first-level heading and a flat section hierarchy", () => {
