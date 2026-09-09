@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://country-badge.martonpaulo.com/sitemap.xml
+Sitemap: https://badges.martonpaulo.com/sitemap.xml
