@@ -13,9 +13,9 @@
 - Development language: English.
 - Product copy: English only; there is no localization layer. English is the fallback language.
 - Browser acceptance: Chromium only, using the Playwright-owned Chromium for Testing build. Do not use Brave as an acceptance browser. Gecko and WebKit are not supported acceptance targets.
-- Branch policy: issue and setup work uses short-lived branches and pull requests into `main`; agents never push directly to `main`.
+- Branch policy: the owner and the owner's agents commit validated work directly to `main` in focused single-concern commits. Short-lived branches and pull requests remain available for work that benefits from review, and are required for any outside contributor.
 - Commit policy: commit authorized work automatically when its required validation passes. Use Conventional Commits and keep each commit to one concern.
-- Push policy: push validated, explicitly authorized branch work automatically when publication is needed to open or update its pull request. Never push unrelated work or a worker branch to `main`.
+- Push policy: push explicitly authorized work automatically once its required validation passes. Never push unrelated work or an unvalidated commit.
 - Product versioning: unversioned. `package.json` version `1.0.0` is non-public development metadata and changes only if an explicit release policy is introduced.
 - Agent automation: `enabled`
 - Implementation agent: `claude`
@@ -24,7 +24,7 @@
 - Merge policy: squash merge only. The pull request title and leading `Closes` block preserve the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
-- Required review policy: require one approving review and the `validate` and `pr-conventions` checks before merge once GitHub App installation and branch protection are verified. Auto-merge remains disarmed until then.
+- Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit, and the `validate` workflow confirms each push.
 - Release, signing, and secret-storage policy: GitHub Pages publishes the static site from `main`; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
 - Skills baseline revision: `18c3ac96955f83dfc985e180841c7896e23836da`
 - Skills baseline applied: `2026-09-04`
@@ -164,7 +164,7 @@ Rules for any executor working from a clone of this repository:
 - Restore dependencies with `npm ci`; run tests with `npm test`. No separate lint command is configured.
 - Use Chromium for Testing through the Playwright-owned `chromium` browser and channel. Never substitute Brave.
 - Branch as `<type>/<agent>/issue-<n>/<short-slug>`; commit with a Conventional Commit subject ending in `(#<n>)`.
-- Never push to `main` and never merge. Open or update the pull request and stop.
+- Commit to `main` only after the complete suite passes; an outside contributor opens a pull request instead.
 - Start the PR body with one `Closes #<n>` line per resolved issue, then record the problem, implementation, tests with results, and residual risk.
 - Do not touch `.ao/` or `.github/workflows/` during ordinary issue implementation.
 - `AGENTS.md` is protected by section: `## Project identity and policy` is governance and never changes under an executor. Other sections update only when the delivered code would make a recorded pattern untrue.
