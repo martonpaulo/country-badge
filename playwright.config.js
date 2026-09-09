@@ -1,20 +1,25 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { resolveServeTarget } from "./tests/support/static-server.js";
+
+const { command, baseURL } = await resolveServeTarget();
+
 export default defineConfig({
   testDir: "./tests/browser",
+  globalTeardown: "./tests/support/global-teardown.js",
   timeout: 90_000,
   expect: {
     timeout: 10_000
   },
   webServer: {
-    command: "python3 -m http.server 4173 --directory ..",
-    url: "http://127.0.0.1:4173/country-badge-generator/",
+    command,
+    url: baseURL,
     reuseExistingServer: false,
     stdout: "pipe",
     stderr: "pipe"
   },
   use: {
-    baseURL: "http://127.0.0.1:4173/country-badge-generator/",
+    baseURL,
     browserName: "chromium",
     channel: "chromium",
     trace: "retain-on-failure"

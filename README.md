@@ -85,13 +85,15 @@ npm run test:browser
 npm test
 ```
 
-Browser tests serve the repository from a parent directory and load:
+Browser tests serve the checkout through a temporary directory under the
+`/country-badge-generator/` path segment, on a port chosen at run time:
 
 ```text
-http://127.0.0.1:4173/country-badge-generator/
+http://127.0.0.1:<port>/country-badge-generator/
 ```
 
-That mirrors the GitHub Pages repository subpath.
+That mirrors the GitHub Pages repository subpath without depending on the checkout directory's own
+name, so the suite runs from a Git worktree and from two checkouts at the same time.
 
 Browser acceptance targets the Playwright-owned Chromium for Testing build. Brave, Gecko, WebKit,
 and installed branded Chrome builds are not acceptance targets.
