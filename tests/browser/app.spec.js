@@ -83,6 +83,10 @@ async function downloadCurrentFile(page) {
   ]).then(([downloadEvent]) => downloadEvent);
 }
 
+function paletteInputs(page) {
+  return page.locator('#palette-options input[name="badge-background"]');
+}
+
 async function getPaletteHexes(page) {
   return page.locator(".palette-hex").evaluateAll(elements =>
     elements.map(element => element.textContent.trim())
@@ -217,7 +221,7 @@ test("generates deterministic palettes, previews every option, and downloads sel
 
     for (let index = 0; index < 3; index += 1) {
       await page.locator(".palette-option").nth(index).click();
-      await expect(page.locator(".palette-option").nth(index)).toHaveAttribute("aria-pressed", "true");
+      await expect(paletteInputs(page).nth(index)).toBeChecked();
       await expect(page.locator("#selected-color")).toHaveText(hexes[index]);
 
       const previewColor = await page.locator("#preview-canvas > svg rect").getAttribute("fill");
@@ -820,4 +824,88 @@ test("a rejected clipboard copy reports failure and leaves downloads working", a
   const download = await downloadCurrentFile(page);
 
   expect(download.suggestedFilename()).toBe("BR.svg");
+});
+
+test("the background palette is one exclusive radio group with decorative thumbnails", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagRoute(page);
+  await openApp(page);
+
+  await selectCountry(page, "Brazil", "BR");
+
+  const group = page.locator('#palette-options [role="radiogroup"]');
+  const inputs = paletteInputs(page);
+
+  await expect(group).toHaveAttribute("aria-labelledby", "palette-title");
+  await expect(inputs).toHaveCount(3);
+  await expect(inputs.nth(0)).toBeChecked();
+
+  const names = await inputs.evaluateAll(elements =>
+    elements.map(element => element.name)
+  );
+
+  expect(new Set(names).size).toBe(1);
+
+  const accessibleNames = await page
+    .locator(".palette-option")
+    .evaluateAll(elements =>
+      elements.map(element => element.textContent.replace(/\s+/g, " ").trim())
+    );
+
+  const hexes = await getPaletteHexes(page);
+
+  accessibleNames.forEach((name, index) => {
+    expect(name).toContain(hexes[index]);
+  });
+
+  // Every thumbnail repeats the main preview, so only the preview should reach
+  // the accessibility tree as an image.
+  const exposedImages = await page.locator("svg[role='img']").evaluateAll(elements =>
+    elements.filter(element => !element.closest("[aria-hidden='true']")).length
+  );
+
+  expect(exposedImages).toBe(1);
+  await expect(page.locator("#preview-canvas > svg")).toHaveAttribute("role", "img");
+
+  // Arrow keys move a native radio group's selection and must move the preview.
+  await inputs.nth(0).focus();
+  await page.keyboard.press("ArrowRight");
+
+  await expect(inputs.nth(1)).toBeChecked();
+  await expect(page.locator("#selected-color")).toHaveText(hexes[1]);
+  await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
+    "fill",
+    hexes[1]
+  );
+
+  await page.keyboard.press("ArrowLeft");
+
+  await expect(inputs.nth(0)).toBeChecked();
+  await expect(page.locator("#selected-color")).toHaveText(hexes[0]);
+
+  await page.locator(".palette-option").nth(2).click();
+
+  await expect(inputs.nth(2)).toBeChecked();
+  await expect(inputs.nth(0)).not.toBeChecked();
+  await expect(page.locator("#selected-color")).toHaveText(hexes[2]);
+
+  const checkedCount = await inputs.evaluateAll(elements =>
+    elements.filter(element => element.checked).length
+  );
+
+  expect(checkedCount).toBe(1);
+
+  // The format control is the same exclusive-choice card, sharing one visual base.
+  const cardBases = await page.locator(".choice-card").evaluateAll(elements =>
+    elements.map(element => {
+      const style = getComputedStyle(element);
+
+      return `${style.borderRadius}|${style.borderTopWidth}|${style.minHeight}`;
+    })
+  );
+
+  expect(new Set(cardBases).size).toBe(1);
+  expect(cardBases.length).toBe(6);
 });

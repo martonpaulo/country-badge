@@ -436,14 +436,16 @@
   }
 
   .palette-options {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
     margin-top: 14px;
   }
 
+  .palette-choices {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
   .empty-state {
-    grid-column: 1 / -1;
     min-height: 96px;
     display: grid;
     place-items: center;
@@ -455,32 +457,56 @@
     text-align: center;
   }
 
-  .palette-option {
+  /* The palette and the file format are both exclusive choices, so their cards
+     share one appearance owner and keep only their own layout and content. */
+  .choice-card {
+    position: relative;
     min-width: 0;
     min-height: 44px;
-    padding: 8px;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     background: var(--surface);
-    color: var(--text);
-    text-align: left;
+    cursor: pointer;
     transition:
       border-color 150ms ease,
       background-color 150ms ease,
+      color 150ms ease,
       transform 150ms ease,
       box-shadow 150ms ease;
   }
 
-  .palette-option:hover {
+  .choice-card:hover {
     border-color: #8fb5ec;
     background: #fbfdff;
-    transform: translateY(-1px);
   }
 
-  .palette-option[aria-pressed="true"] {
+  .choice-card:has(input:checked) {
     border-color: var(--accent);
     background: var(--accent-soft);
     box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+  }
+
+  .choice-card:focus-within {
+    box-shadow: var(--focus);
+  }
+
+  .choice-card input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .palette-option {
+    display: block;
+    padding: 8px;
+    color: var(--text);
+    text-align: left;
+  }
+
+  .palette-option:hover {
+    transform: translateY(-1px);
   }
 
   .palette-thumbnail {
@@ -540,46 +566,15 @@
   }
 
   .format-option {
-    position: relative;
     display: grid;
-    min-height: 44px;
     place-items: center;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
     color: var(--text-soft);
-    cursor: pointer;
     font-size: 0.86rem;
     font-weight: 780;
-    transition:
-      background-color 150ms ease,
-      border-color 150ms ease,
-      color 150ms ease,
-      box-shadow 150ms ease;
   }
 
-  .format-option:hover {
-    border-color: #8fb5ec;
-    background: #fbfdff;
-  }
-
-  .format-option[data-selected="true"] {
-    border-color: var(--accent);
-    background: var(--accent-soft);
+  .format-option:has(input:checked) {
     color: var(--accent-strong);
-    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
-  }
-
-  .format-option input {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .format-option:focus-within {
-    box-shadow: var(--focus);
   }
 
   .detail-row {
@@ -878,7 +873,7 @@
       border-radius: 15px;
     }
 
-    .palette-options {
+    .palette-choices {
       grid-template-columns: 1fr;
     }
 

@@ -24,6 +24,8 @@ import {
 } from "./svg.js";
 
 const MAX_SUGGESTIONS = 8;
+
+const PALETTE_INPUT_NAME = "badge-background";
 const RECENT_COUNTRIES_KEY =
   "country-badge-generator.recent-countries.v1";
 
@@ -149,10 +151,6 @@ function refreshOutputDetails() {
         input.checked =
           input.value === state.outputFormat;
       }
-
-      option.dataset.selected = String(
-        input?.value === state.outputFormat
-      );
     });
 
   elements.downloadLabel.textContent =
@@ -476,16 +474,23 @@ function updateCountrySuggestions({
   }
 }
 
+// The three colors are one exclusive choice, so they are native radios in a
+// named group: assistive technology gets the `1 of 3` model and arrow-key
+// navigation for free. Each thumbnail repeats the main preview, so it stays
+// decorative and the preview remains the one meaningful badge image.
 function renderPalette() {
-  const fragment =
-    document.createDocumentFragment();
+  const choices = document.createElement("div");
 
-  elements.paletteOptions.replaceChildren();
+  choices.className = "palette-choices";
+  choices.setAttribute("role", "radiogroup");
+  choices.setAttribute(
+    "aria-labelledby",
+    "palette-title"
+  );
 
   state.palette.forEach((option, index) => {
-    const button =
-      document.createElement("button");
-
+    const card = document.createElement("label");
+    const input = document.createElement("input");
     const thumbnail =
       document.createElement("span");
 
@@ -498,19 +503,16 @@ function renderPalette() {
     const hex =
       document.createElement("span");
 
-    button.type = "button";
-    button.className = "palette-option";
-    button.dataset.index = String(index);
-    button.setAttribute(
-      "aria-pressed",
-      String(index === state.selectedPaletteIndex)
-    );
-    button.setAttribute(
-      "aria-label",
-      `${option.label}, ${option.hex}`
-    );
+    card.className = "choice-card palette-option";
+
+    input.type = "radio";
+    input.name = PALETTE_INPUT_NAME;
+    input.value = String(index);
+    input.checked =
+      index === state.selectedPaletteIndex;
 
     thumbnail.className = "palette-thumbnail";
+    thumbnail.setAttribute("aria-hidden", "true");
     thumbnail.innerHTML = createBadgeSvg({
       code: state.selectedCountry.code,
       countryName: state.selectedCountry.name,
@@ -529,11 +531,19 @@ function renderPalette() {
     hex.textContent = option.hex;
 
     meta.append(label, hex);
-    button.append(thumbnail, meta);
-    fragment.append(button);
+    card.append(input, thumbnail, meta);
+    choices.append(card);
   });
 
-  elements.paletteOptions.append(fragment);
+  elements.paletteOptions.replaceChildren(choices);
+}
+
+function getPaletteInputs() {
+  return [
+    ...elements.paletteOptions.querySelectorAll(
+      `input[name="${PALETTE_INPUT_NAME}"]`
+    )
+  ];
 }
 
 function updateSelectedOption(index) {
@@ -571,14 +581,9 @@ function updateSelectedOption(index) {
   elements.downloadButton.disabled = false;
   elements.copyButton.disabled = false;
 
-  elements.paletteOptions
-    .querySelectorAll(".palette-option")
-    .forEach((button, buttonIndex) => {
-      button.setAttribute(
-        "aria-pressed",
-        String(buttonIndex === index)
-      );
-    });
+  getPaletteInputs().forEach(input => {
+    input.checked = Number(input.value) === index;
+  });
 
   setStatus(
     `${option.label} is selected.`,
@@ -1040,19 +1045,17 @@ function bindEvents() {
   );
 
   elements.paletteOptions.addEventListener(
-    "click",
+    "change",
     event => {
-      const option = event.target.closest(
-        ".palette-option"
+      const input = event.target.closest(
+        `input[name="${PALETTE_INPUT_NAME}"]`
       );
 
-      if (!option) {
+      if (!input) {
         return;
       }
 
-      updateSelectedOption(
-        Number(option.dataset.index)
-      );
+      updateSelectedOption(Number(input.value));
     }
   );
 
