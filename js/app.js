@@ -77,6 +77,7 @@ const state = {
   countrySuggestions: [],
   activeSuggestionIndex: -1,
   suggestionGestureActive: false,
+  noResultsStatus: "",
   selectedCountry: null,
   flagSvgText: "",
   palette: [],
@@ -348,6 +349,39 @@ function renderNoResults() {
   openCountrySuggestions();
 }
 
+// The visible empty-state item lives in the listbox, which is not a live
+// region, so the field-associated status stays the single announcement owner.
+// Restoring only the exact message this function published keeps a selection,
+// a failure, or a retry status from being clobbered.
+function updateSearchResultStatus() {
+  const query = elements.input.value.trim();
+
+  if (
+    normalizeSearch(query) &&
+    state.countrySuggestions.length === 0
+  ) {
+    state.noResultsStatus = `No countries found for “${query}”.`;
+    setCountryStatus(
+      state.noResultsStatus,
+      "warning"
+    );
+    return;
+  }
+
+  if (
+    state.noResultsStatus &&
+    elements.countryStatus.textContent ===
+      state.noResultsStatus
+  ) {
+    setCountryStatus(
+      "Countries loaded.",
+      "success"
+    );
+  }
+
+  state.noResultsStatus = "";
+}
+
 function renderCountrySuggestions() {
   elements.countryOptions.replaceChildren();
   state.activeSuggestionIndex = -1;
@@ -432,6 +466,7 @@ function updateCountrySuggestions({
       );
 
   renderCountrySuggestions();
+  updateSearchResultStatus();
 
   if (
     activateFirst &&

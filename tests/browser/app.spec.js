@@ -130,9 +130,25 @@ test("combobox opens, filters, rejects free text, and supports keyboard and poin
 
   await input.fill("zzzzzz");
   await expect(page.locator(".country-no-results")).toHaveText("No countries found.");
+  await expect(page.locator("#country-status")).toHaveText(
+    "No countries found for \u201Czzzzzz\u201D."
+  );
+  await expect(page.locator("#country-status")).toHaveAttribute("data-state", "warning");
+  await expect(page.locator("#country-options [role='option']")).toHaveCount(0);
+  await expect(page.locator(".country-no-results")).not.toHaveAttribute("role", /.*/);
 
   await input.fill("Paraguay");
   await expect(page.locator("#country-options [role='option']").first()).toContainText("PY");
+  await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
+
+  await input.fill("zzzzzz");
+  await expect(page.locator("#country-status")).toHaveText(
+    "No countries found for \u201Czzzzzz\u201D."
+  );
+  await input.fill("");
+  await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
+
+  await input.fill("Paraguay");
 
   await input.press("ArrowDown");
   await expect(input).toHaveAttribute("aria-activedescendant", /country-option-/);
