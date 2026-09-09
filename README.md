@@ -133,6 +133,8 @@ it, and `cwebp`. The method and the reason for each step are documented at the t
 - The initial country catalog and uncached flags require network access.
 - Availability and CORS behavior of the two documented data sources remain external dependencies.
 - Browser behavior outside the recorded Chromium acceptance target is unverified.
+- The interface commits to one light visual direction; a dark colour-scheme preference is honored
+  by keeping the page light rather than by a separate dark theme.
 
 ## Project Contract
 

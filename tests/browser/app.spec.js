@@ -1521,3 +1521,49 @@ test("lightweight thumbnails never leak into the exported output", async ({
 
   expect(revoked).toBe("revoked");
 });
+
+test("the interface stays legible under a dark colour-scheme preference", async ({
+  browser,
+  viewport
+}) => {
+  const context = await browser.newContext({
+    viewport,
+    colorScheme: "dark"
+  });
+
+  const page = await context.newPage();
+
+  try {
+    await installCatalogRoute(page, [{ ok: true }]);
+    await installFlagRoute(page);
+    await openApp(page);
+    await selectCountry(page, "Brazil", "BR");
+
+    // The app commits to one light direction through `color-scheme: light`, so
+    // a dark preference must not repaint it into an unreadable hybrid.
+    const rendered = await page.evaluate(() => {
+      const body = getComputedStyle(document.body);
+      const panel = getComputedStyle(
+        document.querySelector(".controls-panel")
+      );
+
+      return {
+        scheme: getComputedStyle(document.documentElement).colorScheme,
+        bodyColor: body.color,
+        panelBackground: panel.backgroundColor,
+        overflows:
+          document.documentElement.scrollWidth > window.innerWidth
+      };
+    });
+
+    expect(rendered.scheme).toBe("light");
+    expect(rendered.bodyColor).toBe("rgb(24, 32, 45)");
+    expect(rendered.panelBackground).toBe("rgb(255, 255, 255)");
+    expect(rendered.overflows).toBe(false);
+
+    await expect(page.locator(".palette-option")).toHaveCount(3);
+    await expect(page.locator("#preview-canvas > svg")).toBeVisible();
+  } finally {
+    await context.close();
+  }
+});
