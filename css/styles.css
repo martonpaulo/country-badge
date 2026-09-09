@@ -52,7 +52,6 @@
     --border-strong: #b7c2d0;
     --text: #18202d;
     --text-soft: #465365;
-    --text-muted: #6f7d91;
     --accent: #1f6feb;
     --accent-soft: #e7f0ff;
     --accent-strong: #1456c8;
@@ -62,6 +61,26 @@
     --shadow: 0 18px 44px rgba(21, 35, 58, 0.11);
     --shadow-soft: 0 8px 22px rgba(21, 35, 58, 0.08);
     --focus: 0 0 0 4px rgba(31, 111, 235, 0.18);
+
+    /* Semantic roles. Each recurring decision has its own owner, so changing
+       an action, a focus ring, a selected state, or an elevation cannot move
+       an unrelated one. Text roles are chosen against every background they
+       are actually rendered on; tests/unit/styles.test.js proves the ratios. */
+    --text-muted: #626e80;
+    --text-placeholder: #69778a;
+    --icon-muted: #6f7d91;
+    --action-primary: var(--accent);
+    --action-primary-hover: var(--accent-strong);
+    --action-primary-text: #ffffff;
+    --focus-border: var(--accent);
+    --focus-ring: var(--focus);
+    --selected-border: var(--accent);
+    --selected-surface: var(--accent-soft);
+    --selected-text: var(--accent-strong);
+    --selected-ring: 0 0 0 3px rgba(31, 111, 235, 0.12);
+    --progress-indicator: var(--accent);
+    --elevation-panel: var(--shadow-soft);
+    --elevation-popover: var(--shadow);
     --radius-lg: 18px;
     --radius-md: 12px;
     --radius-sm: 8px;
@@ -101,7 +120,7 @@
 
   :focus-visible {
     outline: none;
-    box-shadow: var(--focus);
+    box-shadow: var(--focus-ring);
   }
 
   ::selection {
@@ -195,7 +214,7 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     background: var(--surface);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--elevation-panel);
   }
 
   .controls-panel {
@@ -230,7 +249,7 @@
 
   .search-icon svg {
     width: 19px;
-    fill: var(--text-muted);
+    fill: var(--icon-muted);
   }
 
   #country-search {
@@ -250,7 +269,7 @@
   }
 
   #country-search::placeholder {
-    color: #8894a5;
+    color: var(--text-placeholder);
   }
 
   #country-search:hover:not(:disabled) {
@@ -258,8 +277,8 @@
   }
 
   #country-search:focus {
-    border-color: var(--accent);
-    box-shadow: var(--focus);
+    border-color: var(--focus-border);
+    box-shadow: var(--focus-ring);
   }
 
   #country-search:disabled {
@@ -306,7 +325,7 @@
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
     background: var(--surface);
-    box-shadow: var(--shadow);
+    box-shadow: var(--elevation-popover);
     list-style: none;
     overscroll-behavior: contain;
   }
@@ -328,7 +347,7 @@
 
   .country-option:hover,
   .country-option[aria-selected="true"] {
-    background: var(--accent-soft);
+    background: var(--selected-surface);
   }
 
   .country-option-flag {
@@ -481,13 +500,13 @@
   }
 
   .choice-card:has(input:checked) {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-    box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12);
+    border-color: var(--selected-border);
+    background: var(--selected-surface);
+    box-shadow: var(--selected-ring);
   }
 
   .choice-card:focus-within {
-    box-shadow: var(--focus);
+    box-shadow: var(--focus-ring);
   }
 
   .choice-card input {
@@ -574,7 +593,7 @@
   }
 
   .format-option:has(input:checked) {
-    color: var(--accent-strong);
+    color: var(--selected-text);
   }
 
   .detail-row {
@@ -660,12 +679,12 @@
   }
 
   .button-primary {
-    background: var(--accent);
-    color: #ffffff;
+    background: var(--action-primary);
+    color: var(--action-primary-text);
   }
 
   .button-primary:not(:disabled):hover {
-    background: var(--accent-strong);
+    background: var(--action-primary-hover);
   }
 
   .button-secondary {
@@ -758,7 +777,7 @@
 
   .preview-empty-icon svg {
     width: 28px;
-    fill: var(--text-muted);
+    fill: var(--icon-muted);
   }
 
   .loading-state {
@@ -775,7 +794,7 @@
     width: 30px;
     height: 30px;
     border: 3px solid rgba(111, 125, 145, 0.2);
-    border-top-color: var(--accent);
+    border-top-color: var(--progress-indicator);
     border-radius: 50%;
     animation: spin 720ms linear infinite;
   }
