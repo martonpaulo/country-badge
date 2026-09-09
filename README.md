@@ -2,12 +2,17 @@
 
 A fully static GitHub Pages app for creating square country badges. Search a country, select it from the combobox, compare three deterministic flag-inspired background colors, and download the selected 1024 x 1024 SVG, PNG, or JPG.
 
+| Desktop | Mobile |
+| --- | --- |
+| ![The generator on a desktop window: the country field with Brazil selected, the three background options, and the 1024 x 1024 preview.](./assets/screenshots/desktop.webp) | ![The generator on a narrow window: the country field, the selected country, and the three background options stacked.](./assets/screenshots/mobile.webp) |
+
 ## Features
 
 - Browser-side country search by English name, ISO alpha-2 code, and alternate spellings from the country data source
-- Accessible combobox with pointer and keyboard navigation
-- Exactly three deterministic color options for each country
-- Click-to-preview palette options
+- Accessible combobox with pointer and keyboard navigation, and touch scrolling in the suggestion list
+- Exactly three deterministic color options for each country, exposed as one exclusive radio group
+- Pointer and arrow-key selection updates the preview immediately
+- In-page recovery for a failed country list or a failed palette
 - Manual SVG, PNG, and JPG download using filenames such as `BR.svg`, `BR.png`, and `BR.jpg`
 - Copy the current SVG to the clipboard when the browser allows it
 - Self-contained exported SVG with embedded flag artwork
@@ -16,8 +21,12 @@ A fully static GitHub Pages app for creating square country badges. Search a cou
 
 ## Deterministic Palette
 
-Every background is chosen from a fixed curated catalog of colors declared in `js/palette.js`. The
-flag decides which catalog entries are chosen, never the color values themselves.
+Every background is chosen from a fixed curated catalog of colors declared in `js/palette-policy.js`.
+The flag decides which catalog entries are chosen, never the color values themselves.
+
+The work is split across three modules: `js/palette-sampler.js` reads the flag in the browser and
+reports the colors it observed, `js/palette-policy.js` decides which curated colors represent them
+without touching the DOM, and `js/palette.js` is the facade that joins the two.
 
 1. The selected flag SVG is fetched in the browser.
 2. The flag is rasterized into a small offscreen canvas sized from its aspect ratio.
@@ -98,11 +107,24 @@ name, so the suite runs from a Git worktree and from two checkouts at the same t
 Browser acceptance targets the Playwright-owned Chromium for Testing build. Brave, Gecko, WebKit,
 and installed branded Chrome builds are not acceptance targets.
 
+## Screenshots
+
+```bash
+npm run screenshots
+```
+
+The published images are captured from real browser windows, never rendered offscreen, so the
+macOS window shadow, rounded corners and elevation are part of the image. The script launches the
+browser itself, resolves that window's id from its own process id, and captures it with
+`screencapture -l`. It needs a Retina display, Screen Recording permission for the terminal running
+it, and `cwebp`. The method and the reason for each step are documented at the top of
+[`scripts/capture-screenshots.mjs`](./scripts/capture-screenshots.mjs).
+
 ## Privacy and Security
 
 - Badge generation and export run entirely in the browser.
 - The browser requests country data from jsDelivr and flag SVGs from FlagCDN.
-- The app uses `sessionStorage` for the country-data cache and up to eight recent country codes.
+- The app uses `sessionStorage` for the normalized country catalog and up to eight recent country codes.
 - The project has no account, analytics, backend, environment variables, API keys, or application secrets.
 - Clipboard writes occur only after the user selects **Copy SVG** and remain subject to browser permission.
 
