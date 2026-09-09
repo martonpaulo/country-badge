@@ -76,6 +76,7 @@ const state = {
   catalogRetryHadFocus: false,
   countrySuggestions: [],
   activeSuggestionIndex: -1,
+  suggestionGestureActive: false,
   selectedCountry: null,
   flagSvgText: "",
   palette: [],
@@ -900,9 +901,17 @@ function bindEvents() {
     }
   );
 
+  // A touch press on a suggestion blurs the input before the tap resolves, so
+  // the pending selection, not the typed query, is what the blur should see.
   elements.input.addEventListener(
     "blur",
-    validateFreeText
+    () => {
+      if (state.suggestionGestureActive) {
+        return;
+      }
+
+      validateFreeText();
+    }
   );
 
   elements.input.addEventListener(
@@ -919,9 +928,42 @@ function bindEvents() {
     }
   );
 
+  // Committing the selection on pointerdown would close the list before a
+  // touch drag could scroll it, so the pointer path commits on click, which
+  // the browser only fires once the gesture resolved as a tap. Cancelling the
+  // press keeps focus in the input for the mouse path, but doing so on touch
+  // would also suppress the tap's click, so touch keeps its default press and
+  // the blur it causes is deferred to the resolved gesture instead.
   elements.countryOptions.addEventListener(
     "pointerdown",
     event => {
+      if (
+        !event.target.closest('[role="option"]')
+      ) {
+        return;
+      }
+
+      if (event.pointerType === "mouse") {
+        event.preventDefault();
+        return;
+      }
+
+      state.suggestionGestureActive = true;
+    }
+  );
+
+  elements.countryOptions.addEventListener(
+    "pointercancel",
+    () => {
+      state.suggestionGestureActive = false;
+    }
+  );
+
+  elements.countryOptions.addEventListener(
+    "click",
+    event => {
+      state.suggestionGestureActive = false;
+
       const option = event.target.closest(
         '[role="option"]'
       );
@@ -929,8 +971,6 @@ function bindEvents() {
       if (!option) {
         return;
       }
-
-      event.preventDefault();
 
       selectCountrySuggestion(
         Number(option.dataset.index)

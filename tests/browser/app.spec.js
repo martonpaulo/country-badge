@@ -581,3 +581,134 @@ test("a settling retry leaves focus the user moved elsewhere alone", async ({ pa
   await expect(page.locator("#country-options")).toBeHidden();
   expect(tracker.attempts).toBe(3);
 });
+
+const FLAG_PATTERN = "https://flagcdn.com/*.svg";
+
+// Serves every flag from a local plain SVG so touch coverage never depends on
+// the live CDN.
+async function installFlagRoute(page) {
+  await page.route(FLAG_PATTERN, async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: "image/svg+xml",
+      body: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2">
+        <rect width="3" height="2" fill="#D52B1E"/>
+        <rect width="1" height="2" fill="#007934"/>
+      </svg>`
+    });
+  });
+}
+
+// Real touch input, so the browser resolves the gesture itself instead of the
+// test deciding whether a press was a drag or a tap.
+async function dispatchTouchDrag(session, { x, y, distance, steps = 8 }) {
+  const point = offsetY => [
+    {
+      x,
+      y: offsetY,
+      radiusX: 6,
+      radiusY: 6,
+      force: 1
+    }
+  ];
+
+  await session.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: point(y)
+  });
+
+  for (let step = 1; step <= steps; step += 1) {
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: point(y - (distance * step) / steps)
+    });
+  }
+
+  await session.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: []
+  });
+}
+
+async function dispatchTouchTap(session, { x, y }) {
+  const touchPoints = [{ x, y, radiusX: 6, radiusY: 6, force: 1 }];
+
+  await session.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints
+  });
+
+  await session.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: []
+  });
+}
+
+test("a touch drag scrolls the suggestion list instead of selecting a country", async ({
+  page,
+  hasTouch,
+  viewport
+}) => {
+  test.skip(!hasTouch || viewport.width !== 390, "Touch coverage runs at 390 x 844.");
+
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagRoute(page);
+  await openApp(page);
+
+  const input = page.locator("#country-search");
+  const list = page.locator("#country-options");
+
+  await input.fill("Country");
+  await expect(list).toBeVisible();
+
+  const overflow = await list.evaluate(element => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+    scrollTop: element.scrollTop
+  }));
+
+  expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight);
+  expect(overflow.scrollTop).toBe(0);
+
+  const box = await list.boundingBox();
+  const session = await page.context().newCDPSession(page);
+
+  await dispatchTouchDrag(session, {
+    x: box.x + box.width / 2,
+    y: box.y + box.height - 24,
+    distance: box.height - 48
+  });
+
+  await expect
+    .poll(() => list.evaluate(element => element.scrollTop))
+    .toBeGreaterThan(0);
+
+  await expect(list).toBeVisible();
+  await expect(page.locator("#output-name")).toHaveText("--");
+  await expect(input).toHaveValue("Country");
+
+  // The list scrolled, so the tap target is whichever option the scroll
+  // actually brought into view.
+  const tapTarget = await list.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const option = document
+      .elementFromPoint(x, y)
+      .closest('[role="option"]');
+
+    return {
+      x,
+      y,
+      code: option.querySelector(".country-option-code").textContent
+    };
+  });
+
+  await dispatchTouchTap(session, {
+    x: tapTarget.x,
+    y: tapTarget.y
+  });
+
+  await expect(list).toBeHidden();
+  await expect(page.locator("#output-name")).toHaveText(`${tapTarget.code}.svg`);
+});
