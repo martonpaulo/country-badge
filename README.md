@@ -1,4 +1,4 @@
-# Country Badge Generator
+# Country Badge
 
 A fully static GitHub Pages app for creating square country badges. Search a country, select it from the combobox, compare three deterministic flag-inspired background colors, and download the selected 1024 x 1024 SVG, PNG, or JPG.
 
