@@ -1,7 +1,7 @@
 # Worker rules
 
 Attached to every orchestrated worker prompt through
-`ao project set-config country-badge-generator --agent-rules-file .ao/worker-rules.md`. This file governs
+`ao project set-config country-badge --agent-rules-file .ao/worker-rules.md`. This file governs
 local orchestrated workers; the `Agent execution` section of `AGENTS.md` governs every executor
 that works from a bare clone.
 
