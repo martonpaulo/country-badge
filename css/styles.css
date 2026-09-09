@@ -472,9 +472,12 @@
     gap: var(--gap-compact);
   }
 
-  .empty-state {
+  /* Idle, progress, and failure share one surface inside the palette section,
+     so feedback always appears where the action was taken. */
+  .palette-notice {
     min-height: 96px;
     display: grid;
+    gap: 12px;
     place-items: center;
     padding: 18px;
     border: 1px dashed var(--border-strong);
@@ -482,6 +485,17 @@
     color: var(--text-muted);
     font-size: var(--text-support);
     text-align: center;
+  }
+
+  .palette-notice[data-state="error"] {
+    border-style: solid;
+    border-color: var(--danger);
+    color: var(--text-soft);
+  }
+
+  .palette-notice .button {
+    min-height: 40px;
+    padding: 0 18px;
   }
 
   /* The palette and the file format are both exclusive choices, so their cards

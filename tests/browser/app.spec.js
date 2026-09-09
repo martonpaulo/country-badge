@@ -978,3 +978,212 @@ test("a reload reuses the cached catalog instead of refetching the source", asyn
     page.locator("#country-options [role='option']").first()
   ).toContainText("BR");
 });
+
+const FLAG_SVG_BODY = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2">
+  <rect width="3" height="2" fill="#009739"/>
+  <rect width="1" height="2" fill="#FEDD00"/>
+</svg>`;
+
+// Serves flags from a local plan, so an in-flight generation can be held open
+// and released at an exact point in the test.
+async function installFlagPlanRoute(page, plan) {
+  const tracker = { attempts: 0 };
+
+  await page.route(FLAG_PATTERN, async route => {
+    const step = plan[Math.min(tracker.attempts, plan.length - 1)];
+
+    tracker.attempts += 1;
+
+    if (step.gate) {
+      await step.gate;
+    }
+
+    if (step.ok) {
+      await route.fulfill({
+        status: 200,
+        contentType: "image/svg+xml",
+        body: FLAG_SVG_BODY
+      });
+
+      return;
+    }
+
+    await route.abort("failed");
+  });
+
+  return tracker;
+}
+
+async function startGeneration(page, query, code) {
+  await searchCountry(page, query);
+
+  const option = page
+    .locator("#country-options [role='option']")
+    .filter({ hasText: code })
+    .first();
+
+  await expect(option).toBeVisible();
+  await option.click();
+}
+
+async function expectIdlePaletteSection(page) {
+  await expect(page.locator("#loading-state")).toBeHidden();
+  await expect(page.locator("#loading-state")).toHaveAttribute(
+    "aria-hidden",
+    "true"
+  );
+  await expect(page.locator(".palette-notice")).toHaveAttribute(
+    "data-state",
+    "idle"
+  );
+  await expect(page.locator("#selected-country")).toHaveText("None");
+  await expect(page.locator("#download-button")).toBeDisabled();
+  await expect(page.locator("#copy-button")).toBeDisabled();
+  await expect(page.locator("#output-name")).toHaveText("--");
+}
+
+test("cancelling an in-flight generation returns the palette section to idle", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+
+  const held = createGate();
+
+  await installFlagPlanRoute(page, [{ ok: true, gate: held.promise }]);
+  await openApp(page);
+
+  await startGeneration(page, "Brazil", "BR");
+
+  await expect(page.locator("#loading-state")).toBeVisible();
+  await expect(page.locator(".palette-notice")).toHaveAttribute(
+    "data-state",
+    "loading"
+  );
+  await expect(page.locator(".palette-notice")).toContainText(
+    "Building Brazil's palette..."
+  );
+
+  await page.locator("#clear-search").click();
+
+  await expectIdlePaletteSection(page);
+
+  held.release();
+
+  // The superseded request must not resurrect the cancelled generation.
+  await page.waitForTimeout(250);
+  await expectIdlePaletteSection(page);
+});
+
+test("editing a selected country during generation cancels it and warns", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+
+  const held = createGate();
+
+  await installFlagPlanRoute(page, [{ ok: true, gate: held.promise }]);
+  await openApp(page);
+
+  await startGeneration(page, "Brazil", "BR");
+  await expect(page.locator("#loading-state")).toBeVisible();
+
+  await page.locator("#country-search").pressSequentially("x");
+
+  await expect(page.locator("#loading-state")).toBeHidden();
+  await expect(page.locator(".palette-notice")).toHaveAttribute(
+    "data-state",
+    "idle"
+  );
+  await expect(page.locator("#selected-country")).toHaveText("None");
+  await expect(page.locator("#status-message")).toHaveText(
+    "Select a listed country before generating a badge."
+  );
+  await expect(page.locator("#download-button")).toBeDisabled();
+
+  held.release();
+  await page.waitForTimeout(250);
+
+  await expect(page.locator("#loading-state")).toBeHidden();
+  await expect(page.locator("#selected-country")).toHaveText("None");
+});
+
+test("a stale generation cannot overwrite the country that replaced it", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+
+  const stale = createGate();
+
+  await installFlagPlanRoute(page, [
+    { ok: true, gate: stale.promise },
+    { ok: true }
+  ]);
+  await openApp(page);
+
+  await startGeneration(page, "Brazil", "BR");
+  await expect(page.locator("#loading-state")).toBeVisible();
+
+  await page.locator("#clear-search").click();
+  await startGeneration(page, "Paraguay", "PY");
+
+  await expect(page.locator(".palette-option")).toHaveCount(3);
+  await expect(page.locator("#output-name")).toHaveText("PY.svg");
+
+  const paletteBefore = await getPaletteHexes(page);
+
+  stale.release();
+  await page.waitForTimeout(250);
+
+  await expect(page.locator("#selected-country")).toHaveText("Paraguay");
+  await expect(page.locator("#output-name")).toHaveText("PY.svg");
+  await expect(page.locator("#status-message")).toHaveText("PY palette is ready.");
+  await expect(page.locator("#loading-state")).toBeHidden();
+  expect(await getPaletteHexes(page)).toEqual(paletteBefore);
+});
+
+test("a failed generation stays retryable in the palette section", async ({
+  page
+}) => {
+  await installCatalogRoute(page, [{ ok: true }]);
+  await installFlagPlanRoute(page, [
+    { ok: false },
+    { ok: false },
+    { ok: true }
+  ]);
+  await openApp(page);
+
+  await startGeneration(page, "Brazil", "BR");
+
+  const notice = page.locator(".palette-notice");
+  const retry = page.locator("#palette-retry");
+
+  await expect(notice).toHaveAttribute("data-state", "error");
+  await expect(notice).toContainText("BR");
+  await expect(retry).toBeVisible();
+  await expect(page.locator("#loading-state")).toBeHidden();
+  await expect(page.locator("#download-button")).toBeDisabled();
+  await expect(page.locator("#copy-button")).toBeDisabled();
+  await expect(page.locator("#selected-country")).toHaveText("Brazil");
+  await expect(page.locator("#status-message")).toHaveAttribute(
+    "data-state",
+    "error"
+  );
+
+  // The failure surface must be reachable without leaving the viewport.
+  await expect(notice).toBeInViewport();
+
+  await retry.click();
+
+  await expect(notice).toHaveAttribute("data-state", "error");
+  await expect(retry).toBeVisible();
+  await expect(page.locator("#selected-country")).toHaveText("Brazil");
+
+  await retry.click();
+
+  await expect(page.locator(".palette-option")).toHaveCount(3);
+  await expect(page.locator("#output-name")).toHaveText("BR.svg");
+  await expect(page.locator("#download-button")).toBeEnabled();
+  await expect(page.locator("#copy-button")).toBeEnabled();
+  await expect(page.locator("#status-message")).toHaveText("BR palette is ready.");
+  await expect(page.locator("#loading-state")).toBeHidden();
+});

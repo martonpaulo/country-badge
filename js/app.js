@@ -88,6 +88,7 @@ const state = {
   outputFormat: "svg",
   outputFileName: "",
   requestId: 0,
+  generation: { status: "idle", country: null, message: "" },
   countryCache: new Map(),
   activeAssetController: null
 };
@@ -117,17 +118,33 @@ function setInputInvalid(isInvalid) {
   );
 }
 
-function setLoading(isLoading) {
+// Palette generation has one state owner. Selection, cancellation, completion,
+// and retry all publish through it, so the overlay, the palette section, the
+// export actions, and the status can never disagree about what is happening.
+function setGenerationState(
+  status,
+  { country = null, message = "" } = {}
+) {
+  state.generation = { status, country, message };
+
+  const isLoading = status === "loading";
+  const hasOutput =
+    status === "ready" && Boolean(state.selectedSvg);
+
   elements.loadingState.hidden = !isLoading;
   elements.loadingState.setAttribute(
     "aria-hidden",
     String(!isLoading)
   );
 
-  elements.downloadButton.disabled =
-    isLoading || !state.selectedSvg;
-  elements.copyButton.disabled =
-    isLoading || !state.selectedSvg;
+  elements.downloadButton.disabled = !hasOutput;
+  elements.copyButton.disabled = !hasOutput;
+
+  if (status === "ready") {
+    return;
+  }
+
+  renderPaletteNotice(status, country, message);
 }
 
 function getOutputFormat() {
@@ -175,16 +192,44 @@ function removeRenderedPreview() {
     ?.remove();
 }
 
-function renderEmptyPalette(message) {
-  elements.paletteOptions.replaceChildren();
+// Progress and failure are rendered at the point of action, inside the palette
+// section, so they are never pushed below the viewport on a narrow screen.
+function renderPaletteNotice(status, country, message) {
+  const notice = document.createElement("div");
 
-  const empty = document.createElement("div");
-  empty.className = "empty-state";
-  empty.textContent = message;
-  elements.paletteOptions.append(empty);
+  notice.className = "palette-notice";
+  notice.dataset.state = status;
+
+  if (status === "loading") {
+    const spinner = document.createElement("span");
+    const label = document.createElement("span");
+
+    spinner.className = "spinner";
+    spinner.setAttribute("aria-hidden", "true");
+    label.textContent = `Building ${country.name}'s palette...`;
+
+    notice.append(spinner, label);
+  } else if (status === "error") {
+    const label = document.createElement("span");
+    const retry = document.createElement("button");
+
+    label.textContent = message;
+
+    retry.type = "button";
+    retry.id = "palette-retry";
+    retry.className = "button button-secondary";
+    retry.textContent = "Try again";
+
+    notice.append(label, retry);
+  } else {
+    notice.textContent =
+      "Select a country to generate its palette.";
+  }
+
+  elements.paletteOptions.replaceChildren(notice);
 }
 
-function resetGeneratedState() {
+function clearGeneratedOutput() {
   state.flagSvgText = "";
   state.palette = [];
   state.selectedPaletteIndex = 0;
@@ -200,10 +245,6 @@ function resetGeneratedState() {
   elements.downloadButton.disabled = true;
   elements.copyButton.disabled = true;
   refreshOutputDetails();
-
-  renderEmptyPalette(
-    "Select a country to generate its palette."
-  );
 }
 
 function getRecentCodes() {
@@ -256,7 +297,8 @@ function clearSelection({ focusInput = false } = {}) {
 
   setInputInvalid(false);
   closeCountrySuggestions();
-  resetGeneratedState();
+  clearGeneratedOutput();
+  setGenerationState("idle");
   setStatus("Choose a country to begin.");
   setCountryStatus(
     state.catalogReady
@@ -578,9 +620,6 @@ function updateSelectedOption(index) {
 
   refreshOutputDetails();
 
-  elements.downloadButton.disabled = false;
-  elements.copyButton.disabled = false;
-
   getPaletteInputs().forEach(input => {
     input.checked = Number(input.value) === index;
   });
@@ -638,6 +677,24 @@ async function loadCountryAssets(country, signal) {
 }
 
 async function selectCountry(country) {
+  rememberCountry(country.code);
+  setInputInvalid(false);
+
+  elements.input.value = country.name;
+  elements.clearButton.hidden = false;
+
+  closeCountrySuggestions();
+  setCountryStatus(
+    `${country.name} selected.`,
+    "success"
+  );
+
+  await generatePalette(country);
+}
+
+// Separated from selection so a retry repeats the request without repeating
+// the selection side effects, such as recording a recent country.
+async function generatePalette(country) {
   const requestId = ++state.requestId;
   abortActiveAssetRequest();
 
@@ -647,27 +704,14 @@ async function selectCountry(country) {
   state.selectedCountry = country;
   state.selectedPaletteIndex = 0;
 
-  rememberCountry(country.code);
-  setInputInvalid(false);
-
-  elements.input.value = country.name;
-  elements.selectedCountry.textContent =
-    country.name;
-  elements.clearButton.hidden = false;
-
-  closeCountrySuggestions();
-  resetGeneratedState();
+  clearGeneratedOutput();
 
   elements.selectedCountry.textContent =
     country.name;
   elements.paletteCountryCode.textContent =
     country.code;
 
-  setLoading(true);
-  setCountryStatus(
-    `${country.name} selected.`,
-    "success"
-  );
+  setGenerationState("loading", { country });
   setStatus(
     `Generating ${country.code} palette...`
   );
@@ -687,6 +731,7 @@ async function selectCountry(country) {
 
     renderPalette();
     updateSelectedOption(0);
+    setGenerationState("ready", { country });
 
     setStatus(
       `${country.code} palette is ready.`,
@@ -700,23 +745,24 @@ async function selectCountry(country) {
       return;
     }
 
-    resetGeneratedState();
+    clearGeneratedOutput();
 
-    elements.selectedCountry.textContent =
-      country.name;
     elements.paletteCountryCode.textContent =
       country.code;
 
-    setStatus(
+    const message =
       error instanceof Error
         ? error.message
-        : "The palette could not be generated.",
-      "error"
-    );
+        : "The palette could not be generated.";
+
+    setGenerationState("error", {
+      country,
+      message
+    });
+    setStatus(message, "error");
   } finally {
     if (requestId === state.requestId) {
       state.activeAssetController = null;
-      setLoading(false);
     }
   }
 }
@@ -741,7 +787,8 @@ function invalidateSelectedCountry() {
   elements.selectedCountry.textContent =
     "None";
 
-  resetGeneratedState();
+  clearGeneratedOutput();
+  setGenerationState("idle");
 }
 
 function handleCountryInput() {
@@ -1045,6 +1092,21 @@ function bindEvents() {
   );
 
   elements.paletteOptions.addEventListener(
+    "click",
+    event => {
+      if (
+        !event.target.closest("#palette-retry") ||
+        !state.selectedCountry ||
+        state.generation.status === "loading"
+      ) {
+        return;
+      }
+
+      generatePalette(state.selectedCountry);
+    }
+  );
+
+  elements.paletteOptions.addEventListener(
     "change",
     event => {
       const input = event.target.closest(
@@ -1230,8 +1292,8 @@ async function loadCountryCatalog({ isRetry = false } = {}) {
 
 async function initialize() {
   bindEvents();
-  resetGeneratedState();
-  setLoading(false);
+  clearGeneratedOutput();
+  setGenerationState("idle");
 
   await loadCountryCatalog();
 }
