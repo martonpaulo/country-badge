@@ -1,0 +1,23 @@
+# GitHub Pages builds this repository with Jekyll so that the files below never
+# reach the published site. The site itself has no Jekyll content: every page is
+# plain HTML with no front matter, which Jekyll copies through untouched.
+#
+# Without this list the legacy build publishes the whole repository, so
+# AGENTS.md, package.json and the Playwright configuration answered 200 on the
+# public host and were crawlable.
+exclude:
+  - .ao/
+  - .agentastic/
+  - .conductor/
+  - .github/
+  - AGENTS.md
+  - CLAUDE.md
+  - README.md
+  - docs/
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - playwright.config.js
+  - scripts/
+  - test-results/
+  - tests/
