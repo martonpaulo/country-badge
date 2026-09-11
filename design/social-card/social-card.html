@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- Country Badge Generator social card. Source of truth for social-card.jpg, served at
+     https://countrybadge.martonpaulo.com/social-card.jpg (1200x630). Never edit the JPEG.
+     Render on a Mac (the drawn interface uses the system font): npm run social-card
+     System, grid and contrast rules: the social card standard (skill-deck#261).
+     Fonts: Gabarito and Figtree (OFL, fonts/*-OFL.txt), the typefaces of martonpaulo.com. -->
+<meta charset="utf-8">
+<title>Country Badge Generator social card</title>
+<style>
+@font-face { font-family: "Gabarito"; font-weight: 700; src: url(fonts/gabarito-latin-700-normal.woff2); }
+@font-face { font-family: "Figtree"; font-weight: 400; src: url(fonts/figtree-latin-400-normal.woff2); }
+@font-face { font-family: "Figtree"; font-weight: 500; src: url(fonts/figtree-latin-500-normal.woff2); }
+@font-face { font-family: "Figtree"; font-weight: 600; src: url(fonts/figtree-latin-600-normal.woff2); }
+@font-face { font-family: "Figtree"; font-weight: 700; src: url(fonts/figtree-latin-700-normal.woff2); }
+html, body { margin: 0; }
+.card { position: relative; width: 1200px; height: 630px; overflow: hidden; font-family: "Figtree", sans-serif;
+        color: var(--ink); background: var(--gradient); }
+.card::before { content: ""; position: absolute; inset: 0; background: var(--glow, none); }
+/* One grid for every card: the copy block is centred vertically in a 440px column at x=96;
+   the product visual always starts at x=600, a fixed gutter. */
+.copy { position: absolute; left: 96px; top: 50%; transform: translateY(-50%); width: 440px; z-index: 2; }
+.icon { width: 104px; height: 104px; display: block; margin-bottom: 30px; filter: drop-shadow(0 16px 26px rgba(0,0,0,.22)); }
+.eyebrow { display: inline-block; margin: 0 0 20px; padding: 8px 16px; border-radius: 999px;
+           background: var(--pill-bg); border: 1px solid var(--pill-line);
+           font-weight: 700; font-size: 19px; letter-spacing: .1em; text-transform: uppercase; }
+h1 { margin: 0; font: 700 88px/1 "Gabarito", sans-serif; letter-spacing: -0.03em; }
+.promise { margin: 20px 0 0; font-weight: 500; font-size: 38px; line-height: 1.2; letter-spacing: -0.01em;
+           color: var(--ink-soft); text-wrap: balance; }
+.domain { margin: 34px 0 0; font-size: 24px; font-weight: 500; color: var(--ink-soft); }
+/* The drawn interface: the system font, the way the real app renders. */
+.ui { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; color: #1f2937; }
+.win { position: absolute; background: #fff; border-radius: 22px;
+       box-shadow: 0 40px 80px rgba(15,23,42,.30), 0 8px 20px rgba(15,23,42,.12); }
+.bar { height: 11px; border-radius: 6px; background: #e5e7eb; }
+
+.card { --gradient: linear-gradient(135deg,#14543f 0%,#1b644b 40%,#227457 65%,#3f9a77 100%); --glow: radial-gradient(640px 520px at 94% 55%,rgba(190,240,210,.25),transparent 65%); --ink: #fff; --ink-soft: rgba(255,255,255,.92);
+        --pill-bg: rgba(255,255,255,.14); --pill-line: rgba(255,255,255,.38); }
+.app{left:600px;top:50%;transform:translateY(-50%);width:860px;height:520px;border-radius:14px;background:#f6f7fb;overflow:hidden}
+.top{height:30px;display:flex;align-items:center;padding:0 14px;background:#eef1f6}
+.tl{display:flex;gap:8px}.tl i{width:12px;height:12px;border-radius:50%;background:#ff5f57}.tl i:nth-child(2){background:#febc2e}.tl i:nth-child(3){background:#28c840}
+.page{padding:16px 20px}.page h3{margin:0 0 8px;font-size:24px;font-weight:700;color:#18202d;letter-spacing:-.01em}
+.page .bar{background:#dfe4ec}
+.cols{display:flex;gap:14px;margin-top:14px}
+.panel{background:#fff;border:1px solid #d8dee8;border-radius:12px;padding:12px;width:300px;box-sizing:border-box}
+.panel label{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:#18202d}.panel label.mt{margin-top:12px}
+.code{font-size:10px;font-weight:600;color:#465365;border:1px solid #d8dee8;border-radius:999px;padding:2px 7px}
+.field{margin-top:8px;border:1px solid #b7c2d0;border-radius:8px;padding:7px 10px;font-size:13px;color:#18202d;display:flex}.field em{margin-left:auto;font-style:normal;color:#6b7280}
+.ok{font-size:11px;color:#15803d;margin-top:6px}
+.opts{display:flex;gap:8px;margin-top:8px}.opt{flex:1;border:1px solid #d8dee8;border-radius:8px;padding:5px;font-size:10px;color:#18202d}.opt.sel{border:2px solid #1f6feb;background:#e7f0ff;padding:4px}
+.opt b{display:block;margin-top:5px;font-weight:600}.opt small{color:#465365;font-family:ui-monospace,Menlo,monospace;font-size:9px}
+.badge{height:52px;border-radius:5px;display:flex;align-items:center;justify-content:center}.badge img{width:40px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.fmt{display:flex;gap:6px;margin-top:12px}.fmt span{flex:1;text-align:center;border:1px solid #d8dee8;border-radius:7px;padding:5px;font-size:11px;font-weight:600;color:#465365}.fmt .on{border-color:#1f6feb;background:#e7f0ff;color:#1456c8}
+.dl{margin-top:8px;background:#1f6feb;color:#fff;border-radius:7px;padding:7px;text-align:center;font-size:12px;font-weight:600}
+.preview{width:420px}.big{margin-top:10px;height:360px;border-radius:10px;background:#5cc46a;display:flex;align-items:center;justify-content:flex-start;padding-left:58px;box-sizing:border-box}.big img{width:150px;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+h1{font-size:72px}
+</style>
+<div class="card">
+  <div class="copy">
+    
+    <p class="eyebrow">Free in your browser</p>
+    <h1>Country Badge Generator</h1>
+    <p class="promise">Flag-inspired badges for any country</p>
+    <p class="domain">countrybadge.martonpaulo.com</p>
+  </div>
+  <div class="win app ui">
+    <div class="top"><span class="tl"><i></i><i></i><i></i></span></div>
+    <div class="page">
+      <h3>Create a country badge</h3>
+      <span class="bar" style="display:block;width:62%;height:9px"></span>
+      <div class="cols">
+        <div class="panel">
+          <label>Country</label>
+          <div class="field">⌕&nbsp; Brazil <em>×</em></div>
+          <div class="ok">Brazil selected.</div>
+          <label class="mt">Background options <span class="code">BR</span></label>
+          <div class="opts"><div class="opt sel"><div class="badge" style="background:#5cc46a"><img src="br.png" alt=""></div><b>Option 1</b><small>#22C55E</small></div><div class="opt"><div class="badge" style="background:#f5cc3f"><img src="br.png" alt=""></div><b>Option 2</b><small>#FACC15</small></div><div class="opt"><div class="badge" style="background:#6aa4f7"><img src="br.png" alt=""></div><b>Option 3</b><small>#60A5FA</small></div></div>
+          <div class="fmt"><span class="on">SVG</span><span>PNG</span><span>JPG</span></div>
+          <div class="dl">⤓&nbsp; Download SVG</div>
+        </div>
+        <div class="panel preview">
+          <label>Preview <span class="code">1024 x 1024</span></label>
+          <div class="big"><img src="br.png" alt=""></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

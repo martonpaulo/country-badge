@@ -22,7 +22,7 @@ const robots = await readFile(
 const CANONICAL = "https://countrybadge.martonpaulo.com/";
 
 // Home page title: the product name first, then what it does.
-const TITLE = "Country Badge Generator · Flag-inspired badges for any country";
+const TITLE = "Country Badge Generator · Flag badges as SVG, PNG or JPG";
 
 function metaContent(attribute, name) {
   const match = page.match(
@@ -66,7 +66,7 @@ test("Open Graph and Twitter cards are complete and agree with the canonical URL
   assert.equal(metaContent("property", "og:title"), TITLE);
   assert.equal(metaContent("name", "twitter:title"), TITLE);
   assert.equal(metaContent("property", "og:description"), description);
-  assert.equal(metaContent("property", "og:image:type"), "image/png");
+  assert.equal(metaContent("property", "og:image:type"), "image/jpeg");
   assert.equal(metaContent("property", "og:image:width"), "1200");
   assert.equal(metaContent("property", "og:image:height"), "630");
   assert.ok(metaContent("property", "og:image:alt"));
@@ -79,7 +79,7 @@ test("Open Graph and Twitter cards are complete and agree with the canonical URL
 
     assert.equal(
       metaContent(attribute, property),
-      `${CANONICAL}assets/social-card.png`
+      `${CANONICAL}social-card.jpg`
     );
   }
 });
