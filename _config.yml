@@ -12,6 +12,7 @@ exclude:
   - .github/
   - AGENTS.md
   - CLAUDE.md
+  - CONTRIBUTING.md
   - README.md
   - docs/
   - node_modules/

@@ -1,8 +1,71 @@
+<div align="center">
+
+<img src="social-card.jpg" width="100%" alt="Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG">
+
 # Country Badge
 
-![Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG](./social-card.jpg)
+Create square country badges with three deterministic, flag-inspired background colors and download each one as SVG, PNG, or JPG.
 
-A fully static GitHub Pages app for creating square country badges. Search a country, select it from the combobox, compare three deterministic flag-inspired background colors, and download the selected 1024 x 1024 SVG, PNG, or JPG.
+[![Validate](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml) [![Browser suite](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml) [![Node 24](https://img.shields.io/badge/Node-24-5fa04e)](https://nodejs.org/) [![Playwright 1.61](https://img.shields.io/badge/Playwright-1.61-2ead33)](https://playwright.dev/)
+
+</div>
+
+Country Badge is a **fully static GitHub Pages app**: search a country, select it from the
+accessible combobox, compare the three flag-inspired background colors it offers, and download the
+selected **1024 × 1024** badge as SVG, PNG, or JPG. Everything — the search, the palette, the
+rasterization and the export — happens **in the browser**.
+
+The colors are **deterministic, never random**. Each one is a curated catalog entry chosen by what
+the country's own flag contains, so the same flag and the same catalog always produce the same three
+options in the same order. There is **no backend, no account, no analytics and no API key**: the two
+remote sources are read directly from the browser and nothing about a visit is stored anywhere but
+their own `sessionStorage`.
+
+<br />
+
+---
+
+## 🌱 Quick Start
+
+```bash
+npm ci
+npx playwright install chromium
+npm start
+```
+
+Then open `http://localhost:8080`.
+
+Prerequisites: **Node.js 24**, npm, and network access for the initial country catalog, uncached
+flags, and the first Playwright browser installation. Do not test the app from `file://`; native ES
+modules and browser security behavior differ from the deployed site.
+
+<br />
+
+## 🛠 Commands
+
+| Command | What it does |
+| --- | --- |
+| `npm start` | Serves the repository root over HTTP on port 8080 (`python3 -m http.server`) |
+| `npm test` | The unit suite followed by the browser suite |
+| `npm run test:unit` | `node --test` over `tests/unit/` |
+| `npm run test:browser` | The Playwright acceptance suite |
+| `npm run social-card` | Renders `design/social-card/social-card.html` into `social-card.jpg` (on a Mac) |
+
+Browser tests serve the checkout at the site root on a port chosen at run time
+(`http://127.0.0.1:<port>/`). That mirrors the published origin, and the run-time port lets two
+checkouts run the suite at the same time. Browser acceptance targets the Playwright-owned Chromium
+for Testing build; Brave, Gecko, WebKit, and installed branded Chrome builds are not acceptance
+targets.
+
+<br />
+
+## 🔐 Secrets and variables
+
+The project reads **none**. There is no environment variable, no `.env` file, no GitHub Actions
+secret, no API key and no application credential anywhere in this repository — both data sources are
+public, CORS-enabled, and require no authentication.
+
+<br />
 
 ## Features
 
@@ -17,7 +80,7 @@ A fully static GitHub Pages app for creating square country badges. Search a cou
 - Compact responsive interface for desktop and mobile
 - Static HTML, CSS, and native ES modules
 
-## Deterministic Palette
+## Deterministic palette
 
 Every background is chosen from a fixed curated catalog of colors declared in `js/palette-policy.js`.
 The flag decides which catalog entries are chosen, never the color values themselves.
@@ -47,70 +110,48 @@ three colors in the same order. No randomness, date, time, locale, user state, b
 affect the palette. A result can change when the upstream flag artwork changes, when the curated
 catalog is revised, or when a browser rasterizes the same flag differently.
 
-## Data Sources
+## Data sources
 
 - Country data: [`world-countries` 5.1.0 via jsDelivr](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/dist/countries.json)
 - Country data license: [ODbL](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/LICENSE)
 - Flag SVGs: [FlagCDN](https://flagcdn.com/)
 
-Both remote sources are requested directly from the browser, require no API key, and return CORS-compatible responses. The app does not keep a full country list or flag set in the repository.
+Both remote sources are requested directly from the browser, require no API key, and return
+CORS-compatible responses. The app does not keep a full country list or flag set in the repository.
 
-## Local Development
-
-Requirements:
-
-- Node.js 24
-- npm
-- Network access for the initial country catalog, uncached flags, and the first Playwright browser installation
-
-Install the exact development dependencies and Chromium for Testing:
-
-```bash
-npm ci
-npx playwright install chromium
-```
-
-Serve the app over HTTP:
-
-```bash
-npm start
-```
-
-Open:
-
-```text
-http://localhost:8080
-```
-
-Do not test the app from `file://`; native ES modules and browser security behavior differ from the deployed site.
-
-## Tests
-
-```bash
-npm run test:unit
-npm run test:browser
-npm test
-```
-
-Browser tests serve the checkout at the site root, on a port chosen at run time:
-
-```text
-http://127.0.0.1:<port>/
-```
-
-That mirrors the published origin, and the run-time port lets two checkouts run the suite at the
-same time.
-
-Browser acceptance targets the Playwright-owned Chromium for Testing build. Brave, Gecko, WebKit,
-and installed branded Chrome builds are not acceptance targets.
-
-## Privacy and Security
+## Privacy and security
 
 - Badge generation and export run entirely in the browser.
 - The browser requests country data from jsDelivr and flag SVGs from FlagCDN.
 - The app uses `sessionStorage` for the normalized country catalog and up to eight recent country codes.
 - The project has no account, analytics, backend, environment variables, API keys, or application secrets.
 - Clipboard writes occur only after the user selects **Copy SVG** and remain subject to browser permission.
+
+## Error behavior
+
+- If country data cannot load, the combobox stays disabled and the page shows an explicit error.
+- If a query has no results, the dropdown shows a no-results state.
+- Free text is never treated as a valid country.
+- If a flag cannot load, is blocked by CORS, or returns malformed SVG, generation fails with an explicit status message.
+- If canvas is unavailable, palette generation fails with an explicit status message.
+- If image export is unavailable, PNG and JPG downloads fail with an explicit status message.
+- If clipboard write is unavailable or blocked, the app reports the copy failure without affecting manual download.
+
+## Deployment
+
+GitHub Pages publishes this repository directly. The deployment contract is:
+
+- Serve files from the repository root.
+- Keep `CNAME` in place, and keep `_config.yml`'s exclude list covering every file that must not reach the published site.
+- Keep all local asset and module paths relative, such as `./js/app.js`.
+- Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or
+  routing rewrites.
+
+## Project contract
+
+See [`docs/product.md`](./docs/product.md) for the product boundary, [`AGENTS.md`](./AGENTS.md) for
+repository policy and validation, and [`CONTRIBUTING.md`](./CONTRIBUTING.md) to report a bug or
+propose a change.
 
 ## Limitations
 
@@ -120,32 +161,8 @@ and installed branded Chrome builds are not acceptance targets.
 - The interface commits to one light visual direction; a dark colour-scheme preference is honored
   by keeping the page light rather than by a separate dark theme.
 
-## Project Contract
+## License
 
-See [`docs/product.md`](./docs/product.md) for the product boundary and [`AGENTS.md`](./AGENTS.md)
-for repository policy, validation, and contribution rules.
+[MIT](LICENSE) © 2026 Marton Paulo.
 
-## GitHub Pages Deployment
-
-The project is published by GitHub Pages at:
-
-```text
-https://countrybadge.martonpaulo.com/
-```
-
-Deployment requirements:
-
-- Serve files directly from the repository root.
-- Keep `CNAME` and `.nojekyll` in place.
-- Keep all local asset and module paths relative, such as `./js/app.js`.
-- Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or routing rewrites.
-
-## Error Behavior
-
-- If country data cannot load, the combobox stays disabled and the page shows an explicit error.
-- If a query has no results, the dropdown shows a no-results state.
-- Free text is never treated as a valid country.
-- If a flag cannot load, is blocked by CORS, or returns malformed SVG, generation fails with an explicit status message.
-- If canvas is unavailable, palette generation fails with an explicit status message.
-- If image export is unavailable, PNG and JPG downloads fail with an explicit status message.
-- If clipboard write is unavailable or blocked, the app reports the copy failure without affecting manual download.
+Country data is [ODbL](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/LICENSE)-licensed and flag artwork comes from [FlagCDN](https://flagcdn.com/); both keep their own terms.
