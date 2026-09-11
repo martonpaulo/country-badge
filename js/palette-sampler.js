@@ -1,11 +1,7 @@
 // Browser adapter: decodes a flag SVG, rasterizes it, and reports the colors
 // it observed with the share of the flag each one covers. It makes no palette
 // decision, so the policy it feeds can be exercised without a canvas.
-import {
-  clamp,
-  colorDistance,
-  rgbToHsl
-} from "./color.js";
+import { clamp, colorDistance, rgbToHsl } from "./color.js";
 import { loadSvgImage } from "./flag-service.js";
 
 const SAMPLE_WIDTH = 176;
@@ -17,10 +13,9 @@ const MAX_SOURCE_COLORS = 18;
 // pixels have to be before they count as the same color.
 function quantizeChannel(channel) {
   return clamp(
-    Math.round(channel / QUANTIZATION_STEP) *
-      QUANTIZATION_STEP,
+    Math.round(channel / QUANTIZATION_STEP) * QUANTIZATION_STEP,
     0,
-    255
+    255,
   );
 }
 
@@ -32,22 +27,16 @@ export async function sampleFlagColors(flagSvgText) {
       : 2 / 3;
 
   const width = SAMPLE_WIDTH;
-  const height = clamp(
-    Math.round(width * aspectRatio),
-    96,
-    176
-  );
+  const height = clamp(Math.round(width * aspectRatio), 96, 176);
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d", {
     alpha: true,
-    willReadFrequently: true
+    willReadFrequently: true,
   });
 
   if (!context) {
-    throw new Error(
-      "Canvas is not available in this browser."
-    );
+    throw new Error("Canvas is not available in this browser.");
   }
 
   canvas.width = width;
@@ -55,12 +44,7 @@ export async function sampleFlagColors(flagSvgText) {
   context.clearRect(0, 0, width, height);
   context.drawImage(image, 0, 0, width, height);
 
-  const { data } = context.getImageData(
-    0,
-    0,
-    width,
-    height
-  );
+  const { data } = context.getImageData(0, 0, width, height);
 
   const histogram = new Map();
 
@@ -78,10 +62,7 @@ export async function sampleFlagColors(flagSvgText) {
       const b = quantizeChannel(data[index + 2]);
       const key = `${r},${g},${b}`;
 
-      histogram.set(
-        key,
-        (histogram.get(key) ?? 0) + alpha / 255
-      );
+      histogram.set(key, (histogram.get(key) ?? 0) + alpha / 255);
     }
   }
 
@@ -90,37 +71,27 @@ export async function sampleFlagColors(flagSvgText) {
       const [r, g, b] = key.split(",").map(Number);
       const rgb = { r, g, b };
       const hsl = rgbToHsl(rgb);
-      const toneWeight =
-        hsl.l < 0.05 || hsl.l > 0.97
-          ? 0.5
-          : 1;
-      const saturationWeight = clamp(
-        0.45 + hsl.s * 1.2,
-        0.45,
-        1.8
-      );
+      const toneWeight = hsl.l < 0.05 || hsl.l > 0.97 ? 0.5 : 1;
+      const saturationWeight = clamp(0.45 + hsl.s * 1.2, 0.45, 1.8);
 
       return {
         rgb,
         hsl,
         rawWeight,
-        rank:
-          rawWeight *
-          toneWeight *
-          saturationWeight
+        rank: rawWeight * toneWeight * saturationWeight,
       };
     })
-    .sort((first, second) =>
-      second.rank - first.rank ||
-      second.rawWeight - first.rawWeight
+    .sort(
+      (first, second) =>
+        second.rank - first.rank || second.rawWeight - first.rawWeight,
     )
     .slice(0, 80);
 
   const merged = [];
 
   for (const color of colors) {
-    const duplicate = merged.find(entry =>
-      colorDistance(entry.rgb, color.rgb) < 0.055
+    const duplicate = merged.find(
+      (entry) => colorDistance(entry.rgb, color.rgb) < 0.055,
     );
 
     if (duplicate) {
@@ -136,8 +107,8 @@ export async function sampleFlagColors(flagSvgText) {
     }
   }
 
-  return merged.map(color => ({
+  return merged.map((color) => ({
     rgb: color.rgb,
-    weight: color.rawWeight
+    weight: color.rawWeight,
   }));
 }

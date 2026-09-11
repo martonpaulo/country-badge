@@ -1,11 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  copyText,
-  createBadgeSvg,
-  createFlagDataUri
-} from "../../js/svg.js";
+import { copyText, createBadgeSvg, createFlagDataUri } from "../../js/svg.js";
 
 const flagSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#009739"/></svg>`;
 
@@ -14,7 +10,7 @@ test("generated badge SVG is self-contained and accessible", () => {
     code: "BR",
     countryName: "Brazil",
     flagSvgText: flagSvg,
-    backgroundHex: "#62B46D"
+    backgroundHex: "#62B46D",
   });
 
   assert.match(svg, /viewBox="0 0 1024 1024"/);
@@ -34,14 +30,14 @@ test("changing the selected background changes the SVG", () => {
     code: "PY",
     countryName: "Paraguay",
     flagSvgText: flagSvg,
-    backgroundHex: "#FD9C91"
+    backgroundHex: "#FD9C91",
   });
 
   const second = createBadgeSvg({
     code: "PY",
     countryName: "Paraguay",
     flagSvgText: flagSvg,
-    backgroundHex: "#8AB7FF"
+    backgroundHex: "#8AB7FF",
   });
 
   assert.notEqual(first, second);
@@ -65,7 +61,7 @@ function createClipboardEnvironment({ execCommand }) {
           if (index >= 0) {
             attached.splice(index, 1);
           }
-        }
+        },
       };
 
       return element;
@@ -73,9 +69,9 @@ function createClipboardEnvironment({ execCommand }) {
     body: {
       append(element) {
         attached.push(element);
-      }
+      },
     },
-    execCommand
+    execCommand,
   };
 
   return { document, attached };
@@ -88,7 +84,7 @@ async function withClipboardEnvironment(environment, run) {
   Object.defineProperty(globalThis, "navigator", {
     value: {},
     configurable: true,
-    writable: true
+    writable: true,
   });
   globalThis.document = environment.document;
 
@@ -99,14 +95,14 @@ async function withClipboardEnvironment(environment, run) {
     Object.defineProperty(globalThis, "navigator", {
       value: originalNavigator,
       configurable: true,
-      writable: true
+      writable: true,
     });
   }
 }
 
 test("the clipboard fallback resolves only when the copy command succeeds", async () => {
   const environment = createClipboardEnvironment({
-    execCommand: () => true
+    execCommand: () => true,
   });
 
   await withClipboardEnvironment(environment, () => copyText("<svg />"));
@@ -116,14 +112,11 @@ test("the clipboard fallback resolves only when the copy command succeeds", asyn
 
 test("the clipboard fallback rejects when the copy command reports failure", async () => {
   const environment = createClipboardEnvironment({
-    execCommand: () => false
+    execCommand: () => false,
   });
 
   await withClipboardEnvironment(environment, () =>
-    assert.rejects(
-      () => copyText("<svg />"),
-      /could not be copied/
-    )
+    assert.rejects(() => copyText("<svg />"), /could not be copied/),
   );
 
   assert.deepEqual(environment.attached, []);
@@ -133,11 +126,11 @@ test("the clipboard fallback cleans up when the copy command throws", async () =
   const environment = createClipboardEnvironment({
     execCommand: () => {
       throw new Error("NotAllowedError");
-    }
+    },
   });
 
   await withClipboardEnvironment(environment, () =>
-    assert.rejects(() => copyText("<svg />"), /NotAllowedError/)
+    assert.rejects(() => copyText("<svg />"), /NotAllowedError/),
   );
 
   assert.deepEqual(environment.attached, []);
@@ -152,14 +145,14 @@ test("a prepared flag data URI is reused instead of re-encoded", () => {
     code: "BR",
     countryName: "Brazil",
     flagSvgText: flagSvg,
-    backgroundHex: "#62B46D"
+    backgroundHex: "#62B46D",
   });
 
   const fromPrepared = createBadgeSvg({
     code: "BR",
     countryName: "Brazil",
     flagDataUri,
-    backgroundHex: "#62B46D"
+    backgroundHex: "#62B46D",
   });
 
   assert.equal(fromPrepared, fromText);
@@ -171,7 +164,7 @@ test("a badge composed from prepared data stays self-contained", () => {
     code: "PY",
     countryName: "Paraguay",
     flagDataUri: createFlagDataUri(flagSvg),
-    backgroundHex: "#8AB7FF"
+    backgroundHex: "#8AB7FF",
   });
 
   assert.match(svg, /viewBox="0 0 1024 1024"/);

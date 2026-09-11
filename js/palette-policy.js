@@ -7,16 +7,12 @@ import {
   contrastRatio,
   hexToRgb,
   rgbDistance,
-  rgbToHsl
+  rgbToHsl,
 } from "./color.js";
 
 const PALETTE_SIZE = 3;
 
-const OPTION_NAMES = [
-  "Option 1",
-  "Option 2",
-  "Option 3"
-];
+const OPTION_NAMES = ["Option 1", "Option 2", "Option 3"];
 
 const OUTPUT_COLORS = [
   { hex: "#FDF2F8", family: "pink", tone: "tint" },
@@ -64,7 +60,7 @@ const OUTPUT_COLORS = [
     tone: "clear",
     // The neutral fallback source color. Owning it here keeps the fallback
     // from drifting away from the curated catalog.
-    fallback: true
+    fallback: true,
   },
   { hex: "#2563EB", family: "blue", tone: "deep" },
   { hex: "#1D4ED8", family: "blue", tone: "deep" },
@@ -73,7 +69,7 @@ const OUTPUT_COLORS = [
   { hex: "#A78BFA", family: "violet", tone: "clear" },
   { hex: "#7C3AED", family: "violet", tone: "deep" },
   { hex: "#FBCFE8", family: "pink", tone: "soft" },
-  { hex: "#DB2777", family: "pink", tone: "deep" }
+  { hex: "#DB2777", family: "pink", tone: "deep" },
 ];
 
 const FAMILY_ALTERNATES = {
@@ -88,7 +84,7 @@ const FAMILY_ALTERNATES = {
   sky: ["sky", "blue", "cyan"],
   blue: ["blue", "sky", "cyan"],
   violet: ["violet", "blue", "pink"],
-  pink: ["pink", "rose", "violet"]
+  pink: ["pink", "rose", "violet"],
 };
 
 const FAMILY_TONE_PLAN = {
@@ -103,7 +99,7 @@ const FAMILY_TONE_PLAN = {
   sky: ["tint", "clear", "deep", "soft"],
   blue: ["clear", "deep", "soft", "tint"],
   violet: ["clear", "deep", "tint"],
-  pink: ["soft", "deep", "clear", "tint"]
+  pink: ["soft", "deep", "clear", "tint"],
 };
 
 const FAMILY_ORDER = [
@@ -118,7 +114,7 @@ const FAMILY_ORDER = [
   "sky",
   "blue",
   "violet",
-  "pink"
+  "pink",
 ];
 
 function familyFromRgb(rgb) {
@@ -199,22 +195,18 @@ function familySortIndex(family) {
   return index === -1 ? FAMILY_ORDER.length : index;
 }
 
-const CURATED_PALETTE = OUTPUT_COLORS.map(
-  (color, index) => {
-    const rgb = hexToRgb(color.hex);
+const CURATED_PALETTE = OUTPUT_COLORS.map((color, index) => {
+  const rgb = hexToRgb(color.hex);
 
-    return {
-      ...color,
-      id: index,
-      rgb,
-      hsl: rgbToHsl(rgb)
-    };
-  }
-);
+  return {
+    ...color,
+    id: index,
+    rgb,
+    hsl: rgbToHsl(rgb),
+  };
+});
 
-const FALLBACK_SOURCE_COLOR = CURATED_PALETTE.find(
-  color => color.fallback
-);
+const FALLBACK_SOURCE_COLOR = CURATED_PALETTE.find((color) => color.fallback);
 
 // Source colors arrive as raw observations: a color and how much of the flag
 // it covers. Normalizing the weights and classifying the family are policy
@@ -225,26 +217,21 @@ export function normalizeSourceColors(sourceColors) {
   }
 
   const observed = sourceColors.filter(
-    source =>
-      source?.rgb &&
-      Number.isFinite(source.weight) &&
-      source.weight > 0
+    (source) =>
+      source?.rgb && Number.isFinite(source.weight) && source.weight > 0,
   );
 
-  const totalWeight = observed.reduce(
-    (sum, source) => sum + source.weight,
-    0
-  );
+  const totalWeight = observed.reduce((sum, source) => sum + source.weight, 0);
 
   if (totalWeight <= 0) {
     return [];
   }
 
-  return observed.map(source => ({
+  return observed.map((source) => ({
     rgb: source.rgb,
     hsl: rgbToHsl(source.rgb),
     family: familyFromRgb(source.rgb),
-    weight: source.weight / totalWeight
+    weight: source.weight / totalWeight,
   }));
 }
 
@@ -265,39 +252,33 @@ function buildFamilyWeights(sourceColors) {
     }
 
     const accentFloor =
-      source.hsl.s > 0.42 && source.weight > 0.006
-        ? 0.035
-        : 0;
+      source.hsl.s > 0.42 && source.weight > 0.006 ? 0.035 : 0;
 
     weights.set(
       family,
       (weights.get(family) ?? 0) +
-        source.weight *
-          (0.65 + source.hsl.s * 0.95) +
-        accentFloor
+        source.weight * (0.65 + source.hsl.s * 0.95) +
+        accentFloor,
     );
   }
 
   return {
     weights,
-    lightWeight
+    lightWeight,
   };
 }
 
 function sortFamilyWeights(first, second) {
   return (
     second[1] - first[1] ||
-    familySortIndex(first[0]) -
-      familySortIndex(second[0])
+    familySortIndex(first[0]) - familySortIndex(second[0])
   );
 }
 
 function targetFamiliesFor(sourceColors) {
-  const { weights, lightWeight } =
-    buildFamilyWeights(sourceColors);
+  const { weights, lightWeight } = buildFamilyWeights(sourceColors);
 
-  const sortedFamilies =
-    [...weights.entries()].sort(sortFamilyWeights);
+  const sortedFamilies = [...weights.entries()].sort(sortFamilyWeights);
 
   let targets = sortedFamilies
     .filter(([, weight]) => weight >= 0.055)
@@ -318,7 +299,7 @@ function targetFamiliesFor(sourceColors) {
   for (const family of targets) {
     const group = familyGroup(family);
     const hasGroup = collapsedTargets.some(
-      existing => familyGroup(existing) === group
+      (existing) => familyGroup(existing) === group,
     );
 
     if (!hasGroup) {
@@ -341,9 +322,8 @@ function targetFamiliesFor(sourceColors) {
   if (targets.length === 1) {
     const family = targets[0];
     const related =
-      FAMILY_ALTERNATES[family]?.find(
-        alternate => alternate !== family
-      ) ?? family;
+      FAMILY_ALTERNATES[family]?.find((alternate) => alternate !== family) ??
+      family;
 
     targets.push(related);
 
@@ -352,12 +332,9 @@ function targetFamiliesFor(sourceColors) {
     } else {
       targets.push(`${related}:soft`);
     }
-  } else if (
-    targets.length === 2 &&
-    lightWeight > 0.18
-  ) {
-    const lightFamily = targets.some(family =>
-      ["blue", "sky", "cyan"].includes(family)
+  } else if (targets.length === 2 && lightWeight > 0.18) {
+    const lightFamily = targets.some((family) =>
+      ["blue", "sky", "cyan"].includes(family),
     )
       ? "blue"
       : targets[0];
@@ -368,15 +345,11 @@ function targetFamiliesFor(sourceColors) {
   return targets.slice(0, PALETTE_SIZE);
 }
 
-function candidateRepresentatives(
-  sourceColors,
-  baseFamily
-) {
-  const allowedFamilies =
-    FAMILY_ALTERNATES[baseFamily] ?? [baseFamily];
+function candidateRepresentatives(sourceColors, baseFamily) {
+  const allowedFamilies = FAMILY_ALTERNATES[baseFamily] ?? [baseFamily];
 
-  return sourceColors.filter(source =>
-    allowedFamilies.includes(source.family)
+  return sourceColors.filter((source) =>
+    allowedFamilies.includes(source.family),
   );
 }
 
@@ -386,29 +359,18 @@ function scoreCandidate({
   forcedTone,
   familyWeights,
   representatives,
-  selected
+  selected,
 }) {
-  const tonePlan =
-    forcedTone
-      ? [forcedTone]
-      : FAMILY_TONE_PLAN[baseFamily] ?? [
-          "clear",
-          "soft",
-          "deep",
-          "tint"
-        ];
+  const tonePlan = forcedTone
+    ? [forcedTone]
+    : (FAMILY_TONE_PLAN[baseFamily] ?? ["clear", "soft", "deep", "tint"]);
 
   const toneIndex = tonePlan.indexOf(candidate.tone);
-  const toneBonus =
-    toneIndex >= 0
-      ? 0.34 - toneIndex * 0.065
-      : 0;
+  const toneBonus = toneIndex >= 0 ? 0.34 - toneIndex * 0.065 : 0;
 
-  const exactFamilyBonus =
-    candidate.family === baseFamily ? 0.32 : 0;
+  const exactFamilyBonus = candidate.family === baseFamily ? 0.32 : 0;
 
-  const familyWeight =
-    familyWeights.weights.get(baseFamily) ?? 0;
+  const familyWeight = familyWeights.weights.get(baseFamily) ?? 0;
 
   const sourceDistanceScore =
     representatives.length > 0
@@ -416,15 +378,8 @@ function scoreCandidate({
           (sum, source) =>
             sum +
             source.weight *
-              Math.max(
-                0,
-                1 -
-                  rgbDistance(
-                    candidate.rgb,
-                    source.rgb
-                  )
-              ),
-          0
+              Math.max(0, 1 - rgbDistance(candidate.rgb, source.rgb)),
+          0,
         )
       : 0;
 
@@ -432,38 +387,27 @@ function scoreCandidate({
     (sum, source) =>
       sum +
       source.weight *
-        clamp(
-          contrastRatio(candidate.rgb, source.rgb) /
-            4.8,
-          0,
-          1
-        ),
-    0
+        clamp(contrastRatio(candidate.rgb, source.rgb) / 4.8, 0, 1),
+    0,
   );
 
-  const selectedPenalty = selected.reduce(
-    (penalty, existing) => {
-      const distance = colorDistance(
-        existing.rgb,
-        candidate.rgb
-      );
+  const selectedPenalty = selected.reduce((penalty, existing) => {
+    const distance = colorDistance(existing.rgb, candidate.rgb);
 
-      if (distance < 0.105) {
-        return penalty + 1.1;
-      }
+    if (distance < 0.105) {
+      return penalty + 1.1;
+    }
 
-      if (distance < 0.15) {
-        return penalty + 0.35;
-      }
+    if (distance < 0.15) {
+      return penalty + 0.35;
+    }
 
-      return penalty;
-    },
-    0
-  );
+    return penalty;
+  }, 0);
 
   const tintPenalty =
     candidate.tone === "tint" &&
-    selected.some(option => option.tone === "tint")
+    selected.some((option) => option.tone === "tint")
       ? 1.1
       : 0;
 
@@ -478,32 +422,20 @@ function scoreCandidate({
   );
 }
 
-function pickCandidate({
-  target,
-  sourceColors,
-  familyWeights,
-  selected
-}) {
-  const [baseFamily, forcedTone] =
-    target.split(":");
-  const allowedFamilies =
-    FAMILY_ALTERNATES[baseFamily] ?? [baseFamily];
-  const representatives = candidateRepresentatives(
-    sourceColors,
-    baseFamily
-  );
+function pickCandidate({ target, sourceColors, familyWeights, selected }) {
+  const [baseFamily, forcedTone] = target.split(":");
+  const allowedFamilies = FAMILY_ALTERNATES[baseFamily] ?? [baseFamily];
+  const representatives = candidateRepresentatives(sourceColors, baseFamily);
 
   let candidates = CURATED_PALETTE.filter(
-    candidate =>
+    (candidate) =>
       allowedFamilies.includes(candidate.family) &&
-      !selected.some(
-        option => option.hex === candidate.hex
-      )
+      !selected.some((option) => option.hex === candidate.hex),
   );
 
   if (forcedTone) {
     const toneMatches = candidates.filter(
-      candidate => candidate.tone === forcedTone
+      (candidate) => candidate.tone === forcedTone,
     );
 
     if (toneMatches.length > 0) {
@@ -513,15 +445,12 @@ function pickCandidate({
 
   if (candidates.length === 0) {
     candidates = CURATED_PALETTE.filter(
-      candidate =>
-        !selected.some(
-          option => option.hex === candidate.hex
-        )
+      (candidate) => !selected.some((option) => option.hex === candidate.hex),
     );
   }
 
   return candidates
-    .map(candidate => ({
+    .map((candidate) => ({
       ...candidate,
       score: scoreCandidate({
         candidate,
@@ -529,12 +458,11 @@ function pickCandidate({
         forcedTone,
         familyWeights,
         representatives,
-        selected
-      })
+        selected,
+      }),
     }))
-    .sort((first, second) =>
-      second.score - first.score ||
-      first.id - second.id
+    .sort(
+      (first, second) => second.score - first.score || first.id - second.id,
     )[0];
 }
 
@@ -547,14 +475,12 @@ function selectCuratedPalette(sourceColors) {
             rgb: FALLBACK_SOURCE_COLOR.rgb,
             hsl: FALLBACK_SOURCE_COLOR.hsl,
             family: FALLBACK_SOURCE_COLOR.family,
-            weight: 1
-          }
+            weight: 1,
+          },
         ];
 
   const targets = targetFamiliesFor(safeSourceColors);
-  const familyWeights = buildFamilyWeights(
-    safeSourceColors
-  );
+  const familyWeights = buildFamilyWeights(safeSourceColors);
   const selected = [];
 
   for (const target of targets) {
@@ -562,7 +488,7 @@ function selectCuratedPalette(sourceColors) {
       target,
       sourceColors: safeSourceColors,
       familyWeights,
-      selected
+      selected,
     });
 
     if (candidate) {
@@ -571,15 +497,14 @@ function selectCuratedPalette(sourceColors) {
   }
 
   while (selected.length < PALETTE_SIZE) {
-    const fallbackTarget =
-      selected[0]?.family
-        ? `${selected[0].family}:tint`
-        : "blue:tint";
+    const fallbackTarget = selected[0]?.family
+      ? `${selected[0].family}:tint`
+      : "blue:tint";
     const candidate = pickCandidate({
       target: fallbackTarget,
       sourceColors: safeSourceColors,
       familyWeights,
-      selected
+      selected,
     });
 
     if (!candidate) {
@@ -596,12 +521,12 @@ function selectCuratedPalette(sourceColors) {
 // weight; normalization, family classification, and the neutral fallback are
 // policy decisions, so a caller only has to report what it saw.
 export function selectPalette(sourceColors) {
-  return selectCuratedPalette(
-    normalizeSourceColors(sourceColors)
-  ).map((option, index) => ({
-    id: index + 1,
-    label: OPTION_NAMES[index],
-    hex: option.hex,
-    rgb: option.rgb
-  }));
+  return selectCuratedPalette(normalizeSourceColors(sourceColors)).map(
+    (option, index) => ({
+      id: index + 1,
+      label: OPTION_NAMES[index],
+      hex: option.hex,
+      rgb: option.rgb,
+    }),
+  );
 }

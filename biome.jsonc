@@ -1,0 +1,72 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "ignoreUnknown": false,
+    // `favicon.svg` is a standalone image asset, not markup embedded in a
+    // document, so the markup a11y rules do not apply to it.
+    "includes": [
+      "**",
+      "!artifacts",
+      "!test-results",
+      "!playwright-report",
+      "!tmp-generated",
+      "!**/favicon.svg",
+      "!**/.ao",
+      "!**/.agentastic",
+      "!**/.conductor"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noParameterAssign": "error",
+        "useDefaultParameterLast": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noUselessElse": "error"
+      }
+    }
+  },
+  "javascript": { "formatter": { "quoteStyle": "double" } },
+  "overrides": [
+    {
+      "includes": ["**/index.html"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            // The country picker is the ARIA 1.2 combobox pattern, where the
+            // popup is a `ul` carrying `role="listbox"` and its children carry
+            // `role="option"`. That mapping is what the pattern prescribes, and
+            // the rule's fix (dropping the role) would leave the combobox
+            // without a popup role.
+            "noNoninteractiveElementToInteractiveRole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/design/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            // `design/social-card/social-card.html` is a static rendering
+            // skeleton screenshotted into `social-card.jpg`. Its `label`
+            // elements draw the real app's labels; there is no form to
+            // associate them with, and nobody navigates this file.
+            "noLabelWithoutControl": "off"
+          }
+        }
+      }
+    }
+  ]
+}

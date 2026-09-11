@@ -45,12 +45,18 @@ modules and browser security behavior differ from the deployed site.
 ## Commands
 | Command | What it does |
 | --- | --- |
-| `npm run validate` | The full gate before a commit: the unit suite then the browser suite |
+| `npm run validate` | The full gate before a commit: Biome, the unit suite, then the browser suite |
 | `npm start` | Serves the repository root over HTTP on port 8080 (`python3 -m http.server`) |
-| `npm test` | The same two suites; `validate` is the name to reach for |
+| `npm run lint` | Biome lint and format check over the repository, changing nothing |
+| `npm run format` | The same checks with every safe fix written to disk |
+| `npm test` | The two suites; `validate` is the name to reach for |
 | `npm run test:unit` | `node --test` over `tests/unit/` |
 | `npm run test:browser` | The Playwright acceptance suite |
 | `npm run social-card` | Renders `design/social-card/social-card.html` into `social-card.jpg` (on a Mac) |
+
+Biome is the single linter and formatter, pinned in `devDependencies` and configured in
+`biome.jsonc`. The configuration is JSONC because the few rules the project turns off carry their
+reason next to them.
 
 Browser tests serve the checkout at the site root on a port chosen at run time
 (`http://127.0.0.1:<port>/`). That mirrors the published origin, and the run-time port lets two

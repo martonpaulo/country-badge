@@ -15,14 +15,8 @@ function textToBase64(value) {
   const chunkSize = 0x8000;
   let binary = "";
 
-  for (
-    let index = 0;
-    index < bytes.length;
-    index += chunkSize
-  ) {
-    binary += String.fromCharCode(
-      ...bytes.subarray(index, index + chunkSize)
-    );
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
   }
 
   return btoa(binary);
@@ -41,12 +35,11 @@ export function createBadgeSvg({
   flagSvgText,
   flagDataUri,
   backgroundHex,
-  idPrefix = `badge-${code.toLowerCase()}`
+  idPrefix = `badge-${code.toLowerCase()}`,
 }) {
   const flagX = (SVG_SIZE - FLAG_BOX_WIDTH) / 2;
   const flagY = (SVG_SIZE - FLAG_BOX_HEIGHT) / 2;
-  const flagHref =
-    flagDataUri ?? createFlagDataUri(flagSvgText);
+  const flagHref = flagDataUri ?? createFlagDataUri(flagSvgText);
   const titleId = `${idPrefix}-title`;
   const descriptionId = `${idPrefix}-description`;
   const shadowId = `${idPrefix}-flag-shadow`;
@@ -103,8 +96,8 @@ export function downloadSvg(fileName, svgText) {
   downloadBlob(
     fileName,
     new Blob([svgText], {
-      type: "image/svg+xml;charset=utf-8"
-    })
+      type: "image/svg+xml;charset=utf-8",
+    }),
   );
 }
 
@@ -118,18 +111,15 @@ function downloadBlob(fileName, blob) {
   anchor.click();
   anchor.remove();
 
-  window.setTimeout(
-    () => URL.revokeObjectURL(objectUrl),
-    0
-  );
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
 }
 
 function loadSvgImage(svgText) {
   return new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(
       new Blob([svgText], {
-        type: "image/svg+xml"
-      })
+        type: "image/svg+xml",
+      }),
     );
 
     const image = new Image();
@@ -141,9 +131,7 @@ function loadSvgImage(svgText) {
 
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
-      reject(
-        new Error("The SVG could not be prepared for image export.")
-      );
+      reject(new Error("The SVG could not be prepared for image export."));
     };
 
     image.src = objectUrl;
@@ -153,24 +141,20 @@ function loadSvgImage(svgText) {
 function canvasToBlob(canvas, mimeType, quality) {
   return new Promise((resolve, reject) => {
     if (!canvas.toBlob) {
-      reject(
-        new Error("Image export is not supported in this browser.")
-      );
+      reject(new Error("Image export is not supported in this browser."));
       return;
     }
 
     canvas.toBlob(
-      blob => {
+      (blob) => {
         if (blob) {
           resolve(blob);
         } else {
-          reject(
-            new Error("The image file could not be created.")
-          );
+          reject(new Error("The image file could not be created."));
         }
       },
       mimeType,
-      quality
+      quality,
     );
   });
 }
@@ -179,15 +163,13 @@ export async function downloadRasterizedSvg({
   fileName,
   svgText,
   mimeType,
-  quality = 0.92
+  quality = 0.92,
 }) {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
   if (!context) {
-    throw new Error(
-      "Canvas is not available in this browser."
-    );
+    throw new Error("Canvas is not available in this browser.");
   }
 
   canvas.width = SVG_SIZE;
@@ -199,11 +181,7 @@ export async function downloadRasterizedSvg({
   context.fillRect(0, 0, SVG_SIZE, SVG_SIZE);
   context.drawImage(image, 0, 0, SVG_SIZE, SVG_SIZE);
 
-  const blob = await canvasToBlob(
-    canvas,
-    mimeType,
-    quality
-  );
+  const blob = await canvasToBlob(canvas, mimeType, quality);
 
   downloadBlob(fileName, blob);
 }
@@ -228,9 +206,7 @@ export async function copyText(value) {
     textarea.select();
 
     if (document.execCommand("copy") !== true) {
-      throw new Error(
-        "The SVG could not be copied in this browser."
-      );
+      throw new Error("The SVG could not be copied in this browser.");
     }
   } finally {
     textarea.remove();

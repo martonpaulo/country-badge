@@ -31,6 +31,6 @@ export async function resolveServeTarget() {
     serveRoot: repositoryRoot,
     port,
     command: `python3 -m http.server ${port} --directory "${repositoryRoot}"`,
-    baseURL: `http://127.0.0.1:${port}/`
+    baseURL: `http://127.0.0.1:${port}/`,
   };
 }

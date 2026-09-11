@@ -1,48 +1,39 @@
-import {
-  expect,
-  test
-} from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const testedCountries = [
   { name: "Paraguay", code: "PY" },
   { name: "Brazil", code: "BR" },
   { name: "Bolivia", code: "BO" },
-  { name: "Spain", code: "ES" }
+  { name: "Spain", code: "ES" },
 ];
 
-const forbiddenBackgrounds = new Set([
-  "#FFFFFF",
-  "#94A3B8",
-  "#334155"
-]);
+const forbiddenBackgrounds = new Set(["#FFFFFF", "#94A3B8", "#334155"]);
 
 async function installDiagnostics(page) {
   const diagnostics = {
     consoleErrors: [],
-    failedRequests: []
+    failedRequests: [],
   };
 
-  page.on("console", message => {
+  page.on("console", (message) => {
     if (["error", "warning"].includes(message.type())) {
       diagnostics.consoleErrors.push(message.text());
     }
   });
 
-  page.on("pageerror", error => {
+  page.on("pageerror", (error) => {
     diagnostics.consoleErrors.push(error.message);
   });
 
-  page.on("requestfailed", request => {
+  page.on("requestfailed", (request) => {
     diagnostics.failedRequests.push(
-      `${request.failure()?.errorText ?? "failed"} ${request.url()}`
+      `${request.failure()?.errorText ?? "failed"} ${request.url()}`,
     );
   });
 
-  page.on("response", response => {
+  page.on("response", (response) => {
     if (response.status() >= 400) {
-      diagnostics.failedRequests.push(
-        `${response.status()} ${response.url()}`
-      );
+      diagnostics.failedRequests.push(`${response.status()} ${response.url()}`);
     }
   });
 
@@ -51,7 +42,7 @@ async function installDiagnostics(page) {
 
 async function openApp(page) {
   await page.goto("./", {
-    waitUntil: "networkidle"
+    waitUntil: "networkidle",
   });
   await expect(page.locator("#country-search")).toBeEnabled();
 }
@@ -66,9 +57,12 @@ async function searchCountry(page, query) {
 async function selectCountry(page, query, code) {
   await searchCountry(page, query);
 
-  const option = page.locator("#country-options [role='option']").filter({
-    hasText: code
-  }).first();
+  const option = page
+    .locator("#country-options [role='option']")
+    .filter({
+      hasText: code,
+    })
+    .first();
 
   await expect(option).toBeVisible();
   await option.click();
@@ -79,7 +73,7 @@ async function selectCountry(page, query, code) {
 async function downloadCurrentFile(page) {
   return Promise.all([
     page.waitForEvent("download"),
-    page.locator("#download-button").click()
+    page.locator("#download-button").click(),
   ]).then(([downloadEvent]) => downloadEvent);
 }
 
@@ -88,9 +82,11 @@ function paletteInputs(page) {
 }
 
 async function getPaletteHexes(page) {
-  return page.locator(".palette-hex").evaluateAll(elements =>
-    elements.map(element => element.textContent.trim())
-  );
+  return page
+    .locator(".palette-hex")
+    .evaluateAll((elements) =>
+      elements.map((element) => element.textContent.trim()),
+    );
 }
 
 async function assertDropdownIsAboveContent(page) {
@@ -106,13 +102,12 @@ async function assertDropdownIsAboveContent(page) {
       visible: rect.width > 0 && rect.height > 0,
       zIndex: Number(style.zIndex),
       topElementIsDropdown:
-        topElement === list ||
-        Boolean(topElement?.closest("#country-options")),
+        topElement === list || Boolean(topElement?.closest("#country-options")),
       withinViewport:
         rect.left >= 0 &&
         rect.right <= window.innerWidth &&
         rect.top >= 0 &&
-        rect.bottom <= window.innerHeight
+        rect.bottom <= window.innerHeight,
     };
   });
 
@@ -122,7 +117,9 @@ async function assertDropdownIsAboveContent(page) {
   expect(result.withinViewport).toBe(true);
 }
 
-test("combobox opens, filters, rejects free text, and supports keyboard and pointer selection", async ({ page }) => {
+test("combobox opens, filters, rejects free text, and supports keyboard and pointer selection", async ({
+  page,
+}) => {
   const diagnostics = await installDiagnostics(page);
   await openApp(page);
 
@@ -133,21 +130,31 @@ test("combobox opens, filters, rejects free text, and supports keyboard and poin
   await assertDropdownIsAboveContent(page);
 
   await input.fill("zzzzzz");
-  await expect(page.locator(".country-no-results")).toHaveText("No countries found.");
-  await expect(page.locator("#country-status")).toHaveText(
-    "No countries found for \u201Czzzzzz\u201D."
+  await expect(page.locator(".country-no-results")).toHaveText(
+    "No countries found.",
   );
-  await expect(page.locator("#country-status")).toHaveAttribute("data-state", "warning");
+  await expect(page.locator("#country-status")).toHaveText(
+    "No countries found for \u201Czzzzzz\u201D.",
+  );
+  await expect(page.locator("#country-status")).toHaveAttribute(
+    "data-state",
+    "warning",
+  );
   await expect(page.locator("#country-options [role='option']")).toHaveCount(0);
-  await expect(page.locator(".country-no-results")).not.toHaveAttribute("role", /.*/);
+  await expect(page.locator(".country-no-results")).not.toHaveAttribute(
+    "role",
+    /.*/,
+  );
 
   await input.fill("Paraguay");
-  await expect(page.locator("#country-options [role='option']").first()).toContainText("PY");
+  await expect(
+    page.locator("#country-options [role='option']").first(),
+  ).toContainText("PY");
   await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
 
   await input.fill("zzzzzz");
   await expect(page.locator("#country-status")).toHaveText(
-    "No countries found for \u201Czzzzzz\u201D."
+    "No countries found for \u201Czzzzzz\u201D.",
   );
   await input.fill("");
   await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
@@ -155,10 +162,16 @@ test("combobox opens, filters, rejects free text, and supports keyboard and poin
   await input.fill("Paraguay");
 
   await input.press("ArrowDown");
-  await expect(input).toHaveAttribute("aria-activedescendant", /country-option-/);
+  await expect(input).toHaveAttribute(
+    "aria-activedescendant",
+    /country-option-/,
+  );
 
   await input.press("ArrowUp");
-  await expect(input).toHaveAttribute("aria-activedescendant", /country-option-/);
+  await expect(input).toHaveAttribute(
+    "aria-activedescendant",
+    /country-option-/,
+  );
 
   await input.press("Escape");
   await expect(page.locator("#country-options")).toBeHidden();
@@ -184,7 +197,9 @@ test("combobox opens, filters, rejects free text, and supports keyboard and poin
   expect(diagnostics.failedRequests).toEqual([]);
 });
 
-test("generates deterministic palettes, previews every option, and downloads self-contained SVGs", async ({ page }) => {
+test("generates deterministic palettes, previews every option, and downloads self-contained SVGs", async ({
+  page,
+}) => {
   const diagnostics = await installDiagnostics(page);
   await openApp(page);
 
@@ -200,18 +215,18 @@ test("generates deterministic palettes, previews every option, and downloads sel
       expect(forbiddenBackgrounds.has(hex)).toBe(false);
     }
 
-    const distances = await page.evaluate(async colors => {
+    const distances = await page.evaluate(async (colors) => {
       const { colorDistance } = await import("./js/palette.js");
-      const parse = hex => ({
+      const parse = (hex) => ({
         r: Number.parseInt(hex.slice(1, 3), 16),
         g: Number.parseInt(hex.slice(3, 5), 16),
-        b: Number.parseInt(hex.slice(5, 7), 16)
+        b: Number.parseInt(hex.slice(5, 7), 16),
       });
 
       return colors.flatMap((first, firstIndex) =>
-        colors.slice(firstIndex + 1).map(second =>
-          colorDistance(parse(first), parse(second))
-        )
+        colors
+          .slice(firstIndex + 1)
+          .map((second) => colorDistance(parse(first), parse(second))),
       );
     }, hexes);
 
@@ -224,7 +239,9 @@ test("generates deterministic palettes, previews every option, and downloads sel
       await expect(paletteInputs(page).nth(index)).toBeChecked();
       await expect(page.locator("#selected-color")).toHaveText(hexes[index]);
 
-      const previewColor = await page.locator("#preview-canvas > svg rect").getAttribute("fill");
+      const previewColor = await page
+        .locator("#preview-canvas > svg rect")
+        .getAttribute("fill");
       previewColors.push(previewColor);
     }
 
@@ -235,8 +252,8 @@ test("generates deterministic palettes, previews every option, and downloads sel
     expect(download.suggestedFilename()).toBe(`${country.code}.svg`);
 
     const path = await download.path();
-    const svgText = await import("node:fs/promises").then(fs =>
-      fs.readFile(path, "utf8")
+    const svgText = await import("node:fs/promises").then((fs) =>
+      fs.readFile(path, "utf8"),
     );
 
     expect(svgText).toContain('viewBox="0 0 1024 1024"');
@@ -258,8 +275,8 @@ test("generates deterministic palettes, previews every option, and downloads sel
   expect(pngDownload.suggestedFilename()).toBe("BR.png");
 
   const pngPath = await pngDownload.path();
-  const pngBytes = await import("node:fs/promises").then(fs =>
-    fs.readFile(pngPath)
+  const pngBytes = await import("node:fs/promises").then((fs) =>
+    fs.readFile(pngPath),
   );
 
   expect(pngBytes.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
@@ -272,8 +289,8 @@ test("generates deterministic palettes, previews every option, and downloads sel
   expect(jpgDownload.suggestedFilename()).toBe("BR.jpg");
 
   const jpgPath = await jpgDownload.path();
-  const jpgBytes = await import("node:fs/promises").then(fs =>
-    fs.readFile(jpgPath)
+  const jpgBytes = await import("node:fs/promises").then((fs) =>
+    fs.readFile(jpgPath),
   );
 
   expect(jpgBytes.subarray(0, 2).toString("hex")).toBe("ffd8");
@@ -297,7 +314,9 @@ test("generates deterministic palettes, previews every option, and downloads sel
   expect(diagnostics.failedRequests).toEqual([]);
 });
 
-test("curated palettes preserve clear flag color families", async ({ page }) => {
+test("curated palettes preserve clear flag color families", async ({
+  page,
+}) => {
   await openApp(page);
 
   const hexes = await page.evaluate(async () => {
@@ -308,8 +327,9 @@ test("curated palettes preserve clear flag color families", async ({ page }) => 
       <rect y="2" width="3" height="1" fill="#007934"/>
     </svg>`;
 
-    return createDeterministicPalette(flagSvg)
-      .then(palette => palette.map(option => option.hex));
+    return createDeterministicPalette(flagSvg).then((palette) =>
+      palette.map((option) => option.hex),
+    );
   });
 
   expect(hexes).toHaveLength(3);
@@ -318,7 +338,10 @@ test("curated palettes preserve clear flag color families", async ({ page }) => 
   expect(hexes).toContain("#22C55E");
 });
 
-test("layout remains usable at desktop and mobile viewports", async ({ page, viewport }) => {
+test("layout remains usable at desktop and mobile viewports", async ({
+  page,
+  viewport,
+}) => {
   await openApp(page);
   await searchCountry(page, "Paraguay");
   await assertDropdownIsAboveContent(page);
@@ -331,19 +354,30 @@ test("layout remains usable at desktop and mobile viewports", async ({ page, vie
     viewportWidth: window.innerWidth,
     viewportHeight: window.innerHeight,
     downloadVisible: (() => {
-      const rect = document.querySelector("#download-button").getBoundingClientRect();
+      const rect = document
+        .querySelector("#download-button")
+        .getBoundingClientRect();
       return rect.top >= 0 && rect.bottom <= window.innerHeight;
     })(),
     previewVisible: (() => {
-      const rect = document.querySelector("#preview-canvas").getBoundingClientRect();
-      return rect.width >= 280 && rect.height >= 280 && rect.top < window.innerHeight && rect.bottom > 0;
-    })()
+      const rect = document
+        .querySelector("#preview-canvas")
+        .getBoundingClientRect();
+      return (
+        rect.width >= 280 &&
+        rect.height >= 280 &&
+        rect.top < window.innerHeight &&
+        rect.bottom > 0
+      );
+    })(),
   }));
 
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.viewportWidth);
 
   if (viewport.width >= 940) {
-    expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.viewportHeight + 1);
+    expect(metrics.scrollHeight).toBeLessThanOrEqual(
+      metrics.viewportHeight + 1,
+    );
     expect(metrics.downloadVisible).toBe(true);
     expect(metrics.previewVisible).toBe(true);
   } else {
@@ -352,28 +386,30 @@ test("layout remains usable at desktop and mobile viewports", async ({ page, vie
     await page.locator("#download-button").scrollIntoViewIfNeeded();
     await expect(page.locator("#download-button")).toBeInViewport();
 
-    const touchTargets = await page.locator(".button:visible, #country-search, .palette-option").evaluateAll(elements =>
-      elements.map(element => {
-        const rect = element.getBoundingClientRect();
-        return {
-          width: rect.width,
-          height: rect.height
-        };
-      })
-    );
+    const touchTargets = await page
+      .locator(".button:visible, #country-search, .palette-option")
+      .evaluateAll((elements) =>
+        elements.map((element) => {
+          const rect = element.getBoundingClientRect();
+          return {
+            width: rect.width,
+            height: rect.height,
+          };
+        }),
+      );
 
-    expect(touchTargets.every(rect => rect.height >= 44)).toBe(true);
+    expect(touchTargets.every((rect) => rect.height >= 44)).toBe(true);
   }
 
   // Compact density is expressed by scoped token overrides, so the panels must
   // resolve to the compact padding and radius below 641px and to the base
   // values above it.
-  const panel = await page.locator(".controls-panel").evaluate(element => {
+  const panel = await page.locator(".controls-panel").evaluate((element) => {
     const style = getComputedStyle(element);
 
     return {
       padding: style.paddingTop,
-      radius: style.borderTopLeftRadius
+      radius: style.borderTopLeftRadius,
     };
   });
 
@@ -386,7 +422,10 @@ test("layout remains usable at desktop and mobile viewports", async ({ page, vie
   }
 });
 
-test("the source note credits both data sources", async ({ page, viewport }) => {
+test("the source note credits both data sources", async ({
+  page,
+  viewport,
+}) => {
   await openApp(page);
 
   const sourceNote = page.locator(".source-note");
@@ -399,8 +438,7 @@ test("the source note credits both data sources", async ({ page, viewport }) => 
   }
 });
 
-const COUNTRY_DATA_PATTERN =
-  "**/world-countries@*/dist/countries.json";
+const COUNTRY_DATA_PATTERN = "**/world-countries@*/dist/countries.json";
 
 function createCatalogPayload() {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -409,19 +447,19 @@ function createCatalogPayload() {
       cca2: "BR",
       name: {
         common: "Brazil",
-        official: "Federative Republic of Brazil"
-      }
+        official: "Federative Republic of Brazil",
+      },
     },
     {
       cca2: "PY",
       name: {
         common: "Paraguay",
-        official: "Republic of Paraguay"
-      }
-    }
+        official: "Republic of Paraguay",
+      },
+    },
   ];
 
-  const usedCodes = new Set(payload.map(country => country.cca2));
+  const usedCodes = new Set(payload.map((country) => country.cca2));
 
   for (const first of letters) {
     for (const second of letters) {
@@ -436,8 +474,8 @@ function createCatalogPayload() {
         cca2: code,
         name: {
           common: `Country ${code}`,
-          official: `Country ${code}`
-        }
+          official: `Country ${code}`,
+        },
       });
 
       if (payload.length >= 120) {
@@ -451,7 +489,7 @@ function createCatalogPayload() {
 
 function createGate() {
   let release;
-  const promise = new Promise(resolve => {
+  const promise = new Promise((resolve) => {
     release = resolve;
   });
 
@@ -463,7 +501,7 @@ function createGate() {
 async function installCatalogRoute(page, plan) {
   const tracker = { attempts: 0 };
 
-  await page.route(COUNTRY_DATA_PATTERN, async route => {
+  await page.route(COUNTRY_DATA_PATTERN, async (route) => {
     const step = plan[Math.min(tracker.attempts, plan.length - 1)];
 
     tracker.attempts += 1;
@@ -476,7 +514,7 @@ async function installCatalogRoute(page, plan) {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(createCatalogPayload())
+        body: JSON.stringify(createCatalogPayload()),
       });
 
       return;
@@ -490,28 +528,33 @@ async function installCatalogRoute(page, plan) {
 
 async function expectCatalogFailureState(page) {
   await expect(page.locator("#country-status")).toHaveText(
-    "The country list could not be loaded. Check the connection and try again."
+    "The country list could not be loaded. Check the connection and try again.",
   );
-  await expect(page.locator("#country-status")).toHaveAttribute("data-state", "error");
+  await expect(page.locator("#country-status")).toHaveAttribute(
+    "data-state",
+    "error",
+  );
   await expect(page.locator("#country-search")).toBeDisabled();
   await expect(page.locator("#country-retry")).toBeVisible();
   await expect(page.locator("#country-retry")).toBeEnabled();
   await expect(page.locator("#status-message")).toHaveText(
-    "Country search is unavailable until the country list loads."
+    "Country search is unavailable until the country list loads.",
   );
 
-  const overflows = await page.evaluate(() =>
-    document.documentElement.scrollWidth > window.innerWidth
+  const overflows = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth,
   );
 
   expect(overflows).toBe(false);
 }
 
-test("a failed catalog load recovers through the in-page retry control", async ({ page }) => {
+test("a failed catalog load recovers through the in-page retry control", async ({
+  page,
+}) => {
   const gate = createGate();
   const tracker = await installCatalogRoute(page, [
     { ok: false },
-    { ok: true, gate: gate.promise }
+    { ok: true, gate: gate.promise },
   ]);
 
   await page.goto("./", { waitUntil: "load" });
@@ -524,7 +567,9 @@ test("a failed catalog load recovers through the in-page retry control", async (
   await retry.focus();
   await retry.press("Enter");
 
-  await expect(page.locator("#country-status")).toHaveText("Retrying the country list...");
+  await expect(page.locator("#country-status")).toHaveText(
+    "Retrying the country list...",
+  );
   await expect(retry).toBeDisabled();
 
   // A second activation while one attempt is in flight must not start another request.
@@ -537,17 +582,26 @@ test("a failed catalog load recovers through the in-page retry control", async (
 
   await expect(input).toBeEnabled();
   await expect(page.locator("#country-status")).toHaveText("Countries loaded.");
-  await expect(page.locator("#country-status")).toHaveAttribute("data-state", "success");
-  await expect(page.locator("#status-message")).toHaveText("Choose a country to begin.");
+  await expect(page.locator("#country-status")).toHaveAttribute(
+    "data-state",
+    "success",
+  );
+  await expect(page.locator("#status-message")).toHaveText(
+    "Choose a country to begin.",
+  );
   await expect(retry).toBeHidden();
   await expect(input).toBeFocused();
   expect(tracker.attempts).toBe(2);
 
   await input.fill("Paraguay");
-  await expect(page.locator("#country-options [role='option']").first()).toContainText("PY");
+  await expect(
+    page.locator("#country-options [role='option']").first(),
+  ).toContainText("PY");
 });
 
-test("a repeated catalog failure stays retryable and never reports success", async ({ page }) => {
+test("a repeated catalog failure stays retryable and never reports success", async ({
+  page,
+}) => {
   const tracker = await installCatalogRoute(page, [{ ok: false }]);
 
   await page.goto("./", { waitUntil: "load" });
@@ -560,7 +614,10 @@ test("a repeated catalog failure stays retryable and never reports success", asy
   await retry.focus();
   await retry.press("Enter");
 
-  await expect(page.locator("#country-status")).toHaveAttribute("data-state", "error");
+  await expect(page.locator("#country-status")).toHaveAttribute(
+    "data-state",
+    "error",
+  );
   await expectCatalogFailureState(page);
   await expect(retry).toBeFocused();
   expect(tracker.attempts).toBe(2);
@@ -572,13 +629,15 @@ test("a repeated catalog failure stays retryable and never reports success", asy
   expect(tracker.attempts).toBe(3);
 });
 
-test("a settling retry leaves focus the user moved elsewhere alone", async ({ page }) => {
+test("a settling retry leaves focus the user moved elsewhere alone", async ({
+  page,
+}) => {
   const failureGate = createGate();
   const successGate = createGate();
   const tracker = await installCatalogRoute(page, [
     { ok: false },
     { ok: false, gate: failureGate.promise },
-    { ok: true, gate: successGate.promise }
+    { ok: true, gate: successGate.promise },
   ]);
 
   await page.goto("./", { waitUntil: "load" });
@@ -591,7 +650,9 @@ test("a settling retry leaves focus the user moved elsewhere alone", async ({ pa
   // A failing retry must not pull focus off a control the user chose while waiting.
   await retry.focus();
   await retry.press("Enter");
-  await expect(page.locator("#country-status")).toHaveText("Retrying the country list...");
+  await expect(page.locator("#country-status")).toHaveText(
+    "Retrying the country list...",
+  );
 
   await pngFormat.focus();
   await expect(pngFormat).toBeFocused();
@@ -606,7 +667,9 @@ test("a settling retry leaves focus the user moved elsewhere alone", async ({ pa
   // suggestion list over the control the user is actually operating.
   await retry.focus();
   await retry.press("Enter");
-  await expect(page.locator("#country-status")).toHaveText("Retrying the country list...");
+  await expect(page.locator("#country-status")).toHaveText(
+    "Retrying the country list...",
+  );
 
   await jpgFormat.focus();
   await expect(jpgFormat).toBeFocused();
@@ -627,14 +690,14 @@ const FLAG_PATTERN = "https://flagcdn.com/*.svg";
 // Serves every flag from a local plain SVG so touch coverage never depends on
 // the live CDN.
 async function installFlagRoute(page) {
-  await page.route(FLAG_PATTERN, async route => {
+  await page.route(FLAG_PATTERN, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "image/svg+xml",
       body: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2">
         <rect width="3" height="2" fill="#D52B1E"/>
         <rect width="1" height="2" fill="#007934"/>
-      </svg>`
+      </svg>`,
     });
   });
 }
@@ -642,31 +705,31 @@ async function installFlagRoute(page) {
 // Real touch input, so the browser resolves the gesture itself instead of the
 // test deciding whether a press was a drag or a tap.
 async function dispatchTouchDrag(session, { x, y, distance, steps = 8 }) {
-  const point = offsetY => [
+  const point = (offsetY) => [
     {
       x,
       y: offsetY,
       radiusX: 6,
       radiusY: 6,
-      force: 1
-    }
+      force: 1,
+    },
   ];
 
   await session.send("Input.dispatchTouchEvent", {
     type: "touchStart",
-    touchPoints: point(y)
+    touchPoints: point(y),
   });
 
   for (let step = 1; step <= steps; step += 1) {
     await session.send("Input.dispatchTouchEvent", {
       type: "touchMove",
-      touchPoints: point(y - (distance * step) / steps)
+      touchPoints: point(y - (distance * step) / steps),
     });
   }
 
   await session.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
-    touchPoints: []
+    touchPoints: [],
   });
 }
 
@@ -675,21 +738,24 @@ async function dispatchTouchTap(session, { x, y }) {
 
   await session.send("Input.dispatchTouchEvent", {
     type: "touchStart",
-    touchPoints
+    touchPoints,
   });
 
   await session.send("Input.dispatchTouchEvent", {
     type: "touchEnd",
-    touchPoints: []
+    touchPoints: [],
   });
 }
 
 test("a touch drag scrolls the suggestion list instead of selecting a country", async ({
   page,
   hasTouch,
-  viewport
+  viewport,
 }) => {
-  test.skip(!hasTouch || viewport.width !== 390, "Touch coverage runs at 390 x 844.");
+  test.skip(
+    !hasTouch || viewport.width !== 390,
+    "Touch coverage runs at 390 x 844.",
+  );
 
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagRoute(page);
@@ -701,10 +767,10 @@ test("a touch drag scrolls the suggestion list instead of selecting a country", 
   await input.fill("Country");
   await expect(list).toBeVisible();
 
-  const overflow = await list.evaluate(element => ({
+  const overflow = await list.evaluate((element) => ({
     clientHeight: element.clientHeight,
     scrollHeight: element.scrollHeight,
-    scrollTop: element.scrollTop
+    scrollTop: element.scrollTop,
   }));
 
   expect(overflow.scrollHeight).toBeGreaterThan(overflow.clientHeight);
@@ -716,11 +782,11 @@ test("a touch drag scrolls the suggestion list instead of selecting a country", 
   await dispatchTouchDrag(session, {
     x: box.x + box.width / 2,
     y: box.y + box.height - 24,
-    distance: box.height - 48
+    distance: box.height - 48,
   });
 
   await expect
-    .poll(() => list.evaluate(element => element.scrollTop))
+    .poll(() => list.evaluate((element) => element.scrollTop))
     .toBeGreaterThan(0);
 
   await expect(list).toBeVisible();
@@ -729,28 +795,28 @@ test("a touch drag scrolls the suggestion list instead of selecting a country", 
 
   // The list scrolled, so the tap target is whichever option the scroll
   // actually brought into view.
-  const tapTarget = await list.evaluate(element => {
+  const tapTarget = await list.evaluate((element) => {
     const rect = element.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-    const option = document
-      .elementFromPoint(x, y)
-      .closest('[role="option"]');
+    const option = document.elementFromPoint(x, y).closest('[role="option"]');
 
     return {
       x,
       y,
-      code: option.querySelector(".country-option-code").textContent
+      code: option.querySelector(".country-option-code").textContent,
     };
   });
 
   await dispatchTouchTap(session, {
     x: tapTarget.x,
-    y: tapTarget.y
+    y: tapTarget.y,
   });
 
   await expect(list).toBeHidden();
-  await expect(page.locator("#output-name")).toHaveText(`${tapTarget.code}.svg`);
+  await expect(page.locator("#output-name")).toHaveText(
+    `${tapTarget.code}.svg`,
+  );
 });
 
 // Holds the raster encoding open so the next format can be selected while an
@@ -772,7 +838,7 @@ async function deferRasterEncoding(page) {
 }
 
 test("a raster download reports the file it captured, not the next format", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagRoute(page);
@@ -786,7 +852,7 @@ test("a raster download reports the file it captured, not the next format", asyn
 
   for (const step of [
     { from: "PNG", to: "JPG" },
-    { from: "JPG", to: "PNG" }
+    { from: "JPG", to: "PNG" },
   ]) {
     const started = step.from.toLowerCase();
     const next = step.to.toLowerCase();
@@ -815,14 +881,14 @@ test("a raster download reports the file it captured, not the next format", asyn
 });
 
 test("a rejected clipboard copy reports failure and leaves downloads working", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagRoute(page);
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "clipboard", {
       value: undefined,
-      configurable: true
+      configurable: true,
     });
 
     document.execCommand = () => false;
@@ -834,9 +900,12 @@ test("a rejected clipboard copy reports failure and leaves downloads working", a
   await page.locator("#copy-button").click();
 
   await expect(page.locator("#status-message")).toHaveText(
-    "The SVG could not be copied in this browser."
+    "The SVG could not be copied in this browser.",
   );
-  await expect(page.locator("#status-message")).toHaveAttribute("data-state", "error");
+  await expect(page.locator("#status-message")).toHaveAttribute(
+    "data-state",
+    "error",
+  );
   await expect(page.locator("body > textarea")).toHaveCount(0);
 
   await expect(page.locator("#download-button")).toBeEnabled();
@@ -847,7 +916,7 @@ test("a rejected clipboard copy reports failure and leaves downloads working", a
 });
 
 test("the background palette is one exclusive radio group with decorative thumbnails", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagRoute(page);
@@ -862,16 +931,18 @@ test("the background palette is one exclusive radio group with decorative thumbn
   await expect(inputs).toHaveCount(3);
   await expect(inputs.nth(0)).toBeChecked();
 
-  const names = await inputs.evaluateAll(elements =>
-    elements.map(element => element.name)
+  const names = await inputs.evaluateAll((elements) =>
+    elements.map((element) => element.name),
   );
 
   expect(new Set(names).size).toBe(1);
 
   const accessibleNames = await page
     .locator(".palette-option")
-    .evaluateAll(elements =>
-      elements.map(element => element.textContent.replace(/\s+/g, " ").trim())
+    .evaluateAll((elements) =>
+      elements.map((element) =>
+        element.textContent.replace(/\s+/g, " ").trim(),
+      ),
     );
 
   const hexes = await getPaletteHexes(page);
@@ -882,12 +953,19 @@ test("the background palette is one exclusive radio group with decorative thumbn
 
   // Every thumbnail repeats the main preview, so only the preview should reach
   // the accessibility tree as an image.
-  const exposedImages = await page.locator("svg[role='img']").evaluateAll(elements =>
-    elements.filter(element => !element.closest("[aria-hidden='true']")).length
-  );
+  const exposedImages = await page
+    .locator("svg[role='img']")
+    .evaluateAll(
+      (elements) =>
+        elements.filter((element) => !element.closest("[aria-hidden='true']"))
+          .length,
+    );
 
   expect(exposedImages).toBe(1);
-  await expect(page.locator("#preview-canvas > svg")).toHaveAttribute("role", "img");
+  await expect(page.locator("#preview-canvas > svg")).toHaveAttribute(
+    "role",
+    "img",
+  );
 
   // Arrow keys move a native radio group's selection and must move the preview.
   await inputs.nth(0).focus();
@@ -897,7 +975,7 @@ test("the background palette is one exclusive radio group with decorative thumbn
   await expect(page.locator("#selected-color")).toHaveText(hexes[1]);
   await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
     "fill",
-    hexes[1]
+    hexes[1],
   );
 
   await page.keyboard.press("ArrowLeft");
@@ -911,19 +989,19 @@ test("the background palette is one exclusive radio group with decorative thumbn
   await expect(inputs.nth(0)).not.toBeChecked();
   await expect(page.locator("#selected-color")).toHaveText(hexes[2]);
 
-  const checkedCount = await inputs.evaluateAll(elements =>
-    elements.filter(element => element.checked).length
+  const checkedCount = await inputs.evaluateAll(
+    (elements) => elements.filter((element) => element.checked).length,
   );
 
   expect(checkedCount).toBe(1);
 
   // The format control is the same exclusive-choice card, sharing one visual base.
-  const cardBases = await page.locator(".choice-card").evaluateAll(elements =>
-    elements.map(element => {
+  const cardBases = await page.locator(".choice-card").evaluateAll((elements) =>
+    elements.map((element) => {
       const style = getComputedStyle(element);
 
       return `${style.borderRadius}|${style.borderTopWidth}|${style.minHeight}`;
-    })
+    }),
   );
 
   expect(new Set(cardBases).size).toBe(1);
@@ -931,7 +1009,7 @@ test("the background palette is one exclusive radio group with decorative thumbn
 });
 
 test("a reload reuses the cached catalog instead of refetching the source", async ({
-  page
+  page,
 }) => {
   const tracker = await installCatalogRoute(page, [{ ok: true }]);
 
@@ -947,16 +1025,14 @@ test("a reload reuses the cached catalog instead of refetching the source", asyn
 
   const cached = await page.evaluate(() => {
     const raw = sessionStorage.getItem(
-      "country-badge-generator.country-catalog.v2"
+      "country-badge-generator.country-catalog.v2",
     );
     const record = JSON.parse(raw);
 
     return {
       schemaVersion: record.schemaVersion,
       keys: Object.keys(record.countries[0]).sort(),
-      legacy: sessionStorage.getItem(
-        "country-badge-generator.country-data.v1"
-      )
+      legacy: sessionStorage.getItem("country-badge-generator.country-data.v1"),
     };
   });
 
@@ -970,12 +1046,12 @@ test("a reload reuses the cached catalog instead of refetching the source", asyn
     "name",
     "officialName",
     "population",
-    "searchTerms"
+    "searchTerms",
   ]);
 
   await searchCountry(page, "Brazil");
   await expect(
-    page.locator("#country-options [role='option']").first()
+    page.locator("#country-options [role='option']").first(),
   ).toContainText("BR");
 });
 
@@ -989,7 +1065,7 @@ const FLAG_SVG_BODY = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"
 async function installFlagPlanRoute(page, plan) {
   const tracker = { attempts: 0 };
 
-  await page.route(FLAG_PATTERN, async route => {
+  await page.route(FLAG_PATTERN, async (route) => {
     const step = plan[Math.min(tracker.attempts, plan.length - 1)];
 
     tracker.attempts += 1;
@@ -1002,7 +1078,7 @@ async function installFlagPlanRoute(page, plan) {
       await route.fulfill({
         status: 200,
         contentType: "image/svg+xml",
-        body: FLAG_SVG_BODY
+        body: FLAG_SVG_BODY,
       });
 
       return;
@@ -1030,11 +1106,11 @@ async function expectIdlePaletteSection(page) {
   await expect(page.locator("#loading-state")).toBeHidden();
   await expect(page.locator("#loading-state")).toHaveAttribute(
     "aria-hidden",
-    "true"
+    "true",
   );
   await expect(page.locator(".palette-notice")).toHaveAttribute(
     "data-state",
-    "idle"
+    "idle",
   );
   await expect(page.locator("#selected-country")).toHaveText("None");
   await expect(page.locator("#download-button")).toBeDisabled();
@@ -1043,7 +1119,7 @@ async function expectIdlePaletteSection(page) {
 }
 
 test("cancelling an in-flight generation returns the palette section to idle", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
 
@@ -1057,10 +1133,10 @@ test("cancelling an in-flight generation returns the palette section to idle", a
   await expect(page.locator("#loading-state")).toBeVisible();
   await expect(page.locator(".palette-notice")).toHaveAttribute(
     "data-state",
-    "loading"
+    "loading",
   );
   await expect(page.locator(".palette-notice")).toContainText(
-    "Building Brazil's palette..."
+    "Building Brazil's palette...",
   );
 
   await page.locator("#clear-search").click();
@@ -1075,7 +1151,7 @@ test("cancelling an in-flight generation returns the palette section to idle", a
 });
 
 test("editing a selected country during generation cancels it and warns", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
 
@@ -1092,11 +1168,11 @@ test("editing a selected country during generation cancels it and warns", async 
   await expect(page.locator("#loading-state")).toBeHidden();
   await expect(page.locator(".palette-notice")).toHaveAttribute(
     "data-state",
-    "idle"
+    "idle",
   );
   await expect(page.locator("#selected-country")).toHaveText("None");
   await expect(page.locator("#status-message")).toHaveText(
-    "Select a listed country before generating a badge."
+    "Select a listed country before generating a badge.",
   );
   await expect(page.locator("#download-button")).toBeDisabled();
 
@@ -1108,7 +1184,7 @@ test("editing a selected country during generation cancels it and warns", async 
 });
 
 test("a stale generation cannot overwrite the country that replaced it", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
 
@@ -1116,7 +1192,7 @@ test("a stale generation cannot overwrite the country that replaced it", async (
 
   await installFlagPlanRoute(page, [
     { ok: true, gate: stale.promise },
-    { ok: true }
+    { ok: true },
   ]);
   await openApp(page);
 
@@ -1136,19 +1212,21 @@ test("a stale generation cannot overwrite the country that replaced it", async (
 
   await expect(page.locator("#selected-country")).toHaveText("Paraguay");
   await expect(page.locator("#output-name")).toHaveText("PY.svg");
-  await expect(page.locator("#status-message")).toHaveText("PY palette is ready.");
+  await expect(page.locator("#status-message")).toHaveText(
+    "PY palette is ready.",
+  );
   await expect(page.locator("#loading-state")).toBeHidden();
   expect(await getPaletteHexes(page)).toEqual(paletteBefore);
 });
 
 test("a failed generation stays retryable in the palette section", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagPlanRoute(page, [
     { ok: false },
     { ok: false },
-    { ok: true }
+    { ok: true },
   ]);
   await openApp(page);
 
@@ -1166,7 +1244,7 @@ test("a failed generation stays retryable in the palette section", async ({
   await expect(page.locator("#selected-country")).toHaveText("Brazil");
   await expect(page.locator("#status-message")).toHaveAttribute(
     "data-state",
-    "error"
+    "error",
   );
 
   // The failure surface must be reachable without leaving the viewport.
@@ -1186,12 +1264,14 @@ test("a failed generation stays retryable in the palette section", async ({
   await expect(page.locator("#output-name")).toHaveText("BR.svg");
   await expect(page.locator("#download-button")).toBeEnabled();
   await expect(page.locator("#copy-button")).toBeEnabled();
-  await expect(page.locator("#status-message")).toHaveText("BR palette is ready.");
+  await expect(page.locator("#status-message")).toHaveText(
+    "BR palette is ready.",
+  );
   await expect(page.locator("#loading-state")).toBeHidden();
 });
 
 test("a palette retry does not steal focus the user moved elsewhere", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
 
@@ -1199,7 +1279,7 @@ test("a palette retry does not steal focus the user moved elsewhere", async ({
 
   await installFlagPlanRoute(page, [
     { ok: false },
-    { ok: false, gate: second.promise }
+    { ok: false, gate: second.promise },
   ]);
   await openApp(page);
 
@@ -1216,7 +1296,7 @@ test("a palette retry does not steal focus the user moved elsewhere", async ({
 
   await expect(page.locator(".palette-notice")).toHaveAttribute(
     "data-state",
-    "error"
+    "error",
   );
   await expect(page.locator("#country-search")).toBeFocused();
 });
@@ -1228,46 +1308,46 @@ test("a palette retry does not steal focus the user moved elsewhere", async ({
 const SAMPLED_FLAG_FIXTURES = {
   tricolorHorizontal: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 3"><rect width="3" height="1" fill="#D52B1E"/><rect y="1" width="3" height="1" fill="#F9E300"/><rect y="2" width="3" height="1" fill="#007934"/></svg>`,
-    hexes: ["#FACC15", "#22C55E", "#EF4444"]
+    hexes: ["#FACC15", "#22C55E", "#EF4444"],
   },
   tricolorVertical: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="1" height="2" fill="#0055A4"/><rect x="1" width="1" height="2" fill="#FFFFFF"/><rect x="2" width="1" height="2" fill="#EF4135"/></svg>`,
-    hexes: ["#E0F2FE", "#EF4444", "#22D3EE"]
+    hexes: ["#E0F2FE", "#EF4444", "#22D3EE"],
   },
   allWhite: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#FFFFFF"/></svg>`,
-    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"]
+    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"],
   },
   allBlack: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#000000"/></svg>`,
-    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"]
+    hexes: ["#EFF6FF", "#FACC15", "#4ADE80"],
   },
   singleGreen: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#009739"/></svg>`,
-    hexes: ["#22C55E", "#D9F99D", "#FEF3C7"]
+    hexes: ["#22C55E", "#D9F99D", "#FEF3C7"],
   },
   twoBlueYellow: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="1" fill="#0057B7"/><rect y="1" width="3" height="1" fill="#FFD700"/></svg>`,
-    hexes: ["#FACC15", "#E0F2FE", "#FEFCE8"]
+    hexes: ["#FACC15", "#E0F2FE", "#FEFCE8"],
   },
   fourColors: {
     svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 2"><rect width="1" height="2" fill="#7C3AED"/><rect x="1" width="1" height="2" fill="#0D9488"/><rect x="2" width="1" height="2" fill="#F97316"/><rect x="3" width="1" height="2" fill="#DB2777"/></svg>`,
-    hexes: ["#F97316", "#60A5FA", "#2DD4BF"]
-  }
+    hexes: ["#F97316", "#60A5FA", "#2DD4BF"],
+  },
 };
 
 test("sampling a flag through the facade keeps its exact ordered palette", async ({
-  page
+  page,
 }) => {
   await openApp(page);
 
-  const sampled = await page.evaluate(async fixtures => {
+  const sampled = await page.evaluate(async (fixtures) => {
     const { createDeterministicPalette } = await import("./js/palette.js");
     const result = {};
 
     for (const [name, fixture] of Object.entries(fixtures)) {
       result[name] = (await createDeterministicPalette(fixture.svg)).map(
-        option => option.hex
+        (option) => option.hex,
       );
     }
 
@@ -1280,7 +1360,7 @@ test("sampling a flag through the facade keeps its exact ordered palette", async
 });
 
 test("a flag the browser cannot decode fails instead of returning a palette", async ({
-  page
+  page,
 }) => {
   await openApp(page);
 
@@ -1305,7 +1385,7 @@ function createLargeFlagSvg() {
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">',
     '<rect width="1200" height="800" fill="#FFDD00"/>',
     '<rect y="400" width="1200" height="200" fill="#0033A0"/>',
-    '<rect y="600" width="1200" height="200" fill="#CE1126"/>'
+    '<rect y="600" width="1200" height="200" fill="#CE1126"/>',
   ];
 
   for (let index = 0; parts.join("").length < 210_000; index += 1) {
@@ -1313,7 +1393,7 @@ function createLargeFlagSvg() {
     const y = 300 + Math.floor(index / 90) * 0.5;
 
     parts.push(
-      `<path d="M ${x.toFixed(2)} ${y.toFixed(2)} l 4.25 2.5 l -1.5 4.75 l -5.5 0 l -1.5 -4.75 z" fill="#8B5A2B" fill-opacity="0.85" stroke="#3A2A16" stroke-width="0.3"/>`
+      `<path d="M ${x.toFixed(2)} ${y.toFixed(2)} l 4.25 2.5 l -1.5 4.75 l -5.5 0 l -1.5 -4.75 z" fill="#8B5A2B" fill-opacity="0.85" stroke="#3A2A16" stroke-width="0.3"/>`,
     );
   }
 
@@ -1329,7 +1409,7 @@ async function measureCachedSelection(page, optionLocator) {
   await page.evaluate(() => {
     window.__perf = { start: 0, end: 0, longTasks: [] };
 
-    const observer = new PerformanceObserver(list => {
+    const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         window.__perf.longTasks.push(entry.duration);
       }
@@ -1342,7 +1422,7 @@ async function measureCachedSelection(page, optionLocator) {
       () => {
         window.__perf.start = performance.now();
       },
-      { capture: true, once: true }
+      { capture: true, once: true },
     );
 
     const mutations = new MutationObserver(() => {
@@ -1357,7 +1437,7 @@ async function measureCachedSelection(page, optionLocator) {
 
     mutations.observe(document.querySelector("#palette-options"), {
       childList: true,
-      subtree: true
+      subtree: true,
     });
   });
 
@@ -1366,27 +1446,27 @@ async function measureCachedSelection(page, optionLocator) {
 
   return page.evaluate(() => ({
     duration: window.__perf.end - window.__perf.start,
-    longestTask: Math.max(0, ...window.__perf.longTasks)
+    longestTask: Math.max(0, ...window.__perf.longTasks),
   }));
 }
 
 test("a cached country selection stays off the main thread's critical path", async ({
-  page
+  page,
 }, testInfo) => {
   test.skip(
     testInfo.project.name !== "desktop-1440",
-    "One measurement project is enough."
+    "One measurement project is enough.",
   );
 
   await installCatalogRoute(page, [{ ok: true }]);
 
   const largeFlag = createLargeFlagSvg();
 
-  await page.route(FLAG_PATTERN, async route => {
+  await page.route(FLAG_PATTERN, async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "image/svg+xml",
-      body: largeFlag
+      body: largeFlag,
     });
   });
 
@@ -1418,18 +1498,18 @@ test("a cached country selection stays off the main thread's critical path", asy
     page
       .locator("#country-options [role='option']")
       .filter({ hasText: "BR" })
-      .first()
+      .first(),
   );
 
   await session.send("Emulation.setCPUThrottlingRate", { rate: 1 });
 
   testInfo.annotations.push({
     type: "measurement",
-    description: `flag ${largeFlag.length} bytes; 1x ${unthrottled.duration.toFixed(1)} ms (longest task ${unthrottled.longestTask.toFixed(1)} ms); 4x ${throttled.duration.toFixed(1)} ms (longest task ${throttled.longestTask.toFixed(1)} ms)`
+    description: `flag ${largeFlag.length} bytes; 1x ${unthrottled.duration.toFixed(1)} ms (longest task ${unthrottled.longestTask.toFixed(1)} ms); 4x ${throttled.duration.toFixed(1)} ms (longest task ${throttled.longestTask.toFixed(1)} ms)`,
   });
 
   console.log(
-    `PERF flag=${largeFlag.length}B 1x=${unthrottled.duration.toFixed(1)}ms/${unthrottled.longestTask.toFixed(1)}ms 4x=${throttled.duration.toFixed(1)}ms/${throttled.longestTask.toFixed(1)}ms`
+    `PERF flag=${largeFlag.length}B 1x=${unthrottled.duration.toFixed(1)}ms/${unthrottled.longestTask.toFixed(1)}ms 4x=${throttled.duration.toFixed(1)}ms/${throttled.longestTask.toFixed(1)}ms`,
   );
 
   expect(unthrottled.duration).toBeLessThan(16);
@@ -1437,7 +1517,7 @@ test("a cached country selection stays off the main thread's critical path", asy
 });
 
 test("lightweight thumbnails never leak into the exported output", async ({
-  page
+  page,
 }) => {
   await installCatalogRoute(page, [{ ok: true }]);
   await installFlagRoute(page);
@@ -1449,30 +1529,32 @@ test("lightweight thumbnails never leak into the exported output", async ({
   // export-grade payload of their own.
   const thumbnails = await page
     .locator(".palette-thumbnail")
-    .evaluateAll(elements =>
-      elements.map(element => ({
+    .evaluateAll((elements) =>
+      elements.map((element) => ({
         svgCount: element.querySelectorAll("svg").length,
         source: element.querySelector("img")?.getAttribute("src") ?? "",
-        background: element.style.backgroundColor
-      }))
+        background: element.style.backgroundColor,
+      })),
     );
 
   expect(thumbnails).toHaveLength(3);
-  expect(thumbnails.every(thumbnail => thumbnail.svgCount === 0)).toBe(true);
-  expect(new Set(thumbnails.map(thumbnail => thumbnail.source)).size).toBe(1);
+  expect(thumbnails.every((thumbnail) => thumbnail.svgCount === 0)).toBe(true);
+  expect(new Set(thumbnails.map((thumbnail) => thumbnail.source)).size).toBe(1);
   expect(thumbnails[0].source.startsWith("blob:")).toBe(true);
-  expect(new Set(thumbnails.map(thumbnail => thumbnail.background)).size).toBe(3);
+  expect(
+    new Set(thumbnails.map((thumbnail) => thumbnail.background)).size,
+  ).toBe(3);
 
   const hexes = await getPaletteHexes(page);
 
   await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
     "fill",
-    hexes[0]
+    hexes[0],
   );
 
   const download = await downloadCurrentFile(page);
-  const svgText = await import("node:fs/promises").then(fs =>
-    download.path().then(path => fs.readFile(path, "utf8"))
+  const svgText = await import("node:fs/promises").then((fs) =>
+    download.path().then((path) => fs.readFile(path, "utf8")),
   );
 
   expect(svgText).toContain('viewBox="0 0 1024 1024"');
@@ -1485,12 +1567,16 @@ test("lightweight thumbnails never leak into the exported output", async ({
     let captured = "";
 
     Object.defineProperty(navigator, "clipboard", {
-      value: { writeText: async value => { captured = value; } },
-      configurable: true
+      value: {
+        writeText: async (value) => {
+          captured = value;
+        },
+      },
+      configurable: true,
     });
 
     button.click();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     return captured;
   });
@@ -1502,18 +1588,18 @@ test("lightweight thumbnails never leak into the exported output", async ({
   await page.locator(".palette-option").nth(2).click();
   await expect(page.locator("#preview-canvas > svg rect")).toHaveAttribute(
     "fill",
-    hexes[2]
+    hexes[2],
   );
 
   const revoked = await page.evaluate(async () => {
     const before = document.querySelector(".palette-thumbnail img").src;
 
     document.querySelector("#clear-search").click();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     const response = await fetch(before).then(
       () => "still-live",
-      () => "revoked"
+      () => "revoked",
     );
 
     return response;
@@ -1524,11 +1610,11 @@ test("lightweight thumbnails never leak into the exported output", async ({
 
 test("the interface stays legible under a dark colour-scheme preference", async ({
   browser,
-  viewport
+  viewport,
 }) => {
   const context = await browser.newContext({
     viewport,
-    colorScheme: "dark"
+    colorScheme: "dark",
   });
 
   const page = await context.newPage();
@@ -1543,16 +1629,13 @@ test("the interface stays legible under a dark colour-scheme preference", async 
     // a dark preference must not repaint it into an unreadable hybrid.
     const rendered = await page.evaluate(() => {
       const body = getComputedStyle(document.body);
-      const panel = getComputedStyle(
-        document.querySelector(".controls-panel")
-      );
+      const panel = getComputedStyle(document.querySelector(".controls-panel"));
 
       return {
         scheme: getComputedStyle(document.documentElement).colorScheme,
         bodyColor: body.color,
         panelBackground: panel.backgroundColor,
-        overflows:
-          document.documentElement.scrollWidth > window.innerWidth
+        overflows: document.documentElement.scrollWidth > window.innerWidth,
       };
     });
 

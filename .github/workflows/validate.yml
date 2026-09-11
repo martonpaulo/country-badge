@@ -15,6 +15,7 @@ on:
       - "css/**"
       - "js/**"
       - "tests/unit/**"
+      - "biome.jsonc"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/validate.yml"
@@ -27,6 +28,7 @@ on:
       - "css/**"
       - "js/**"
       - "tests/unit/**"
+      - "biome.jsonc"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/validate.yml"
@@ -53,6 +55,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
+
+      - name: Lint and check formatting
+        run: npm run lint
 
       - name: Run unit tests
         run: npm run test:unit

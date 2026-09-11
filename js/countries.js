@@ -1,6 +1,6 @@
 const collator = new Intl.Collator("en", {
   sensitivity: "base",
-  numeric: true
+  numeric: true,
 });
 
 export function normalizeSearch(value) {
@@ -16,38 +16,27 @@ export function normalizeSearch(value) {
 
 export function countryCodeToEmoji(code) {
   return [...code]
-    .map(character =>
-      String.fromCodePoint(
-        127397 + character.charCodeAt(0)
-      )
-    )
+    .map((character) => String.fromCodePoint(127397 + character.charCodeAt(0)))
     .join("");
 }
 
 function getEnglishDemonym(country) {
   const demonyms = country?.demonyms?.eng;
 
-  return [
-    demonyms?.f,
-    demonyms?.m
-  ].filter(Boolean);
+  return [demonyms?.f, demonyms?.m].filter(Boolean);
 }
 
 function getNativeNames(country) {
-  return Object.values(
-    country?.name?.native ?? {}
-  ).flatMap(name => [
+  return Object.values(country?.name?.native ?? {}).flatMap((name) => [
     name?.common,
-    name?.official
+    name?.official,
   ]);
 }
 
 function getTranslationNames(country) {
-  return Object.values(
-    country?.translations ?? {}
-  ).flatMap(name => [
+  return Object.values(country?.translations ?? {}).flatMap((name) => [
     name?.common,
-    name?.official
+    name?.official,
   ]);
 }
 
@@ -61,7 +50,7 @@ function createSearchTerms(country) {
     ...(country.altSpellings ?? []),
     ...getEnglishDemonym(country),
     ...getNativeNames(country),
-    ...getTranslationNames(country)
+    ...getTranslationNames(country),
   ]
     .map(normalizeSearch)
     .filter(Boolean);
@@ -72,53 +61,41 @@ function normalizeCountry(country) {
     .trim()
     .toUpperCase();
 
-  const commonName =
-    String(country?.name?.common ?? "").trim();
+  const commonName = String(country?.name?.common ?? "").trim();
 
   if (!/^[A-Z]{2}$/.test(code) || !commonName) {
     return null;
   }
 
-  const officialName =
-    String(country?.name?.official ?? "").trim();
+  const officialName = String(country?.name?.official ?? "").trim();
 
   return {
     code,
     emoji: countryCodeToEmoji(code),
     name: commonName,
     officialName,
-    population:
-      Number.isFinite(country.population)
-        ? country.population
-        : 0,
+    population: Number.isFinite(country.population) ? country.population : 0,
     altSpellings: Array.isArray(country.altSpellings)
       ? country.altSpellings.filter(Boolean)
       : [],
     flagUrl: `https://flagcdn.com/${code.toLowerCase()}.svg`,
-    searchTerms: [...new Set(createSearchTerms(country))]
+    searchTerms: [...new Set(createSearchTerms(country))],
   };
 }
 
-export function createCountryCatalog(
-  payload,
-  { minCountries = 100 } = {}
-) {
+export function createCountryCatalog(payload, { minCountries = 100 } = {}) {
   if (!Array.isArray(payload)) {
-    throw new Error(
-      "The country list returned an unsupported format."
-    );
+    throw new Error("The country list returned an unsupported format.");
   }
 
   const countries = payload
     .map(normalizeCountry)
     .filter(Boolean)
-    .sort((first, second) =>
-      collator.compare(first.name, second.name)
-    );
+    .sort((first, second) => collator.compare(first.name, second.name));
 
   if (countries.length < minCountries) {
     throw new Error(
-      "The country list did not include enough supported countries."
+      "The country list did not include enough supported countries.",
     );
   }
 
@@ -141,37 +118,26 @@ function isConsumableCountry(country) {
     typeof country.officialName === "string" &&
     Number.isFinite(country.population) &&
     Array.isArray(country.altSpellings) &&
-    country.altSpellings.every(
-      spelling => typeof spelling === "string"
-    ) &&
+    country.altSpellings.every((spelling) => typeof spelling === "string") &&
     typeof country.flagUrl === "string" &&
     country.flagUrl.startsWith("https://") &&
     Array.isArray(country.searchTerms) &&
     country.searchTerms.length > 0 &&
     country.searchTerms.every(
-      term => typeof term === "string" && term.length > 0
+      (term) => typeof term === "string" && term.length > 0,
     )
   );
 }
 
-export function validateCountryCatalog(
-  countries,
-  { minCountries = 100 } = {}
-) {
-  if (
-    !Array.isArray(countries) ||
-    countries.length < minCountries
-  ) {
+export function validateCountryCatalog(countries, { minCountries = 100 } = {}) {
+  if (!Array.isArray(countries) || countries.length < minCountries) {
     return null;
   }
 
   const codes = new Set();
 
   for (const country of countries) {
-    if (
-      !isConsumableCountry(country) ||
-      codes.has(country.code)
-    ) {
+    if (!isConsumableCountry(country) || codes.has(country.code)) {
       return null;
     }
 
@@ -182,8 +148,7 @@ export function validateCountryCatalog(
 }
 
 function scoreCountry(country, normalizedQuery) {
-  const normalizedCode =
-    country.code.toLowerCase();
+  const normalizedCode = country.code.toLowerCase();
 
   if (normalizedCode === normalizedQuery) {
     return 0;
@@ -197,9 +162,7 @@ function scoreCountry(country, normalizedQuery) {
     } else if (term.startsWith(normalizedQuery)) {
       bestScore = Math.min(bestScore, 2);
     } else if (
-      term
-        .split(/\s+/)
-        .some(word => word.startsWith(normalizedQuery))
+      term.split(/\s+/).some((word) => word.startsWith(normalizedQuery))
     ) {
       bestScore = Math.min(bestScore, 3);
     } else if (term.includes(normalizedQuery)) {
@@ -214,11 +177,7 @@ function scoreCountry(country, normalizedQuery) {
   return bestScore;
 }
 
-export function searchCountries(
-  catalog,
-  query,
-  limit = 8
-) {
+export function searchCountries(catalog, query, limit = 8) {
   const normalizedQuery = normalizeSearch(query);
 
   if (!normalizedQuery) {
@@ -226,25 +185,18 @@ export function searchCountries(
   }
 
   return catalog
-    .map(country => ({
+    .map((country) => ({
       country,
-      score: scoreCountry(
-        country,
-        normalizedQuery
-      )
+      score: scoreCountry(country, normalizedQuery),
     }))
-    .filter(result =>
-      Number.isFinite(result.score)
-    )
-    .sort((first, second) =>
-      first.score - second.score ||
-      collator.compare(
-        first.country.name,
-        second.country.name
-      )
+    .filter((result) => Number.isFinite(result.score))
+    .sort(
+      (first, second) =>
+        first.score - second.score ||
+        collator.compare(first.country.name, second.country.name),
     )
     .slice(0, limit)
-    .map(result => result.country);
+    .map((result) => result.country);
 }
 
 export function getCountryByCode(catalog, code) {
@@ -252,18 +204,10 @@ export function getCountryByCode(catalog, code) {
     .trim()
     .toUpperCase();
 
-  return (
-    catalog.find(country =>
-      country.code === normalizedCode
-    ) ?? null
-  );
+  return catalog.find((country) => country.code === normalizedCode) ?? null;
 }
 
-export function getDefaultSuggestions(
-  catalog,
-  recentCodes = [],
-  limit = 8
-) {
+export function getDefaultSuggestions(catalog, recentCodes = [], limit = 8) {
   const seen = new Set();
   const suggestions = [];
 
@@ -283,7 +227,7 @@ export function getDefaultSuggestions(
   const defaultPool = [...catalog].sort(
     (first, second) =>
       second.population - first.population ||
-      collator.compare(first.name, second.name)
+      collator.compare(first.name, second.name),
   );
 
   for (const country of defaultPool) {

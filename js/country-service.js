@@ -1,7 +1,4 @@
-import {
-  createCountryCatalog,
-  validateCountryCatalog
-} from "./countries.js";
+import { createCountryCatalog, validateCountryCatalog } from "./countries.js";
 
 export const COUNTRY_DATA_URL =
   "https://cdn.jsdelivr.net/npm/world-countries@5.1.0/dist/countries.json";
@@ -9,11 +6,9 @@ export const COUNTRY_DATA_URL =
 // The cache holds the normalized catalog the application consumes, so its key
 // is versioned by the shape and the record carries the pinned source: a schema
 // or data-source change invalidates every older entry.
-export const CATALOG_CACHE_KEY =
-  "country-badge-generator.country-catalog.v2";
+export const CATALOG_CACHE_KEY = "country-badge-generator.country-catalog.v2";
 
-const LEGACY_PAYLOAD_CACHE_KEY =
-  "country-badge-generator.country-data.v1";
+const LEGACY_PAYLOAD_CACHE_KEY = "country-badge-generator.country-data.v1";
 
 const CATALOG_SCHEMA_VERSION = 2;
 
@@ -75,9 +70,7 @@ function readCachedCatalog(storage) {
     return null;
   }
 
-  const catalog = validateCountryCatalog(
-    record.countries
-  );
+  const catalog = validateCountryCatalog(record.countries);
 
   if (!catalog) {
     removeStoredValue(storage, CATALOG_CACHE_KEY);
@@ -95,15 +88,15 @@ function writeCachedCatalog(storage, catalog) {
     JSON.stringify({
       schemaVersion: CATALOG_SCHEMA_VERSION,
       source: COUNTRY_DATA_URL,
-      countries: catalog
-    })
+      countries: catalog,
+    }),
   );
 }
 
 export async function fetchCountryCatalog({
   signal,
   fetcher = fetch,
-  storage = getStorage()
+  storage = getStorage(),
 } = {}) {
   const cachedCatalog = readCachedCatalog(storage);
 
@@ -118,8 +111,8 @@ export async function fetchCountryCatalog({
       signal,
       cache: "force-cache",
       headers: {
-        Accept: "application/json"
-      }
+        Accept: "application/json",
+      },
     });
   } catch (error) {
     if (error?.name === "AbortError") {
@@ -127,14 +120,12 @@ export async function fetchCountryCatalog({
     }
 
     throw new Error(
-      "The country list could not be loaded. Check the connection and try again."
+      "The country list could not be loaded. Check the connection and try again.",
     );
   }
 
   if (!response.ok) {
-    throw new Error(
-      "The country list is temporarily unavailable."
-    );
+    throw new Error("The country list is temporarily unavailable.");
   }
 
   let payload;
@@ -142,9 +133,7 @@ export async function fetchCountryCatalog({
   try {
     payload = await response.json();
   } catch {
-    throw new Error(
-      "The country list returned invalid JSON."
-    );
+    throw new Error("The country list returned invalid JSON.");
   }
 
   const catalog = createCountryCatalog(payload);

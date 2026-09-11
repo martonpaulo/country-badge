@@ -4,7 +4,7 @@ import test from "node:test";
 
 const stylesheet = await readFile(
   new URL("../../css/styles.css", import.meta.url),
-  "utf8"
+  "utf8",
 );
 
 // Reads the declared token values so the assertions below measure what the
@@ -16,9 +16,7 @@ function readTokens(source) {
 
   const tokens = new Map();
 
-  for (const [, name, value] of root[1].matchAll(
-    /(--[\w-]+):\s*([^;]+);/g
-  )) {
+  for (const [, name, value] of root[1].matchAll(/(--[\w-]+):\s*([^;]+);/g)) {
     tokens.set(name, value.trim());
   }
 
@@ -39,7 +37,7 @@ function resolveColor(tokens, name) {
   assert.match(
     value,
     /^#[0-9a-f]{6}$/i,
-    `${name} must resolve to a six-digit hex color`
+    `${name} must resolve to a six-digit hex color`,
   );
 
   return value;
@@ -48,14 +46,12 @@ function resolveColor(tokens, name) {
 function channelLuminance(channel) {
   const ratio = channel / 255;
 
-  return ratio <= 0.04045
-    ? ratio / 12.92
-    : ((ratio + 0.055) / 1.055) ** 2.4;
+  return ratio <= 0.04045 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
 }
 
 function relativeLuminance(hex) {
-  const [red, green, blue] = [1, 3, 5].map(offset =>
-    Number.parseInt(hex.slice(offset, offset + 2), 16)
+  const [red, green, blue] = [1, 3, 5].map((offset) =>
+    Number.parseInt(hex.slice(offset, offset + 2), 16),
   );
 
   return (
@@ -84,7 +80,7 @@ const textBackgrounds = [
   "--page",
   "--page-accent",
   "--surface-strong",
-  "--accent-soft"
+  "--accent-soft",
 ];
 
 test("normal-sized text roles meet WCAG 2.2 contrast on every rendered background", () => {
@@ -92,12 +88,12 @@ test("normal-sized text roles meet WCAG 2.2 contrast on every rendered backgroun
     for (const foreground of ["--text", "--text-soft", "--text-muted"]) {
       const ratio = contrastRatio(
         resolveColor(tokens, foreground),
-        resolveColor(tokens, background)
+        resolveColor(tokens, background),
       );
 
       assert.ok(
         ratio >= 4.5,
-        `${foreground} on ${background} is ${ratio.toFixed(3)}:1, below 4.5:1`
+        `${foreground} on ${background} is ${ratio.toFixed(3)}:1, below 4.5:1`,
       );
     }
   }
@@ -106,12 +102,12 @@ test("normal-sized text roles meet WCAG 2.2 contrast on every rendered backgroun
 test("placeholder text meets WCAG 2.2 contrast on the input background", () => {
   const ratio = contrastRatio(
     resolveColor(tokens, "--text-placeholder"),
-    resolveColor(tokens, "--surface")
+    resolveColor(tokens, "--surface"),
   );
 
   assert.ok(
     ratio >= 4.5,
-    `--text-placeholder is ${ratio.toFixed(3)}:1, below 4.5:1`
+    `--text-placeholder is ${ratio.toFixed(3)}:1, below 4.5:1`,
   );
 });
 
@@ -119,12 +115,12 @@ test("muted icons meet the non-text contrast minimum", () => {
   for (const background of ["--surface", "--surface-muted"]) {
     const ratio = contrastRatio(
       resolveColor(tokens, "--icon-muted"),
-      resolveColor(tokens, background)
+      resolveColor(tokens, background),
     );
 
     assert.ok(
       ratio >= 3,
-      `--icon-muted on ${background} is ${ratio.toFixed(3)}:1, below 3:1`
+      `--icon-muted on ${background} is ${ratio.toFixed(3)}:1, below 3:1`,
     );
   }
 });
@@ -143,7 +139,7 @@ test("each semantic role has its own owner", () => {
     "--selected-ring",
     "--progress-indicator",
     "--elevation-panel",
-    "--elevation-popover"
+    "--elevation-popover",
   ];
 
   for (const role of roles) {
@@ -157,17 +153,17 @@ test("no consumer bypasses the text or elevation roles with a literal", () => {
   assert.doesNotMatch(
     components,
     /::placeholder\s*\{[^}]*color:\s*#/,
-    "placeholder color must come from its token"
+    "placeholder color must come from its token",
   );
   assert.doesNotMatch(
     components,
     /box-shadow:\s*var\(--shadow(-soft)?\)/,
-    "elevation must come from the panel or popover role"
+    "elevation must come from the panel or popover role",
   );
   assert.doesNotMatch(
     components,
     /box-shadow:\s*var\(--focus\)/,
-    "focus must come from the focus-ring role"
+    "focus must come from the focus-ring role",
   );
 });
 
@@ -177,36 +173,54 @@ test("recurring scales are declared once and no consumer restates them", () => {
     "--gap-compact",
     "--text-support",
     "--weight-strong",
-    "--panel-padding"
+    "--panel-padding",
   ];
 
   for (const scale of scales) {
     assert.ok(tokens.has(scale), `${scale} must be declared`);
 
-    const declarations = stylesheet.match(
-      new RegExp(`${scale}:`, "g")
-    );
+    const declarations = stylesheet.match(new RegExp(`${scale}:`, "g"));
 
     assert.equal(
       declarations.length,
       scale === "--panel-padding" ? 3 : 1,
-      `${scale} must have one owner plus its scoped overrides only`
+      `${scale} must have one owner plus its scoped overrides only`,
     );
   }
 
   const components = stylesheet.slice(stylesheet.indexOf("@layer components"));
 
   assert.doesNotMatch(components, /\b150ms\b/, "motion must use --motion-fast");
-  assert.doesNotMatch(components, /gap: 10px/, "compact gaps must use --gap-compact");
-  assert.doesNotMatch(components, /font-size: 0\.86rem/, "support text must use --text-support");
-  assert.doesNotMatch(components, /font-weight: 7\d\d/, "strong weight must use --weight-strong");
-  assert.doesNotMatch(components, /padding: 22px/, "panel padding must use --panel-padding");
-  assert.doesNotMatch(components, /border-radius: 15px/, "compact panels must override --radius-lg");
+  assert.doesNotMatch(
+    components,
+    /gap: 10px/,
+    "compact gaps must use --gap-compact",
+  );
+  assert.doesNotMatch(
+    components,
+    /font-size: 0\.86rem/,
+    "support text must use --text-support",
+  );
+  assert.doesNotMatch(
+    components,
+    /font-weight: 7\d\d/,
+    "strong weight must use --weight-strong",
+  );
+  assert.doesNotMatch(
+    components,
+    /padding: 22px/,
+    "panel padding must use --panel-padding",
+  );
+  assert.doesNotMatch(
+    components,
+    /border-radius: 15px/,
+    "compact panels must override --radius-lg",
+  );
 });
 
 test("reduced motion stays the final authority over transitions", () => {
   const reducedMotion = stylesheet.match(
-    /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\s{2}\}/
+    /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\n\s{2}\}/,
   );
 
   assert.ok(reducedMotion, "the reduced-motion override must remain");

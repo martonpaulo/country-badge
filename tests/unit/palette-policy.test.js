@@ -3,7 +3,7 @@ import test from "node:test";
 
 import {
   normalizeSourceColors,
-  selectPalette
+  selectPalette,
 } from "../../js/palette-policy.js";
 
 // The policy is DOM-free, so every branch is exercised from controlled source
@@ -20,7 +20,7 @@ function source(rgb, weight = 1) {
 }
 
 function hexesOf(sourceColors) {
-  return selectPalette(sourceColors).map(option => option.hex);
+  return selectPalette(sourceColors).map((option) => option.hex);
 }
 
 test("the policy runs without a DOM, canvas, Image, or network", () => {
@@ -43,7 +43,7 @@ test("one, two, and three source families each produce three unique colors", () 
   for (const sourceColors of [
     [source(GREEN)],
     [source(BLUE, 2), source(YELLOW, 1)],
-    [source(RED, 1), source(YELLOW, 1), source(GREEN, 1)]
+    [source(RED, 1), source(YELLOW, 1), source(GREEN, 1)],
   ]) {
     const hexes = hexesOf(sourceColors);
 
@@ -74,11 +74,7 @@ test("light-weight flags still select a tint rather than nothing", () => {
 });
 
 test("selection is deterministic and order-stable for the same input", () => {
-  const sourceColors = [
-    source(RED, 3),
-    source(YELLOW, 2),
-    source(GREEN, 1)
-  ];
+  const sourceColors = [source(RED, 3), source(YELLOW, 2), source(GREEN, 1)];
 
   assert.deepEqual(hexesOf(sourceColors), hexesOf(sourceColors));
 });
@@ -95,12 +91,12 @@ test("the palette always has exactly three labelled options", () => {
   const palette = selectPalette([source(RED), source(BLUE)]);
 
   assert.deepEqual(
-    palette.map(option => option.id),
-    [1, 2, 3]
+    palette.map((option) => option.id),
+    [1, 2, 3],
   );
   assert.deepEqual(
-    palette.map(option => option.label),
-    ["Option 1", "Option 2", "Option 3"]
+    palette.map((option) => option.label),
+    ["Option 1", "Option 2", "Option 3"],
   );
 
   for (const option of palette) {
@@ -115,17 +111,17 @@ test("source colors are normalized to shares of the flag", () => {
     source(RED, 3),
     source(GREEN, 1),
     source(BLUE, 0),
-    { rgb: BLUE, weight: Number.NaN }
+    { rgb: BLUE, weight: Number.NaN },
   ]);
 
   assert.equal(normalized.length, 2);
   assert.deepEqual(
-    normalized.map(entry => entry.weight),
-    [0.75, 0.25]
+    normalized.map((entry) => entry.weight),
+    [0.75, 0.25],
   );
   assert.deepEqual(
-    normalized.map(entry => entry.family),
-    ["red", "green"]
+    normalized.map((entry) => entry.family),
+    ["red", "green"],
   );
 
   for (const entry of normalized) {

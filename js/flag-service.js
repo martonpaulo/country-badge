@@ -1,13 +1,8 @@
 const flagCache = new Map();
 
 function assertFlagSvg(svgText, countryCode) {
-  if (
-    typeof svgText !== "string" ||
-    !/<svg[\s>]/i.test(svgText)
-  ) {
-    throw new Error(
-      `The flag for ${countryCode} returned malformed SVG.`
-    );
+  if (typeof svgText !== "string" || !/<svg[\s>]/i.test(svgText)) {
+    throw new Error(`The flag for ${countryCode} returned malformed SVG.`);
   }
 }
 
@@ -15,12 +10,10 @@ export async function fetchFlagSvg({
   countryCode,
   flagUrl,
   signal,
-  fetcher = fetch
+  fetcher = fetch,
 }) {
   if (!countryCode || !flagUrl) {
-    throw new Error(
-      "The selected country does not include a supported flag."
-    );
+    throw new Error("The selected country does not include a supported flag.");
   }
 
   const cached = flagCache.get(countryCode);
@@ -36,8 +29,8 @@ export async function fetchFlagSvg({
       signal,
       cache: "force-cache",
       headers: {
-        Accept: "image/svg+xml"
-      }
+        Accept: "image/svg+xml",
+      },
     });
   } catch (error) {
     if (error?.name === "AbortError") {
@@ -45,14 +38,12 @@ export async function fetchFlagSvg({
     }
 
     throw new Error(
-      `The flag could not be loaded for ${countryCode}. Check the connection and try again.`
+      `The flag could not be loaded for ${countryCode}. Check the connection and try again.`,
     );
   }
 
   if (!response.ok) {
-    throw new Error(
-      `The flag is unavailable for ${countryCode}.`
-    );
+    throw new Error(`The flag is unavailable for ${countryCode}.`);
   }
 
   const svgText = await response.text();
@@ -65,7 +56,7 @@ export async function fetchFlagSvg({
 export function loadSvgImage(svgText) {
   return new Promise((resolve, reject) => {
     const blob = new Blob([svgText], {
-      type: "image/svg+xml"
+      type: "image/svg+xml",
     });
 
     const objectUrl = URL.createObjectURL(blob);
@@ -82,9 +73,7 @@ export function loadSvgImage(svgText) {
 
     image.onerror = () => {
       cleanup();
-      reject(
-        new Error("The flag image could not be processed.")
-      );
+      reject(new Error("The flag image could not be processed."));
     };
 
     image.src = objectUrl;

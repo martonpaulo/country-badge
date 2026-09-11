@@ -50,9 +50,10 @@ npx playwright install chromium
 npm run validate
 ```
 
-`npm run validate` is the unit suite (what the Validate workflow runs) followed by the browser suite
-(what the Browser suite workflow runs); `npm run test:unit` and `npm run test:browser` run them
-separately while iterating. The browser suite targets the Playwright-owned Chromium for
+`npm run validate` is Biome and the unit suite (what the Validate workflow runs) followed by the
+browser suite (what the Browser suite workflow runs); `npm run lint`, `npm run test:unit` and
+`npm run test:browser` run them separately while iterating. `npm run format` writes Biome's safe
+fixes, so run it before reaching for the linter's output by hand. The browser suite targets the Playwright-owned Chromium for
 Testing build and serves the checkout on a run-time port, so it needs the browser download once and
 network access for uncached flags.
 

@@ -1,52 +1,44 @@
 import {
-  fetchCountryCatalog
-} from "./country-service.js";
-
-import {
   getDefaultSuggestions,
   normalizeSearch,
-  searchCountries
+  searchCountries,
 } from "./countries.js";
+import { fetchCountryCatalog } from "./country-service.js";
 
-import {
-  fetchFlagSvg
-} from "./flag-service.js";
+import { fetchFlagSvg } from "./flag-service.js";
 
-import {
-  createDeterministicPalette
-} from "./palette.js";
+import { createDeterministicPalette } from "./palette.js";
 
 import {
   copyText,
   createBadgeSvg,
   createFlagDataUri,
   downloadRasterizedSvg,
-  downloadSvg
+  downloadSvg,
 } from "./svg.js";
 
 const MAX_SUGGESTIONS = 8;
 
 const PALETTE_INPUT_NAME = "badge-background";
-const RECENT_COUNTRIES_KEY =
-  "country-badge-generator.recent-countries.v1";
+const RECENT_COUNTRIES_KEY = "country-badge-generator.recent-countries.v1";
 
 const OUTPUT_FORMATS = {
   svg: {
     extension: "svg",
     label: "SVG",
-    mimeType: "image/svg+xml"
+    mimeType: "image/svg+xml",
   },
   png: {
     extension: "png",
     label: "PNG",
-    mimeType: "image/png"
+    mimeType: "image/png",
   },
   jpg: {
     extension: "jpg",
     label: "JPG",
     mimeType: "image/jpeg",
-    quality: 0.92
-  }
+    quality: 0.92,
+  },
 };
 
 const elements = {
@@ -68,7 +60,7 @@ const elements = {
   status: document.querySelector("#status-message"),
   preview: document.querySelector("#preview-canvas"),
   previewEmpty: document.querySelector("#preview-empty"),
-  loadingState: document.querySelector("#loading-state")
+  loadingState: document.querySelector("#loading-state"),
 };
 
 const state = {
@@ -94,7 +86,7 @@ const state = {
   generation: { status: "idle", country: null, message: "" },
   paletteRetryHadFocus: false,
   countryCache: new Map(),
-  activeAssetController: null
+  activeAssetController: null,
 };
 
 function setMessage(element, message, stateName = "") {
@@ -116,30 +108,20 @@ function setCountryStatus(message, stateName = "") {
 }
 
 function setInputInvalid(isInvalid) {
-  elements.input.setAttribute(
-    "aria-invalid",
-    String(isInvalid)
-  );
+  elements.input.setAttribute("aria-invalid", String(isInvalid));
 }
 
 // Palette generation has one state owner. Selection, cancellation, completion,
 // and retry all publish through it, so the overlay, the palette section, the
 // export actions, and the status can never disagree about what is happening.
-function setGenerationState(
-  status,
-  { country = null, message = "" } = {}
-) {
+function setGenerationState(status, { country = null, message = "" } = {}) {
   state.generation = { status, country, message };
 
   const isLoading = status === "loading";
-  const hasOutput =
-    status === "ready" && Boolean(state.selectedSvg);
+  const hasOutput = status === "ready" && Boolean(state.selectedSvg);
 
   elements.loadingState.hidden = !isLoading;
-  elements.loadingState.setAttribute(
-    "aria-hidden",
-    String(!isLoading)
-  );
+  elements.loadingState.setAttribute("aria-hidden", String(!isLoading));
 
   elements.downloadButton.disabled = !hasOutput;
   elements.copyButton.disabled = !hasOutput;
@@ -153,10 +135,7 @@ function setGenerationState(
 }
 
 function getOutputFormat() {
-  return (
-    OUTPUT_FORMATS[state.outputFormat] ??
-    OUTPUT_FORMATS.svg
-  );
+  return OUTPUT_FORMATS[state.outputFormat] ?? OUTPUT_FORMATS.svg;
 }
 
 function refreshOutputDetails() {
@@ -164,19 +143,15 @@ function refreshOutputDetails() {
 
   elements.formatOptions
     .querySelectorAll(".format-option")
-    .forEach(option => {
-      const input = option.querySelector(
-        'input[name="output-format"]'
-      );
+    .forEach((option) => {
+      const input = option.querySelector('input[name="output-format"]');
 
       if (input) {
-        input.checked =
-          input.value === state.outputFormat;
+        input.checked = input.value === state.outputFormat;
       }
     });
 
-  elements.downloadLabel.textContent =
-    `Download ${format.label}`;
+  elements.downloadLabel.textContent = `Download ${format.label}`;
 
   if (!state.selectedCountry) {
     state.outputFileName = "";
@@ -184,17 +159,13 @@ function refreshOutputDetails() {
     return;
   }
 
-  state.outputFileName =
-    `${state.selectedCountry.code}.${format.extension}`;
+  state.outputFileName = `${state.selectedCountry.code}.${format.extension}`;
 
-  elements.outputName.textContent =
-    state.outputFileName;
+  elements.outputName.textContent = state.outputFileName;
 }
 
 function removeRenderedPreview() {
-  elements.preview
-    .querySelector(":scope > svg")
-    ?.remove();
+  elements.preview.querySelector(":scope > svg")?.remove();
 }
 
 // Progress and failure are rendered at the point of action, inside the palette
@@ -235,8 +206,7 @@ function renderPaletteNotice(status, country, message) {
     restoreRetryFocus = state.paletteRetryHadFocus;
     state.paletteRetryHadFocus = false;
   } else {
-    notice.textContent =
-      "Select a country to generate its palette.";
+    notice.textContent = "Select a country to generate its palette.";
     state.paletteRetryHadFocus = false;
   }
 
@@ -244,10 +214,7 @@ function renderPaletteNotice(status, country, message) {
 
   // Removing the previous control is what dropped focus to the body, so only
   // that case is given focus back; focus the user moved elsewhere is left be.
-  if (
-    restoreRetryFocus &&
-    document.activeElement === document.body
-  ) {
+  if (restoreRetryFocus && document.activeElement === document.body) {
     notice.querySelector("#palette-retry")?.focus();
   }
 }
@@ -265,8 +232,7 @@ function clearGeneratedOutput() {
   elements.previewEmpty.hidden = false;
   elements.paletteCountryCode.textContent = "--";
   elements.selectedColor.textContent = "--";
-  elements.selectedSwatch.style.backgroundColor =
-    "transparent";
+  elements.selectedSwatch.style.backgroundColor = "transparent";
   elements.downloadButton.disabled = true;
   elements.copyButton.disabled = true;
   refreshOutputDetails();
@@ -275,12 +241,11 @@ function clearGeneratedOutput() {
 function getRecentCodes() {
   try {
     const parsed = JSON.parse(
-      sessionStorage.getItem(RECENT_COUNTRIES_KEY) ??
-        "[]"
+      sessionStorage.getItem(RECENT_COUNTRIES_KEY) ?? "[]",
     );
 
     return Array.isArray(parsed)
-      ? parsed.filter(code => /^[A-Z]{2}$/.test(code))
+      ? parsed.filter((code) => /^[A-Z]{2}$/.test(code))
       : [];
   } catch {
     return [];
@@ -291,15 +256,10 @@ function rememberCountry(code) {
   try {
     const recent = [
       code,
-      ...getRecentCodes().filter(
-        recentCode => recentCode !== code
-      )
+      ...getRecentCodes().filter((recentCode) => recentCode !== code),
     ].slice(0, MAX_SUGGESTIONS);
 
-    sessionStorage.setItem(
-      RECENT_COUNTRIES_KEY,
-      JSON.stringify(recent)
-    );
+    sessionStorage.setItem(RECENT_COUNTRIES_KEY, JSON.stringify(recent));
   } catch {
     // Recent suggestions are optional and should not block generation.
   }
@@ -326,9 +286,7 @@ function clearSelection({ focusInput = false } = {}) {
   setGenerationState("idle");
   setStatus("Choose a country to begin.");
   setCountryStatus(
-    state.catalogReady
-      ? "Countries loaded."
-      : "Loading countries..."
+    state.catalogReady ? "Countries loaded." : "Loading countries...",
   );
 
   if (focusInput) {
@@ -339,70 +297,49 @@ function clearSelection({ focusInput = false } = {}) {
 
 function openCountrySuggestions() {
   elements.countryOptions.hidden = false;
-  elements.input.setAttribute(
-    "aria-expanded",
-    "true"
-  );
+  elements.input.setAttribute("aria-expanded", "true");
 }
 
 function closeCountrySuggestions() {
   elements.countryOptions.hidden = true;
-  elements.input.setAttribute(
-    "aria-expanded",
-    "false"
-  );
-  elements.input.removeAttribute(
-    "aria-activedescendant"
-  );
+  elements.input.setAttribute("aria-expanded", "false");
+  elements.input.removeAttribute("aria-activedescendant");
 
   state.activeSuggestionIndex = -1;
 }
 
 function getRenderedOptions() {
-  return [
-    ...elements.countryOptions.querySelectorAll(
-      '[role="option"]'
-    )
-  ];
+  return [...elements.countryOptions.querySelectorAll('[role="option"]')];
 }
 
 function setActiveCountrySuggestion(index) {
   const options = getRenderedOptions();
 
   if (options.length === 0) {
-    elements.input.removeAttribute(
-      "aria-activedescendant"
-    );
+    elements.input.removeAttribute("aria-activedescendant");
     state.activeSuggestionIndex = -1;
     return;
   }
 
   state.activeSuggestionIndex = Math.max(
     0,
-    Math.min(index, options.length - 1)
+    Math.min(index, options.length - 1),
   );
 
   options.forEach((option, optionIndex) => {
     option.setAttribute(
       "aria-selected",
-      String(
-        optionIndex ===
-          state.activeSuggestionIndex
-      )
+      String(optionIndex === state.activeSuggestionIndex),
     );
   });
 
-  const activeOption =
-    options[state.activeSuggestionIndex];
+  const activeOption = options[state.activeSuggestionIndex];
 
   activeOption.scrollIntoView({
-    block: "nearest"
+    block: "nearest",
   });
 
-  elements.input.setAttribute(
-    "aria-activedescendant",
-    activeOption.id
-  );
+  elements.input.setAttribute("aria-activedescendant", activeOption.id);
 }
 
 function renderNoResults() {
@@ -421,27 +358,17 @@ function renderNoResults() {
 function updateSearchResultStatus() {
   const query = elements.input.value.trim();
 
-  if (
-    normalizeSearch(query) &&
-    state.countrySuggestions.length === 0
-  ) {
+  if (normalizeSearch(query) && state.countrySuggestions.length === 0) {
     state.noResultsStatus = `No countries found for “${query}”.`;
-    setCountryStatus(
-      state.noResultsStatus,
-      "warning"
-    );
+    setCountryStatus(state.noResultsStatus, "warning");
     return;
   }
 
   if (
     state.noResultsStatus &&
-    elements.countryStatus.textContent ===
-      state.noResultsStatus
+    elements.countryStatus.textContent === state.noResultsStatus
   ) {
-    setCountryStatus(
-      "Countries loaded.",
-      "success"
-    );
+    setCountryStatus("Countries loaded.", "success");
   }
 
   state.noResultsStatus = "";
@@ -450,9 +377,7 @@ function updateSearchResultStatus() {
 function renderCountrySuggestions() {
   elements.countryOptions.replaceChildren();
   state.activeSuggestionIndex = -1;
-  elements.input.removeAttribute(
-    "aria-activedescendant"
-  );
+  elements.input.removeAttribute("aria-activedescendant");
 
   if (state.countrySuggestions.length === 0) {
     if (normalizeSearch(elements.input.value)) {
@@ -464,54 +389,42 @@ function renderCountrySuggestions() {
     return;
   }
 
-  const fragment =
-    document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
 
-  state.countrySuggestions.forEach(
-    (country, index) => {
-      const option =
-        document.createElement("li");
+  state.countrySuggestions.forEach((country, index) => {
+    const option = document.createElement("li");
 
-      const flag =
-        document.createElement("span");
+    const flag = document.createElement("span");
 
-      const name =
-        document.createElement("span");
+    const name = document.createElement("span");
 
-      const code =
-        document.createElement("span");
+    const code = document.createElement("span");
 
-      option.id = `country-option-${country.code}`;
-      option.className = "country-option";
-      option.setAttribute("role", "option");
-      option.setAttribute(
-        "aria-selected",
-        "false"
-      );
-      option.dataset.index = String(index);
+    option.id = `country-option-${country.code}`;
+    option.className = "country-option";
+    option.setAttribute("role", "option");
+    option.setAttribute("aria-selected", "false");
+    option.dataset.index = String(index);
 
-      flag.className = "country-option-flag";
-      flag.textContent = country.emoji;
-      flag.setAttribute("aria-hidden", "true");
+    flag.className = "country-option-flag";
+    flag.textContent = country.emoji;
+    flag.setAttribute("aria-hidden", "true");
 
-      name.className = "country-option-name";
-      name.textContent = country.name;
+    name.className = "country-option-name";
+    name.textContent = country.name;
 
-      code.className = "country-option-code";
-      code.textContent = country.code;
+    code.className = "country-option-code";
+    code.textContent = country.code;
 
-      option.append(flag, name, code);
-      fragment.append(option);
-    }
-  );
+    option.append(flag, name, code);
+    fragment.append(option);
+  });
 
   elements.countryOptions.append(fragment);
   openCountrySuggestions();
 }
 
-function updateCountrySuggestions({
-  activateFirst = false
-} = {}) {
+function updateCountrySuggestions({ activateFirst = false } = {}) {
   if (!state.catalogReady) {
     return;
   }
@@ -519,24 +432,13 @@ function updateCountrySuggestions({
   const query = elements.input.value;
 
   state.countrySuggestions = normalizeSearch(query)
-    ? searchCountries(
-        state.catalog,
-        query,
-        MAX_SUGGESTIONS
-      )
-    : getDefaultSuggestions(
-        state.catalog,
-        getRecentCodes(),
-        MAX_SUGGESTIONS
-      );
+    ? searchCountries(state.catalog, query, MAX_SUGGESTIONS)
+    : getDefaultSuggestions(state.catalog, getRecentCodes(), MAX_SUGGESTIONS);
 
   renderCountrySuggestions();
   updateSearchResultStatus();
 
-  if (
-    activateFirst &&
-    state.countrySuggestions.length > 0
-  ) {
+  if (activateFirst && state.countrySuggestions.length > 0) {
     setActiveCountrySuggestion(0);
   }
 }
@@ -556,8 +458,8 @@ function setFlagObjectUrl(flagSvgText) {
   if (flagSvgText) {
     state.flagObjectUrl = URL.createObjectURL(
       new Blob([flagSvgText], {
-        type: "image/svg+xml"
-      })
+        type: "image/svg+xml",
+      }),
     );
   }
 }
@@ -578,33 +480,25 @@ function renderPalette() {
 
   choices.className = "palette-choices";
   choices.setAttribute("role", "radiogroup");
-  choices.setAttribute(
-    "aria-labelledby",
-    "palette-title"
-  );
+  choices.setAttribute("aria-labelledby", "palette-title");
 
   state.palette.forEach((option, index) => {
     const card = document.createElement("label");
     const input = document.createElement("input");
-    const thumbnail =
-      document.createElement("span");
+    const thumbnail = document.createElement("span");
 
-    const meta =
-      document.createElement("span");
+    const meta = document.createElement("span");
 
-    const label =
-      document.createElement("span");
+    const label = document.createElement("span");
 
-    const hex =
-      document.createElement("span");
+    const hex = document.createElement("span");
 
     card.className = "choice-card palette-option";
 
     input.type = "radio";
     input.name = PALETTE_INPUT_NAME;
     input.value = String(index);
-    input.checked =
-      index === state.selectedPaletteIndex;
+    input.checked = index === state.selectedPaletteIndex;
 
     // A thumbnail is decorative, so it renders the background and the shared
     // runtime flag resource instead of carrying its own export-grade payload.
@@ -632,8 +526,8 @@ function renderPalette() {
 function getPaletteInputs() {
   return [
     ...elements.paletteOptions.querySelectorAll(
-      `input[name="${PALETTE_INPUT_NAME}"]`
-    )
+      `input[name="${PALETTE_INPUT_NAME}"]`,
+    ),
   ];
 }
 
@@ -650,38 +544,28 @@ function updateSelectedOption(index) {
     countryName: state.selectedCountry.name,
     flagDataUri: state.flagDataUri,
     backgroundHex: option.hex,
-    idPrefix:
-      `download-${state.selectedCountry.code.toLowerCase()}`
+    idPrefix: `download-${state.selectedCountry.code.toLowerCase()}`,
   });
 
   removeRenderedPreview();
   elements.previewEmpty.hidden = true;
-  elements.preview.insertAdjacentHTML(
-    "afterbegin",
-    state.selectedSvg
-  );
+  elements.preview.insertAdjacentHTML("afterbegin", state.selectedSvg);
 
-  elements.selectedColor.textContent =
-    option.hex;
+  elements.selectedColor.textContent = option.hex;
 
-  elements.selectedSwatch.style.backgroundColor =
-    option.hex;
+  elements.selectedSwatch.style.backgroundColor = option.hex;
 
   refreshOutputDetails();
 
-  getPaletteInputs().forEach(input => {
+  getPaletteInputs().forEach((input) => {
     input.checked = Number(input.value) === index;
   });
 
-  setStatus(
-    `${option.label} is selected.`,
-    "success"
-  );
+  setStatus(`${option.label} is selected.`, "success");
 }
 
 async function loadCountryAssets(country, signal) {
-  const cached =
-    state.countryCache.get(country.code);
+  const cached = state.countryCache.get(country.code);
 
   if (cached) {
     return cached;
@@ -690,26 +574,17 @@ async function loadCountryAssets(country, signal) {
   const flagSvgText = await fetchFlagSvg({
     countryCode: country.code,
     flagUrl: country.flagUrl,
-    signal
+    signal,
   });
 
   if (signal.aborted) {
-    throw new DOMException(
-      "The request was cancelled.",
-      "AbortError"
-    );
+    throw new DOMException("The request was cancelled.", "AbortError");
   }
 
-  const palette =
-    await createDeterministicPalette(
-      flagSvgText
-    );
+  const palette = await createDeterministicPalette(flagSvgText);
 
   if (signal.aborted) {
-    throw new DOMException(
-      "The request was cancelled.",
-      "AbortError"
-    );
+    throw new DOMException("The request was cancelled.", "AbortError");
   }
 
   const assets = {
@@ -717,13 +592,10 @@ async function loadCountryAssets(country, signal) {
     // Encoded once per loaded country asset and reused by the thumbnails and
     // by every later export composition.
     flagDataUri: createFlagDataUri(flagSvgText),
-    palette
+    palette,
   };
 
-  state.countryCache.set(
-    country.code,
-    assets
-  );
+  state.countryCache.set(country.code, assets);
 
   return assets;
 }
@@ -736,10 +608,7 @@ async function selectCountry(country) {
   elements.clearButton.hidden = false;
 
   closeCountrySuggestions();
-  setCountryStatus(
-    `${country.name} selected.`,
-    "success"
-  );
+  setCountryStatus(`${country.name} selected.`, "success");
 
   await generatePalette(country);
 }
@@ -758,21 +627,14 @@ async function generatePalette(country) {
 
   clearGeneratedOutput();
 
-  elements.selectedCountry.textContent =
-    country.name;
-  elements.paletteCountryCode.textContent =
-    country.code;
+  elements.selectedCountry.textContent = country.name;
+  elements.paletteCountryCode.textContent = country.code;
 
   setGenerationState("loading", { country });
-  setStatus(
-    `Generating ${country.code} palette...`
-  );
+  setStatus(`Generating ${country.code} palette...`);
 
   try {
-    const assets = await loadCountryAssets(
-      country,
-      controller.signal
-    );
+    const assets = await loadCountryAssets(country, controller.signal);
 
     if (requestId !== state.requestId) {
       return;
@@ -787,22 +649,15 @@ async function generatePalette(country) {
     updateSelectedOption(0);
     setGenerationState("ready", { country });
 
-    setStatus(
-      `${country.code} palette is ready.`,
-      "success"
-    );
+    setStatus(`${country.code} palette is ready.`, "success");
   } catch (error) {
-    if (
-      requestId !== state.requestId ||
-      error?.name === "AbortError"
-    ) {
+    if (requestId !== state.requestId || error?.name === "AbortError") {
       return;
     }
 
     clearGeneratedOutput();
 
-    elements.paletteCountryCode.textContent =
-      country.code;
+    elements.paletteCountryCode.textContent = country.code;
 
     const message =
       error instanceof Error
@@ -811,7 +666,7 @@ async function generatePalette(country) {
 
     setGenerationState("error", {
       country,
-      message
+      message,
     });
     setStatus(message, "error");
   } finally {
@@ -822,8 +677,7 @@ async function generatePalette(country) {
 }
 
 function selectCountrySuggestion(index) {
-  const country =
-    state.countrySuggestions[index];
+  const country = state.countrySuggestions[index];
 
   if (country) {
     selectCountry(country);
@@ -838,36 +692,24 @@ function invalidateSelectedCountry() {
   state.requestId += 1;
   abortActiveAssetRequest();
   state.selectedCountry = null;
-  elements.selectedCountry.textContent =
-    "None";
+  elements.selectedCountry.textContent = "None";
 
   clearGeneratedOutput();
   setGenerationState("idle");
 }
 
 function handleCountryInput() {
-  const normalizedInput =
-    normalizeSearch(elements.input.value);
+  const normalizedInput = normalizeSearch(elements.input.value);
 
-  const normalizedSelection =
-    state.selectedCountry
-      ? normalizeSearch(
-          state.selectedCountry.name
-        )
-      : "";
+  const normalizedSelection = state.selectedCountry
+    ? normalizeSearch(state.selectedCountry.name)
+    : "";
 
-  elements.clearButton.hidden =
-    elements.input.value.length === 0;
+  elements.clearButton.hidden = elements.input.value.length === 0;
 
-  if (
-    state.selectedCountry &&
-    normalizedInput !== normalizedSelection
-  ) {
+  if (state.selectedCountry && normalizedInput !== normalizedSelection) {
     invalidateSelectedCountry();
-    setStatus(
-      "Select a listed country before generating a badge.",
-      "warning"
-    );
+    setStatus("Select a listed country before generating a badge.", "warning");
   }
 
   setInputInvalid(false);
@@ -875,9 +717,7 @@ function handleCountryInput() {
 }
 
 function handleFormatChange(event) {
-  const format = event.target.closest(
-    'input[name="output-format"]'
-  );
+  const format = event.target.closest('input[name="output-format"]');
 
   if (!format || !OUTPUT_FORMATS[format.value]) {
     return;
@@ -889,16 +729,13 @@ function handleFormatChange(event) {
   if (state.selectedCountry) {
     setStatus(
       `${getOutputFormat().label} is selected for download.`,
-      "success"
+      "success",
     );
   }
 }
 
 async function downloadSelectedOutput() {
-  if (
-    !state.selectedSvg ||
-    !state.outputFileName
-  ) {
+  if (!state.selectedSvg || !state.outputFileName) {
     return;
   }
 
@@ -909,56 +746,44 @@ async function downloadSelectedOutput() {
     format: getOutputFormat(),
     fileName: state.outputFileName,
     svgText: state.selectedSvg,
-    isVector: state.outputFormat === "svg"
+    isVector: state.outputFormat === "svg",
   };
 
   elements.downloadButton.disabled = true;
 
   try {
     if (operation.isVector) {
-      downloadSvg(
-        operation.fileName,
-        operation.svgText
-      );
+      downloadSvg(operation.fileName, operation.svgText);
     } else {
-      setStatus(
-        `Preparing ${operation.fileName}...`
-      );
+      setStatus(`Preparing ${operation.fileName}...`);
 
       await downloadRasterizedSvg({
         fileName: operation.fileName,
         svgText: operation.svgText,
         mimeType: operation.format.mimeType,
-        quality: operation.format.quality
+        quality: operation.format.quality,
       });
     }
 
-    setStatus(
-      `Downloaded ${operation.fileName}.`,
-      "success"
-    );
+    setStatus(`Downloaded ${operation.fileName}.`, "success");
   } catch (error) {
     setStatus(
       error instanceof Error
         ? error.message
         : `${operation.fileName} could not be downloaded in this browser.`,
-      "error"
+      "error",
     );
   } finally {
-    elements.downloadButton.disabled =
-      !state.selectedSvg;
+    elements.downloadButton.disabled = !state.selectedSvg;
   }
 }
 
 function validateFreeText() {
-  if (
-    !state.selectedCountry &&
-    normalizeSearch(elements.input.value)
-  ) {
+  if (!state.selectedCountry && normalizeSearch(elements.input.value)) {
     setInputInvalid(true);
     setCountryStatus(
       "Select a listed country. Free text is not accepted.",
-      "warning"
+      "warning",
     );
     return false;
   }
@@ -975,9 +800,7 @@ function handleCountryKeydown(event) {
       updateCountrySuggestions();
     }
 
-    setActiveCountrySuggestion(
-      state.activeSuggestionIndex + 1
-    );
+    setActiveCountrySuggestion(state.activeSuggestionIndex + 1);
     return;
   }
 
@@ -991,7 +814,7 @@ function handleCountryKeydown(event) {
     setActiveCountrySuggestion(
       state.activeSuggestionIndex <= 0
         ? state.countrySuggestions.length - 1
-        : state.activeSuggestionIndex - 1
+        : state.activeSuggestionIndex - 1,
     );
     return;
   }
@@ -1004,9 +827,7 @@ function handleCountryKeydown(event) {
 
   if (event.key === "End" && !elements.countryOptions.hidden) {
     event.preventDefault();
-    setActiveCountrySuggestion(
-      state.countrySuggestions.length - 1
-    );
+    setActiveCountrySuggestion(state.countrySuggestions.length - 1);
     return;
   }
 
@@ -1018,9 +839,7 @@ function handleCountryKeydown(event) {
       event.preventDefault();
 
       selectCountrySuggestion(
-        state.activeSuggestionIndex >= 0
-          ? state.activeSuggestionIndex
-          : 0
+        state.activeSuggestionIndex >= 0 ? state.activeSuggestionIndex : 0,
       );
     }
 
@@ -1039,44 +858,29 @@ function handleCountryKeydown(event) {
 }
 
 function bindEvents() {
-  elements.input.addEventListener(
-    "input",
-    handleCountryInput
-  );
+  elements.input.addEventListener("input", handleCountryInput);
 
-  elements.input.addEventListener(
-    "focus",
-    () => {
-      updateCountrySuggestions();
-    }
-  );
+  elements.input.addEventListener("focus", () => {
+    updateCountrySuggestions();
+  });
 
   // A touch press on a suggestion blurs the input before the tap resolves, so
   // the pending selection, not the typed query, is what the blur should see.
-  elements.input.addEventListener(
-    "blur",
-    () => {
-      if (state.suggestionGestureActive) {
-        return;
-      }
-
-      validateFreeText();
+  elements.input.addEventListener("blur", () => {
+    if (state.suggestionGestureActive) {
+      return;
     }
-  );
 
-  elements.input.addEventListener(
-    "keydown",
-    handleCountryKeydown
-  );
+    validateFreeText();
+  });
 
-  elements.clearButton.addEventListener(
-    "click",
-    () => {
-      clearSelection({
-        focusInput: true
-      });
-    }
-  );
+  elements.input.addEventListener("keydown", handleCountryKeydown);
+
+  elements.clearButton.addEventListener("click", () => {
+    clearSelection({
+      focusInput: true,
+    });
+  });
 
   // Committing the selection on pointerdown would close the list before a
   // touch drag could scroll it, so the pointer path commits on click, which
@@ -1084,149 +888,97 @@ function bindEvents() {
   // press keeps focus in the input for the mouse path, but doing so on touch
   // would also suppress the tap's click, so touch keeps its default press and
   // the blur it causes is deferred to the resolved gesture instead.
-  elements.countryOptions.addEventListener(
-    "pointerdown",
-    event => {
-      if (
-        !event.target.closest('[role="option"]')
-      ) {
-        return;
-      }
-
-      if (event.pointerType === "mouse") {
-        event.preventDefault();
-        return;
-      }
-
-      state.suggestionGestureActive = true;
+  elements.countryOptions.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest('[role="option"]')) {
+      return;
     }
-  );
 
-  elements.countryOptions.addEventListener(
-    "pointercancel",
-    () => {
-      state.suggestionGestureActive = false;
+    if (event.pointerType === "mouse") {
+      event.preventDefault();
+      return;
     }
-  );
 
-  elements.countryOptions.addEventListener(
-    "click",
-    event => {
-      state.suggestionGestureActive = false;
+    state.suggestionGestureActive = true;
+  });
 
-      const option = event.target.closest(
-        '[role="option"]'
-      );
+  elements.countryOptions.addEventListener("pointercancel", () => {
+    state.suggestionGestureActive = false;
+  });
 
-      if (!option) {
-        return;
-      }
+  elements.countryOptions.addEventListener("click", (event) => {
+    state.suggestionGestureActive = false;
 
-      selectCountrySuggestion(
-        Number(option.dataset.index)
-      );
+    const option = event.target.closest('[role="option"]');
+
+    if (!option) {
+      return;
     }
-  );
 
-  elements.countryOptions.addEventListener(
-    "pointermove",
-    event => {
-      const option = event.target.closest(
-        '[role="option"]'
-      );
+    selectCountrySuggestion(Number(option.dataset.index));
+  });
 
-      if (!option) {
-        return;
-      }
+  elements.countryOptions.addEventListener("pointermove", (event) => {
+    const option = event.target.closest('[role="option"]');
 
-      setActiveCountrySuggestion(
-        Number(option.dataset.index)
-      );
+    if (!option) {
+      return;
     }
-  );
 
-  elements.paletteOptions.addEventListener(
-    "click",
-    event => {
-      if (
-        !event.target.closest("#palette-retry") ||
-        !state.selectedCountry ||
-        state.generation.status === "loading"
-      ) {
-        return;
-      }
+    setActiveCountrySuggestion(Number(option.dataset.index));
+  });
 
-      state.paletteRetryHadFocus =
-        document.activeElement ===
-        event.target.closest("#palette-retry");
-
-      generatePalette(state.selectedCountry);
+  elements.paletteOptions.addEventListener("click", (event) => {
+    if (
+      !event.target.closest("#palette-retry") ||
+      !state.selectedCountry ||
+      state.generation.status === "loading"
+    ) {
+      return;
     }
-  );
 
-  elements.paletteOptions.addEventListener(
-    "change",
-    event => {
-      const input = event.target.closest(
-        `input[name="${PALETTE_INPUT_NAME}"]`
-      );
+    state.paletteRetryHadFocus =
+      document.activeElement === event.target.closest("#palette-retry");
 
-      if (!input) {
-        return;
-      }
+    generatePalette(state.selectedCountry);
+  });
 
-      updateSelectedOption(Number(input.value));
+  elements.paletteOptions.addEventListener("change", (event) => {
+    const input = event.target.closest(`input[name="${PALETTE_INPUT_NAME}"]`);
+
+    if (!input) {
+      return;
     }
-  );
 
-  elements.countryRetry.addEventListener(
-    "click",
-    () => {
-      loadCountryCatalog({ isRetry: true });
+    updateSelectedOption(Number(input.value));
+  });
+
+  elements.countryRetry.addEventListener("click", () => {
+    loadCountryCatalog({ isRetry: true });
+  });
+
+  elements.formatOptions.addEventListener("change", handleFormatChange);
+
+  elements.downloadButton.addEventListener("click", downloadSelectedOutput);
+
+  elements.copyButton.addEventListener("click", async () => {
+    if (!state.selectedSvg) {
+      return;
     }
-  );
 
-  elements.formatOptions.addEventListener(
-    "change",
-    handleFormatChange
-  );
+    try {
+      await copyText(state.selectedSvg);
 
-  elements.downloadButton.addEventListener(
-    "click",
-    downloadSelectedOutput
-  );
-
-  elements.copyButton.addEventListener(
-    "click",
-    async () => {
-      if (!state.selectedSvg) {
-        return;
-      }
-
-      try {
-        await copyText(state.selectedSvg);
-
-        setStatus(
-          "SVG copied to the clipboard.",
-          "success"
-        );
-      } catch {
-        setStatus(
-          "The SVG could not be copied in this browser.",
-          "error"
-        );
-      }
+      setStatus("SVG copied to the clipboard.", "success");
+    } catch {
+      setStatus("The SVG could not be copied in this browser.", "error");
     }
-  );
+  });
 
-  document.addEventListener(
-    "pointerdown",
-    event => {
-      if (!event.target.closest(".combobox")) {
-        closeCountrySuggestions();
-      }
+  document.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest(".combobox")) {
+      closeCountrySuggestions();
     }
-  );
+  });
 }
 
 // Disabling the in-flight retry control drops focus to the body, so the
@@ -1241,9 +993,7 @@ function retryFocusIsUnclaimed() {
   const active = document.activeElement;
 
   return (
-    !active ||
-    active === document.body ||
-    active === elements.countryRetry
+    !active || active === document.body || active === elements.countryRetry
   );
 }
 
@@ -1274,10 +1024,7 @@ function applyCatalogReadyState(catalog, shouldRestoreFocus) {
   elements.countryRetry.disabled = false;
   elements.input.disabled = false;
 
-  setCountryStatus(
-    "Countries loaded.",
-    "success"
-  );
+  setCountryStatus("Countries loaded.", "success");
   setStatus("Choose a country to begin.");
 
   if (shouldRestoreFocus) {
@@ -1297,11 +1044,11 @@ function applyCatalogErrorState(error, shouldRestoreFocus) {
     error instanceof Error
       ? error.message
       : "The country list could not be loaded.",
-    "error"
+    "error",
   );
   setStatus(
     "Country search is unavailable until the country list loads.",
-    "error"
+    "error",
   );
 
   if (shouldRestoreFocus) {

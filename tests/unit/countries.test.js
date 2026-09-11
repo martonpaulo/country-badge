@@ -5,22 +5,20 @@ import {
   createCountryCatalog,
   getCountryByCode,
   normalizeSearch,
-  searchCountries
+  searchCountries,
 } from "../../js/countries.js";
 
-import {
-  COUNTRY_DATA_URL
-} from "../../js/country-service.js";
+import { COUNTRY_DATA_URL } from "../../js/country-service.js";
 
 let catalogPromise;
 
 async function getCatalog() {
   catalogPromise ??= fetch(COUNTRY_DATA_URL)
-    .then(response => {
+    .then((response) => {
       assert.equal(response.ok, true);
       return response.json();
     })
-    .then(payload => createCountryCatalog(payload));
+    .then((payload) => createCountryCatalog(payload));
 
   return catalogPromise;
 }
@@ -47,7 +45,10 @@ test("ranks exact matches before substring matches", async () => {
   const results = searchCountries(catalog, "Guinea");
 
   assert.equal(results[0]?.name, "Guinea");
-  assert.equal(results.some(country => country.name === "Equatorial Guinea"), true);
+  assert.equal(
+    results.some((country) => country.name === "Equatorial Guinea"),
+    true,
+  );
 });
 
 test("search ignores case and diacritics", async () => {
@@ -67,11 +68,11 @@ test("no-results queries do not become valid countries", async () => {
 test("malformed country payloads fail validation", () => {
   assert.throws(
     () => createCountryCatalog({ BR: "Brazil" }),
-    /unsupported format/
+    /unsupported format/,
   );
 
   assert.throws(
     () => createCountryCatalog([], { minCountries: 1 }),
-    /enough supported countries/
+    /enough supported countries/,
   );
 });
