@@ -33,7 +33,7 @@ npx playwright install chromium
 npm start
 ```
 
-Then open `http://localhost:8080`.
+Then open [http://localhost:8080](http://localhost:8080).
 
 Prerequisites: **Node.js 24**, npm, and network access for the initial country catalog, uncached
 flags, and the first Playwright browser installation. Do not test the app from `file://`; native ES
