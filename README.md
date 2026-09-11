@@ -1,10 +1,8 @@
 # Country Badge
 
-A fully static GitHub Pages app for creating square country badges. Search a country, select it from the combobox, compare three deterministic flag-inspired background colors, and download the selected 1024 x 1024 SVG, PNG, or JPG.
+![Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG](./social-card.jpg)
 
-| Desktop | Mobile |
-| --- | --- |
-| ![The generator on a desktop window: the country field with Brazil selected, the three background options, and the 1024 x 1024 preview.](./assets/screenshots/desktop.webp) | ![The generator on a narrow window: the country field, the selected country, and the three background options stacked.](./assets/screenshots/mobile.webp) |
+A fully static GitHub Pages app for creating square country badges. Search a country, select it from the combobox, compare three deterministic flag-inspired background colors, and download the selected 1024 x 1024 SVG, PNG, or JPG.
 
 ## Features
 
