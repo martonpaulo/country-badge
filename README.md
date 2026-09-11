@@ -20,10 +20,11 @@ the country's own flag contains, so the same flag and the same catalog always pr
 options in the same order. There is **no backend, no account, no analytics and no API key**: the two
 remote sources are read directly from the browser and nothing about a visit is stored anywhere but
 their own `sessionStorage`.
-
 <br />
 
 ---
+
+<br />
 
 ## 🌱 Quick Start
 
@@ -64,6 +65,9 @@ targets.
 The project reads **none**. There is no environment variable, no `.env` file, no GitHub Actions
 secret, no API key and no application credential anywhere in this repository — both data sources are
 public, CORS-enabled, and require no authentication.
+<br />
+
+---
 
 <br />
 
@@ -164,6 +168,9 @@ GitHub Pages publishes this repository directly. The deployment contract is:
 See [`docs/product.md`](./docs/product.md) for the product boundary, [`AGENTS.md`](./AGENTS.md) for
 repository policy and validation, and [`CONTRIBUTING.md`](./CONTRIBUTING.md) to report a bug or
 propose a change.
+<br />
+
+---
 
 <br />
 
@@ -177,7 +184,7 @@ propose a change.
 
 <br />
 
-## License
+## License and attribution
 
 [MIT](LICENSE) © 2026 Marton Paulo.
 
