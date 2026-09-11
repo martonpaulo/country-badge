@@ -21,6 +21,9 @@ const robots = await readFile(
 // address is only the DNS target, so nothing may point at it.
 const CANONICAL = "https://countrybadge.martonpaulo.com/";
 
+// Home page title: the product name first, then what it does.
+const TITLE = "Country Badge Generator · Flag-inspired badges for any country";
+
 function metaContent(attribute, name) {
   const match = page.match(
     new RegExp(
@@ -36,6 +39,10 @@ test("the document declares its language, viewport, and theme color", () => {
   assert.match(page, /<html lang="en">/);
   assert.match(page, /<meta name="viewport" content="width=device-width, initial-scale=1">/);
   assert.ok(metaContent("name", "theme-color"));
+});
+
+test("the page title names the product first, then what it does", () => {
+  assert.match(page, new RegExp(`<title>${TITLE}</title>`));
 });
 
 test("the canonical URL is the address that answers 200", () => {
@@ -56,7 +63,8 @@ test("Open Graph and Twitter cards are complete and agree with the canonical URL
   assert.ok(description);
   assert.equal(metaContent("property", "og:url"), CANONICAL);
   assert.equal(metaContent("property", "og:type"), "website");
-  assert.equal(metaContent("property", "og:title"), "Country Badge Generator");
+  assert.equal(metaContent("property", "og:title"), TITLE);
+  assert.equal(metaContent("name", "twitter:title"), TITLE);
   assert.equal(metaContent("property", "og:description"), description);
   assert.equal(metaContent("property", "og:image:type"), "image/png");
   assert.equal(metaContent("property", "og:image:width"), "1200");
