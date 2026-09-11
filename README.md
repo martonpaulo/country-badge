@@ -80,6 +80,8 @@ public, CORS-enabled, and require no authentication.
 - Compact responsive interface for desktop and mobile
 - Static HTML, CSS, and native ES modules
 
+<br />
+
 ## Deterministic palette
 
 Every background is chosen from a fixed curated catalog of colors declared in `js/palette-policy.js`.
@@ -110,6 +112,8 @@ three colors in the same order. No randomness, date, time, locale, user state, b
 affect the palette. A result can change when the upstream flag artwork changes, when the curated
 catalog is revised, or when a browser rasterizes the same flag differently.
 
+<br />
+
 ## Data sources
 
 - Country data: [`world-countries` 5.1.0 via jsDelivr](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/dist/countries.json)
@@ -119,6 +123,8 @@ catalog is revised, or when a browser rasterizes the same flag differently.
 Both remote sources are requested directly from the browser, require no API key, and return
 CORS-compatible responses. The app does not keep a full country list or flag set in the repository.
 
+<br />
+
 ## Privacy and security
 
 - Badge generation and export run entirely in the browser.
@@ -126,6 +132,8 @@ CORS-compatible responses. The app does not keep a full country list or flag set
 - The app uses `sessionStorage` for the normalized country catalog and up to eight recent country codes.
 - The project has no account, analytics, backend, environment variables, API keys, or application secrets.
 - Clipboard writes occur only after the user selects **Copy SVG** and remain subject to browser permission.
+
+<br />
 
 ## Error behavior
 
@@ -137,6 +145,8 @@ CORS-compatible responses. The app does not keep a full country list or flag set
 - If image export is unavailable, PNG and JPG downloads fail with an explicit status message.
 - If clipboard write is unavailable or blocked, the app reports the copy failure without affecting manual download.
 
+<br />
+
 ## Deployment
 
 GitHub Pages publishes this repository directly. The deployment contract is:
@@ -147,11 +157,15 @@ GitHub Pages publishes this repository directly. The deployment contract is:
 - Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or
   routing rewrites.
 
+<br />
+
 ## Project contract
 
 See [`docs/product.md`](./docs/product.md) for the product boundary, [`AGENTS.md`](./AGENTS.md) for
 repository policy and validation, and [`CONTRIBUTING.md`](./CONTRIBUTING.md) to report a bug or
 propose a change.
+
+<br />
 
 ## Limitations
 
@@ -160,6 +174,8 @@ propose a change.
 - Browser behavior outside the recorded Chromium acceptance target is unverified.
 - The interface commits to one light visual direction; a dark colour-scheme preference is honored
   by keeping the page light rather than by a separate dark theme.
+
+<br />
 
 ## License
 
