@@ -155,36 +155,6 @@ Deployment requirements:
 - Keep all local asset and module paths relative, such as `./js/app.js`.
 - Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or routing rewrites.
 
-## Repository Structure
-
-```text
-.
-|-- assets/
-|   `-- screenshots/
-|-- css/
-|   `-- styles.css
-|-- design/
-|   `-- social-card/
-|-- js/
-|   |-- app.js
-|   |-- countries.js
-|   |-- country-service.js
-|   |-- flag-service.js
-|   |-- palette.js
-|   `-- svg.js
-|-- tests/
-|   |-- browser/
-|   `-- unit/
-|-- .nojekyll
-|-- apple-touch-icon.png
-|-- favicon.ico
-|-- favicon.svg
-|-- index.html
-|-- package.json
-|-- playwright.config.js
-`-- social-card.jpg
-```
-
 ## Error Behavior
 
 - If country data cannot load, the combobox stays disabled and the page shows an explicit error.
