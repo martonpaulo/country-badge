@@ -6,7 +6,9 @@
 
 Create square country badges with three deterministic, flag-inspired background colors and download each one as SVG, PNG, or JPG.
 
-[![Validate](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml) [![Browser suite](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml) [![Node 24](https://img.shields.io/badge/Node-24-5fa04e)](https://nodejs.org/) [![Playwright 1.61](https://img.shields.io/badge/Playwright-1.61-2ead33)](https://playwright.dev/)
+[![Validate](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/validate.yml) [![Browser suite](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml/badge.svg)](https://github.com/martonpaulo/country-badge/actions/workflows/browser.yml)
+
+[![Node 24](https://img.shields.io/badge/Node-24-5fa04e)](https://nodejs.org/) [![Playwright 1.61](https://img.shields.io/badge/Playwright-1.61-2ead33)](https://playwright.dev/)
 
 </div>
 
