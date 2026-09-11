@@ -104,19 +104,6 @@ same time.
 Browser acceptance targets the Playwright-owned Chromium for Testing build. Brave, Gecko, WebKit,
 and installed branded Chrome builds are not acceptance targets.
 
-## Screenshots
-
-```bash
-npm run screenshots
-```
-
-The published images are captured from real browser windows, never rendered offscreen, so the
-macOS window shadow, rounded corners and elevation are part of the image. The script launches the
-browser itself, resolves that window's id from its own process id, and captures it with
-`screencapture -l`. It needs a Retina display, Screen Recording permission for the terminal running
-it, and `cwebp`. The method and the reason for each step are documented at the top of
-[`scripts/capture-screenshots.mjs`](./scripts/capture-screenshots.mjs).
-
 ## Privacy and Security
 
 - Badge generation and export run entirely in the browser.
