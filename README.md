@@ -21,7 +21,6 @@ options in the same order. There is **no backend, no account, no analytics and n
 remote sources are read directly from the browser and nothing about a visit is stored anywhere but
 their own `sessionStorage`.
 
-<br />
 
 ---
 
@@ -67,7 +66,6 @@ The project reads **none**. There is no environment variable, no `.env` file, no
 secret, no API key and no application credential anywhere in this repository — both data sources are
 public, CORS-enabled, and require no authentication.
 
-<br />
 
 ---
 
@@ -171,7 +169,6 @@ See [`docs/product.md`](./docs/product.md) for the product boundary, [`AGENTS.md
 repository policy and validation, and [`CONTRIBUTING.md`](./CONTRIBUTING.md) to report a bug or
 propose a change.
 
-<br />
 
 ---
 
