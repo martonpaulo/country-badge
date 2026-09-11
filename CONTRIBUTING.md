@@ -39,7 +39,7 @@ out of scope.
 - One concern per commit. A commit or pull request made for an issue **ends with the issue numbers**:
   `feat(palette): widen the green family (#12)`, `fix: keep the combobox focus ring (#12, #15)`.
 - A pull request that closes issues starts its body with one `Closes #<n>` line per issue, and the
-  title's numbers must name the same set. `.github/workflows/pr-conventions.yml` checks exactly this.
+  title's numbers must name the same set.
 - No force pushes.
 
 ## Run the validation gate
