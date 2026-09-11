@@ -27,7 +27,7 @@ their own `sessionStorage`.
 
 <br />
 
-## Quick Start
+## 🌱 Quick Start
 ```bash
 npm ci
 npx playwright install chromium
@@ -42,7 +42,7 @@ modules and browser security behavior differ from the deployed site.
 
 <br />
 
-## Commands
+## 🛠 Commands
 | Command | What it does |
 | --- | --- |
 | `npm run validate` | The full gate before a commit: Biome, the unit suite, then the browser suite |
