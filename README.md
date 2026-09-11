@@ -27,7 +27,7 @@ their own `sessionStorage`.
 
 <br />
 
-## 🌱 Quick Start
+## Quick Start
 
 ```bash
 npm ci
@@ -43,7 +43,7 @@ modules and browser security behavior differ from the deployed site.
 
 <br />
 
-## 🛠 Commands
+## Commands
 
 | Command | What it does |
 | --- | --- |
@@ -59,14 +59,6 @@ Browser tests serve the checkout at the site root on a port chosen at run time
 checkouts run the suite at the same time. Browser acceptance targets the Playwright-owned Chromium
 for Testing build; Brave, Gecko, WebKit, and installed branded Chrome builds are not acceptance
 targets.
-
-<br />
-
-## 🔐 Secrets and variables
-
-The project reads **none**. There is no environment variable, no `.env` file, no GitHub Actions
-secret, no API key and no application credential anywhere in this repository — both data sources are
-public, CORS-enabled, and require no authentication.
 
 ---
 
