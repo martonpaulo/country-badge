@@ -28,41 +28,35 @@ their own `sessionStorage`.
 <br />
 
 ## 🌱 Quick Start
+Requires **Node.js 24** and npm, plus network access for the initial country catalog, uncached flags, and the first Playwright browser download.
+
 ```bash
+git clone https://github.com/martonpaulo/country-badge.git
+cd country-badge
 npm ci
 npx playwright install chromium
 npm start
 ```
 
-Then open [http://localhost:8080](http://localhost:8080).
+[http://localhost:8080](http://localhost:8080)
 
-Prerequisites: **Node.js 24**, npm, and network access for the initial country catalog, uncached
-flags, and the first Playwright browser installation. Do not test the app from `file://`; native ES
-modules and browser security behavior differ from the deployed site.
+Do not test the app from `file://`: native ES modules and browser security behavior differ from the deployed site.
 
 <br />
 
 ## 🛠 Commands
 | Command | What it does |
 | --- | --- |
-| `npm run validate` | The full gate before a commit: Biome, the unit suite, then the browser suite |
-| `npm start` | Serves the repository root over HTTP on port 8080 (`python3 -m http.server`) |
-| `npm run lint` | Biome lint and format check over the repository, changing nothing |
-| `npm run format` | The same checks with every safe fix written to disk |
-| `npm test` | The two suites; `validate` is the name to reach for |
-| `npm run test:unit` | `node --test` over `tests/unit/` |
-| `npm run test:browser` | The Playwright acceptance suite |
-| `npm run social-card` | Renders `design/social-card/social-card.html` into `social-card.jpg` (on a Mac) |
+| `npm run validate` | Run the full gate before a commit: Biome, the unit suite, then the browser suite |
+| `npm start` | Serve the repository root over HTTP on port 8080 (`python3 -m http.server`) |
+| `npm run lint` | Check lint and formatting with Biome, changing nothing |
+| `npm run format` | Run the same checks with every safe fix written to disk |
+| `npm test` | Run both suites; `validate` is the name to reach for |
+| `npm run test:unit` | Run `node --test` over `tests/unit/` |
+| `npm run test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving the checkout at the site root on a run-time port so two checkouts can run at once |
+| `npm run social-card` | Render `design/social-card/social-card.html` into `social-card.jpg`, on a Mac |
 
-Biome is the single linter and formatter, pinned in `devDependencies` and configured in
-`biome.jsonc`. The configuration is JSONC because the few rules the project turns off carry their
-reason next to them.
-
-Browser tests serve the checkout at the site root on a port chosen at run time
-(`http://127.0.0.1:<port>/`). That mirrors the published origin, and the run-time port lets two
-checkouts run the suite at the same time. Browser acceptance targets the Playwright-owned Chromium
-for Testing build; Brave, Gecko, WebKit, and installed branded Chrome builds are not acceptance
-targets.
+Biome is the single linter and formatter, pinned in `devDependencies` and configured in `biome.jsonc` so that each disabled rule carries its reason.
 
 ---
 
@@ -184,4 +178,6 @@ propose a change.
 
 [MIT](LICENSE) © 2026 Marton Paulo.
 
-Country data is [ODbL](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/LICENSE)-licensed and flag artwork comes from [FlagCDN](https://flagcdn.com/); both keep their own terms.
+Country data comes from [`world-countries`](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/dist/countries.json) under the [ODbL](https://cdn.jsdelivr.net/npm/world-countries@5.1.0/LICENSE), which keeps its own terms.
+
+Flag artwork comes from [FlagCDN](https://flagcdn.com/), which keeps its own terms.
