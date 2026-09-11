@@ -17,19 +17,23 @@
 //   ever captured.
 // - Window size and the served port are fixed here, so the capture is
 //   reproducible on another machine.
-// - The window is a normal browser window, address bar included: Chromium's
-//   app-window mode is not drivable through the automation protocol, and a
-//   screenshot of the real browser is what a visitor actually sees.
+// - The window is an app-mode window (--app, through a persistent context): a
+//   title bar and the page, with no tab strip and no address bar reading
+//   localhost. Its frame is pinned to Light for the run (the test browser's own
+//   NSRequiresAquaSystemAppearance default, removed afterwards), and the title
+//   is blanked for the capture only, so the image shows the page and the
+//   traffic lights and nothing else.
 // - The published width is capped at twice the widest slot the image is shown
-//   in, then encoded as lossless WebP: identical pixels, the shadow's alpha
-//   preserved, and roughly 70% fewer bytes than PNG.
+//   in, then encoded as near-lossless WebP: every pixel within a few levels of
+//   the capture (text edges look identical), the shadow's alpha preserved, at
+//   well under half the bytes of lossless.
 //
 // Requires: a Retina display, Screen Recording permission for the terminal
 // running this, `cwebp`, and network access for the country catalog and flags.
 //
 //   node scripts/capture-screenshots.mjs
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -63,14 +67,6 @@ const SHOTS = [
 ];
 
 const COUNTRY = "Brazil";
-
-// The social card is a composed graphic, not a window, so it is rendered
-// offscreen at the exact size the social platforms crop to.
-const SOCIAL_CARD = {
-  width: 1200,
-  height: 630,
-  output: "social-card.png"
-};
 
 function run(command, args) {
   return execFileSync(command, args, { encoding: "utf8" }).trim();
@@ -107,22 +103,34 @@ async function settle(page, turns = 3) {
 }
 
 async function captureShot(shot, baseURL, workingDirectory) {
-  const server = await chromium.launchServer({
+  const browserDomain = run("/usr/libexec/PlistBuddy", [
+    "-c",
+    "Print :CFBundleIdentifier",
+    join(chromium.executablePath().replace(/\/Contents\/MacOS\/.*$/, ""), "Contents/Info.plist")
+  ]);
+  run("defaults", ["write", browserDomain, "NSRequiresAquaSystemAppearance", "-bool", "YES"]);
+  const profile = mkdtempSync(join(workingDirectory, `${shot.name}-profile-`));
+  const context = await chromium.launchPersistentContext(profile, {
     headless: false,
-    channel: "chromium",
+    viewport: null,
     args: [
+      `--app=${baseURL}`,
       `--window-size=${shot.window.width},${shot.window.height}`,
       `--window-position=${WINDOW_POSITION.x},${WINDOW_POSITION.y}`,
+      "--no-first-run",
+      "--no-default-browser-check",
       "--hide-crash-restore-bubble"
     ]
   });
-
-  const pid = server.process().pid;
-  const browser = await chromium.connect(server.wsEndpoint());
+  // Playwright starts the browser as a direct child of this process; the static
+  // server is a child too, so the browser is picked out by its command line.
+  const pid = Number(
+    run("pgrep", ["-P", String(process.pid), "-f", "Chrom"]).split("\n")[0]
+  );
   const rawCapture = join(workingDirectory, `${shot.name}.png`);
 
   try {
-    const page = await browser.newPage({ viewport: null });
+    const page = context.pages()[0] ?? (await context.newPage());
 
     await page.goto(baseURL, { waitUntil: "networkidle" });
     await page.locator("#country-search").fill(COUNTRY);
@@ -137,6 +145,8 @@ async function captureShot(shot, baseURL, workingDirectory) {
     await page.evaluate(() => {
       document.activeElement?.blur();
       window.scrollTo(0, 0);
+      // An empty title would make Chromium show the address instead.
+      document.title = "\u200B";
     });
     await settle(page);
 
@@ -152,8 +162,8 @@ async function captureShot(shot, baseURL, workingDirectory) {
     console.log(`${shot.name}: window id ${windowId}`);
     run("screencapture", ["-x", `-l${windowId}`, rawCapture]);
   } finally {
-    await browser.close();
-    await server.close();
+    await context.close();
+    run("defaults", ["delete", browserDomain, "NSRequiresAquaSystemAppearance"]);
   }
 
   const published = join(OUTPUT_DIRECTORY, `${shot.name}.webp`);
@@ -165,62 +175,9 @@ async function captureShot(shot, baseURL, workingDirectory) {
     "--out",
     rawCapture
   ]);
-  run("cwebp", ["-lossless", "-exact", "-quiet", rawCapture, "-o", published]);
+  run("cwebp", ["-near_lossless", "60", "-z", "9", "-exact", "-quiet", rawCapture, "-o", published]);
 
   console.log(`${shot.name}: ${published}`);
-}
-
-async function captureSocialCard(baseURL) {
-  const browser = await chromium.launch({
-    headless: true,
-    channel: "chromium"
-  });
-
-  try {
-    const page = await browser.newPage({
-      viewport: SOCIAL_CARD,
-      deviceScaleFactor: 1
-    });
-
-    await page.setContent(`<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><style>
-  * { box-sizing: border-box; margin: 0; }
-  body {
-    width: ${SOCIAL_CARD.width}px;
-    height: ${SOCIAL_CARD.height}px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    padding: 64px;
-    gap: 40px;
-    background: linear-gradient(140deg, #eef3f8, #f6f7fb 60%, #e7f0ff);
-    color: #18202d;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  }
-  h1 { font-size: 62px; font-weight: 760; line-height: 1.04; letter-spacing: -0.02em; }
-  p { margin-top: 22px; font-size: 27px; line-height: 1.35; color: #465365; }
-  img { width: 100%; }
-</style></head>
-<body>
-  <div>
-    <h1>Country Badge Generator</h1>
-    <p>Three deterministic, flag-inspired backgrounds for any country. Download SVG, PNG, or JPG.</p>
-  </div>
-  <img src="${baseURL}assets/screenshots/desktop.webp" alt="">
-</body>
-</html>`);
-
-    await page.waitForLoadState("networkidle");
-    await page.screenshot({
-      path: join(OUTPUT_DIRECTORY, "..", SOCIAL_CARD.output),
-      type: "png"
-    });
-
-    console.log(`social card: assets/${SOCIAL_CARD.output}`);
-  } finally {
-    await browser.close();
-  }
 }
 
 const workingDirectory = join(
@@ -248,7 +205,6 @@ try {
     await captureShot(shot, baseURL, workingDirectory);
   }
 
-  await captureSocialCard(baseURL);
 } finally {
   staticServer.kill();
   rmSync(workingDirectory, { recursive: true, force: true });
