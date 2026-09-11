@@ -160,9 +160,11 @@ Deployment requirements:
 ```text
 .
 |-- assets/
-|   `-- favicon.svg
+|   `-- screenshots/
 |-- css/
 |   `-- styles.css
+|-- design/
+|   `-- social-card/
 |-- js/
 |   |-- app.js
 |   |-- countries.js
@@ -174,9 +176,13 @@ Deployment requirements:
 |   |-- browser/
 |   `-- unit/
 |-- .nojekyll
+|-- apple-touch-icon.png
+|-- favicon.ico
+|-- favicon.svg
 |-- index.html
 |-- package.json
-`-- playwright.config.js
+|-- playwright.config.js
+`-- social-card.jpg
 ```
 
 ## Error Behavior
