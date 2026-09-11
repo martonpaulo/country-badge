@@ -130,7 +130,7 @@ At wrap-up, consider only learnings that are verified, project-specific, likely 
 ## Tests and validation
 
 - Install exact dependencies with `npm ci`.
-- Run the focused test first, then `npm test` before declaring a code or setup change complete.
+- Run the focused test first, then `npm run validate` (the full gate: unit suite then browser suite) before declaring a code or setup change complete.
 - Install the project-owned browser with `npx playwright install chromium`; CI installs its system dependencies with `npx playwright install --with-deps --no-shell chromium`.
 - Browser acceptance uses Playwright `browserName: "chromium"` with `channel: "chromium"`. Do not substitute Brave or an installed branded browser.
 - Do not claim a command passed unless it ran successfully. Report exact skips, failures, and residual manual verification.
@@ -161,7 +161,7 @@ Create no glossary, ADR, research, handoff, or prototype directory until a concr
 
 Rules for any executor working from a clone of this repository:
 
-- Restore dependencies with `npm ci`; run tests with `npm test`. No separate lint command is configured.
+- Restore dependencies with `npm ci`; run the full gate with `npm run validate`. No separate lint command is configured.
 - Use Chromium for Testing through the Playwright-owned `chromium` browser and channel. Never substitute Brave.
 - Branch as `<type>/<agent>/issue-<n>/<short-slug>`; commit with a Conventional Commit subject ending in `(#<n>)`.
 - Commit to `main` only after the complete suite passes; an outside contributor opens a pull request instead.

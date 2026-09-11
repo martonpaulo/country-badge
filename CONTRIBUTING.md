@@ -47,11 +47,12 @@ out of scope.
 ```bash
 npm ci
 npx playwright install chromium
-npm run test:unit      # what the Validate workflow runs
-npm run test:browser   # what the Browser suite workflow runs
+npm run validate
 ```
 
-`npm test` runs both in that order. The browser suite targets the Playwright-owned Chromium for
+`npm run validate` is the unit suite (what the Validate workflow runs) followed by the browser suite
+(what the Browser suite workflow runs); `npm run test:unit` and `npm run test:browser` run them
+separately while iterating. The browser suite targets the Playwright-owned Chromium for
 Testing build and serves the checkout on a run-time port, so it needs the browser download once and
 network access for uncached flags.
 

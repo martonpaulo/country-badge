@@ -47,8 +47,9 @@ modules and browser security behavior differ from the deployed site.
 
 | Command | What it does |
 | --- | --- |
+| `npm run validate` | The full gate before a commit: the unit suite then the browser suite |
 | `npm start` | Serves the repository root over HTTP on port 8080 (`python3 -m http.server`) |
-| `npm test` | The unit suite followed by the browser suite |
+| `npm test` | The same two suites; `validate` is the name to reach for |
 | `npm run test:unit` | `node --test` over `tests/unit/` |
 | `npm run test:browser` | The Playwright acceptance suite |
 | `npm run social-card` | Renders `design/social-card/social-card.html` into `social-card.jpg` (on a Mac) |
