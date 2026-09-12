@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- Country Badge Generator social card. Source of truth for social-card.jpg, served at
      https://countrybadge.martonpaulo.com/social-card.jpg (1200x630). Never edit the JPEG.
-     Render on a Mac (the drawn interface uses the system font): pnpm social-card
+     Render: pnpm social-card
      System, grid and contrast rules: the social card standard (skill-deck#261).
      Fonts: Gabarito and Figtree (OFL, fonts/*-OFL.txt), the typefaces of martonpaulo.com. -->
 <meta charset="utf-8">
@@ -27,8 +27,10 @@ h1 { margin: 0; font: 700 88px/1 "Gabarito", sans-serif; letter-spacing: -0.03em
 .promise { margin: 20px 0 0; font-weight: 500; font-size: 38px; line-height: 1.2; letter-spacing: -0.01em;
            color: var(--ink-soft); text-wrap: balance; }
 .domain { margin: 34px 0 0; font-size: 24px; font-weight: 500; color: var(--ink-soft); }
-/* The drawn interface: the system font, the way the real app renders. */
-.ui { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; color: #1f2937; }
+/* The drawn interface: Figtree, the way the real app renders. This used to be
+   the system font, which stopped being true when the site adopted the fleet
+   typography — a mock interface has to follow the product it is drawing. */
+.ui { font-family: "Figtree", sans-serif; color: #1f2937; }
 .win { position: absolute; background: #fff; border-radius: 22px;
        box-shadow: 0 40px 80px rgba(15,23,42,.30), 0 8px 20px rgba(15,23,42,.12); }
 .bar { height: 11px; border-radius: 6px; background: #e5e7eb; }
