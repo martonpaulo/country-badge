@@ -46,8 +46,8 @@
 
 @layer base {
   :root {
-    --page: #f6f7fb;
-    --page-accent: #eef3f8;
+    --page: #f3f5f8;
+    --page-accent: #f3f5f8;
     --surface: #ffffff;
     --surface-muted: #f8fafc;
     --surface-strong: #eef2f7;
@@ -101,7 +101,16 @@
   body {
     min-width: 320px;
     min-height: 100vh;
-    background: linear-gradient(180deg, var(--page-accent), var(--page) 210px);
+    /* One flat ground, shared with the other browser tools in the family
+       (issues.martonpaulo.com, linguae.martonpaulo.com). */
+    background: var(--page);
+    /* The workspace is short; on a tall screen it sat at the top with the rest
+       of the viewport empty. Centring it vertically until it outgrows the
+       screen keeps it in the middle of the field of view, and then it flows
+       normally from the top. */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     color: var(--text);
     font-family:
       ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -158,6 +167,9 @@
   .app-shell {
     width: min(var(--content-width), calc(100% - 32px));
     margin-inline: auto;
+    /* margin-block: auto is what makes the centring give way once the content
+       is taller than the viewport, instead of clipping its top. */
+    margin-block: auto;
   }
 
   .source-note,
