@@ -1,0 +1,65 @@
+name: Bug report
+description: Report something in Country Badge that does not work the way it should.
+title: "bug: "
+labels: ["type: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two things are usually not bugs: a color you would not have picked (the palette is
+        deterministic and curated — say which curated color you expected instead), and wrong country
+        data or flag artwork, which comes from upstream sources this app only reads.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Search for…
+        2. Select…
+        3. Observe…
+    validations:
+      required: true
+
+  - type: input
+    id: country
+    attributes:
+      label: Country
+      description: For a palette complaint, add the three colors you were offered.
+      placeholder: Brazil — #009739, #FEDD00, #012169
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Firefox 141 on macOS 26
+    validations:
+      required: true
+
+  - type: dropdown
+    id: private-window
+    attributes:
+      label: Does it still happen in a private window?
+      description: A private window rules out an extension or stale stored state.
+      options:
+        - "Yes"
+        - "No"
+        - Not checked
+    validations:
+      required: true
