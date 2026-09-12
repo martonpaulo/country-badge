@@ -13,4 +13,4 @@ Closes #
 
 <!-- Replace this with what you ran and what it reported. -->
 
-- [ ] `npm run validate` passes (Biome, the unit suite, and the browser suite)
+- [ ] `pnpm validate` passes (Biome, the unit suite, and the browser suite)

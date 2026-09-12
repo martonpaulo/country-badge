@@ -28,14 +28,14 @@ their own `sessionStorage`.
 <br />
 
 ## 🌱 Quick Start
-Requires **Node.js 24** and npm, plus network access for the initial country catalog, uncached flags, and the first Playwright browser download.
+Requires **Node.js 24** and pnpm, plus network access for the initial country catalog, uncached flags, and the first Playwright browser download.
 
 ```bash
 git clone https://github.com/martonpaulo/country-badge.git
 cd country-badge
-npm ci
-npx playwright install chromium
-npm start
+pnpm install --frozen-lockfile
+pnpm exec playwright install chromium
+pnpm start
 ```
 
 [http://localhost:8080](http://localhost:8080)
@@ -47,19 +47,19 @@ Do not test the app from `file://`: native ES modules and browser security behav
 ## 🛠 Commands
 | Command | What it does |
 | --- | --- |
-| `npm run validate` | Run the full gate before a commit: Biome, the unit suite, then the browser suite |
-| `npm start` | Serve the repository root over HTTP on port 8080 (`python3 -m http.server`) |
-| `npm run lint` | Check lint and formatting with Biome, changing nothing |
-| `npm run format` | Run the same checks with every safe fix written to disk |
-| `npm test` | Run both suites; `validate` is the name to reach for |
-| `npm run test:unit` | Run `node --test` over `tests/unit/` |
-| `npm run test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving the checkout at the site root on a run-time port so two checkouts can run at once |
-| `npm run social-card` | Render `design/social-card/social-card.html` into `social-card.jpg`, on a Mac |
-| `npm run fonts` | Rewrite `fonts/` from the `@fontsource/*` packages. `npm install` runs it through `prepare`, so nobody has to remember |
+| `pnpm validate` | Run the full gate before a commit: Biome, the unit suite, then the browser suite |
+| `pnpm start` | Serve the repository root over HTTP on port 8080 (`python3 -m http.server`) |
+| `pnpm lint` | Check lint and formatting with Biome, changing nothing |
+| `pnpm format` | Run the same checks with every safe fix written to disk |
+| `pnpm test` | Run both suites; `validate` is the name to reach for |
+| `pnpm test:unit` | Run `node --test` over `tests/unit/` |
+| `pnpm test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving the checkout at the site root on a run-time port so two checkouts can run at once |
+| `pnpm social-card` | Render `design/social-card/social-card.html` into `social-card.jpg`, on a Mac |
+| `pnpm fonts` | Rewrite `fonts/` from the `@fontsource/*` packages. `pnpm install` runs it through `prepare`, so nobody has to remember |
 
 Biome is the single linter and formatter, pinned in `devDependencies` and configured in `biome.jsonc` so that each disabled rule carries its reason.
 
-The woff2 files in `fonts/` are committed, because the site has no build step and GitHub Pages serves the repository as it stands, but they are the output of `npm run fonts` rather than assets to edit. To move a face or a weight, change the list in `scripts/copy-fonts.mjs` and run it again.
+The woff2 files in `fonts/` are committed, because the site has no build step and GitHub Pages serves the repository as it stands, but they are the output of `pnpm fonts` rather than assets to edit. To move a face or a weight, change the list in `scripts/copy-fonts.mjs` and run it again.
 
 ---
 
