@@ -384,7 +384,8 @@
   .country-option-code {
     color: var(--text-muted);
     font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+      monospace;
     font-size: 0.75rem;
     font-weight: var(--weight-strong);
   }
@@ -584,7 +585,8 @@
   .palette-hex {
     color: var(--text-muted);
     font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+      monospace;
     font-size: 0.7rem;
   }
 
@@ -647,7 +649,8 @@
   .selected-color strong {
     max-width: none;
     font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+      monospace;
   }
 
   .selected-swatch {
