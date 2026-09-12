@@ -12,10 +12,14 @@
     "validate": "npm run lint && npm test",
     "test:unit": "node --test tests/unit/*.test.js",
     "test:browser": "playwright test",
-    "social-card": "playwright screenshot --viewport-size=1200,630 \"file://$PWD/design/social-card/social-card.html\" tmp-generated/social-card.png && magick tmp-generated/social-card.png -strip -quality 92 -sampling-factor 4:4:4 -interlace Plane social-card.jpg"
+    "social-card": "playwright screenshot --viewport-size=1200,630 \"file://$PWD/design/social-card/social-card.html\" tmp-generated/social-card.png && magick tmp-generated/social-card.png -strip -quality 92 -sampling-factor 4:4:4 -interlace Plane social-card.jpg",
+    "fonts": "node scripts/copy-fonts.mjs",
+    "prepare": "npm run fonts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "@fontsource/figtree": "5.3.0",
+    "@fontsource/gabarito": "5.3.0",
     "@playwright/test": "1.61.1"
   }
 }
