@@ -475,7 +475,24 @@ function createThumbnailFlag() {
   return flag;
 }
 
-function renderPalette() {
+// A new image element for a blob URL reloads it, and loading a large flag SVG
+// parses it as a document in one main-thread task. A cached country keeps the
+// elements that already decoded its flag, so a repeat selection reuses them
+// and needs no runtime URL; they keep their image after that URL is revoked.
+function getThumbnailFlags(assets) {
+  const cached = assets.thumbnailFlags;
+
+  if (cached?.every((flag) => flag.complete && flag.naturalWidth > 0)) {
+    return cached;
+  }
+
+  setFlagObjectUrl(assets.flagSvgText);
+  assets.thumbnailFlags = assets.palette.map(() => createThumbnailFlag());
+
+  return assets.thumbnailFlags;
+}
+
+function renderPalette(thumbnailFlags) {
   const choices = document.createElement("div");
 
   choices.className = "palette-choices";
@@ -505,7 +522,7 @@ function renderPalette() {
     thumbnail.className = "palette-thumbnail";
     thumbnail.setAttribute("aria-hidden", "true");
     thumbnail.style.backgroundColor = option.hex;
-    thumbnail.append(createThumbnailFlag());
+    thumbnail.append(thumbnailFlags[index]);
 
     meta.className = "palette-meta";
 
@@ -642,10 +659,9 @@ async function generatePalette(country) {
 
     state.flagSvgText = assets.flagSvgText;
     state.flagDataUri = assets.flagDataUri;
-    setFlagObjectUrl(assets.flagSvgText);
     state.palette = assets.palette;
 
-    renderPalette();
+    renderPalette(getThumbnailFlags(assets));
     updateSelectedOption(0);
     setGenerationState("ready", { country });
 
