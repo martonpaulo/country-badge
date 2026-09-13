@@ -95,6 +95,7 @@ When a change would break a recorded pattern or establish a new one, stop and as
 - Prefer native HTML controls and established platform behavior over custom semantics.
 - Cover idle, loading, content, empty, error, retry, disabled, cancellation, and success states where the flow can reach them.
 - Preserve keyboard navigation, focus, accessible names, live status, scalable text, contrast, touch behavior, reduced motion, and non-color cues.
+- Screen-reader passes are not run, and that is accepted debt: accessibility evidence is automated — native semantics, accessible names, live-region text and politeness, focus movement, Playwright accessibility assertions — and reports say it is weaker than a real pass. Do not add or block on a criterion that asks a person to hear a screen reader. Decided by the owner on 2026-09-13 (martonpaulo/skill-deck#266); the gap it closes out was #20, split from #1.
 - Keep user-facing copy concise and consistent with the English-only strategy.
 - Keep expensive work out of input and render paths; measure before claiming or fixing a performance problem.
 
