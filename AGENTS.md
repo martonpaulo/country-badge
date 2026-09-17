@@ -7,7 +7,7 @@
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge` (public)
 - Public identifiers: repository slug `country-badge`; the private npm package name is development metadata, not a published package.
-- Landing page: `https://countrybadge.martonpaulo.com/`, hosted from `main:/` by GitHub Pages in this repository (custom domain in `CNAME`). The canonical, `og:`/`twitter:`, sitemap and robots references all use that origin.
+- Landing page: `https://countrybadge.martonpaulo.com/`, published from `site/` on `main` by `.github/workflows/deploy.yml` to GitHub Pages in this repository (custom domain in `site/CNAME`). The canonical, `og:`/`twitter:`, sitemap and robots references all use that origin.
 - License: `MIT`
 - Copyright: 2026 Marton Paulo
 - Development language: English.
@@ -25,7 +25,7 @@
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
 - Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit. In CI the cheap Node suite (`validate`) and the expensive Chromium suite (`browser-suite`) are separate workflows, each triggered only by the paths it can observe.
-- Release, signing, and secret-storage policy: GitHub Pages publishes the static site from `main`; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
+- Release, signing, and secret-storage policy: GitHub Pages publishes `site/` from `main` through `deploy.yml` after `Validate` passes; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
 - Skills baseline revision: `18c3ac96955f83dfc985e180841c7896e23836da`
 - Skills baseline applied: `2026-09-04`
 
@@ -42,7 +42,7 @@ Treat these values as stable project decisions. Change an established identifier
 
 ## Existing project patterns
 
-- Keep the app static: HTML, CSS, and native ES modules served directly from the repository root.
+- Keep the app static: HTML, CSS, and native ES modules served directly from `site/`, with no build step. Inside `site/` the scripts stay in `js/` and the styles in `css/` rather than the layout standard's `scripts/` and `styles/`, so published URLs did not change when the site moved (martonpaulo/skill-deck#286).
 - Keep all local module and asset URLs relative so the site works from any origin or path.
 - Keep external I/O in focused adapters such as `country-service.js` and `flag-service.js`; keep deterministic country and palette rules out of transport code.
 - Keep `app.js` as the composition and DOM-event boundary. Move substantial pure policy or reusable service behavior behind a smaller module interface instead of adding more unrelated responsibility there.

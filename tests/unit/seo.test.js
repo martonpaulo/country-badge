@@ -3,17 +3,17 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const page = await readFile(
-  new URL("../../index.html", import.meta.url),
+  new URL("../../site/index.html", import.meta.url),
   "utf8",
 );
 
 const sitemap = await readFile(
-  new URL("../../sitemap.xml", import.meta.url),
+  new URL("../../site/sitemap.xml", import.meta.url),
   "utf8",
 );
 
 const robots = await readFile(
-  new URL("../../robots.txt", import.meta.url),
+  new URL("../../site/robots.txt", import.meta.url),
   "utf8",
 );
 

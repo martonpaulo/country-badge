@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { copyText, createBadgeSvg, createFlagDataUri } from "../../js/svg.js";
+import {
+  copyText,
+  createBadgeSvg,
+  createFlagDataUri,
+} from "../../site/js/svg.js";
 
 const flagSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="#009739"/></svg>`;
 

@@ -1,11 +1,11 @@
-// Writes fonts/ from the Fontsource packages in devDependencies.
+// Writes site/fonts/ from the Fontsource packages in devDependencies.
 //
 //   pnpm fonts
 //
-// The woff2 files under fonts/ are committed — this site has no build step and
-// GitHub Pages serves the repository as it stands — but they are the output of
+// The woff2 files under site/fonts/ are committed — this site has no build step and
+// the deploy publishes site/ as it stands — but they are the output of
 // this script, not hand-placed assets. To change a face or a weight, change the
-// list below and run it again; never edit or drop a file in fonts/ by hand.
+// list below and run it again; never edit or drop a file in site/fonts/ by hand.
 // `pnpm install` runs this through `prepare`, so an updated package updates the
 // site. Licences travel with the files, from the same packages.
 
@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MODULES = join(ROOT, "node_modules", "@fontsource");
-const OUT = join(ROOT, "fonts");
+const OUT = join(ROOT, "site", "fonts");
 
 // The three faces the typography standard ships, latin subset only:
 // skill-deck/docs/typography-standard.md. No monospace webfont, ever.
@@ -41,5 +41,5 @@ for (const [pkg, file] of FILES) {
 
   await copyFile(join(MODULES, pkg, file), join(OUT, name));
 
-  console.log(`fonts/${name}`);
+  console.log(`site/fonts/${name}`);
 }

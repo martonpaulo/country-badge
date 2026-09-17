@@ -2,4 +2,7 @@ node_modules/
 playwright-report/
 test-results/
 tmp-generated/
+artifacts/
+.scratch/
+.DS_Store
 *.log

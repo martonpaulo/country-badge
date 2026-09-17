@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   normalizeSourceColors,
   selectPalette,
-} from "../../js/palette-policy.js";
+} from "../../site/js/palette-policy.js";
 
 // The policy is DOM-free, so every branch is exercised from controlled source
 // colors instead of a rasterized flag.

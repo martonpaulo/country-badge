@@ -6,9 +6,9 @@ import {
   getCountryByCode,
   normalizeSearch,
   searchCountries,
-} from "../../js/countries.js";
+} from "../../site/js/countries.js";
 
-import { COUNTRY_DATA_URL } from "../../js/country-service.js";
+import { COUNTRY_DATA_URL } from "../../site/js/country-service.js";
 
 let catalogPromise;
 

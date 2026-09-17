@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="social-card.jpg" width="100%" alt="Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG">
+<img src="site/social-card.jpg" width="100%" alt="Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG">
 
 # Country Badge Generator
 
@@ -48,18 +48,18 @@ Do not test the app from `file://`: native ES modules and browser security behav
 | Command | What it does |
 | --- | --- |
 | `pnpm validate` | Run the full gate before a commit: Biome, the unit suite, then the browser suite |
-| `pnpm start` | Serve the repository root over HTTP on port 8080 (`python3 -m http.server`) |
+| `pnpm start` | Serve `site/` over HTTP on port 8080 (`python3 -m http.server`) |
 | `pnpm lint` | Check lint and formatting with Biome, changing nothing |
 | `pnpm format` | Run the same checks with every safe fix written to disk |
 | `pnpm test` | Run both suites; `validate` is the name to reach for |
 | `pnpm test:unit` | Run `node --test` over `tests/unit/` |
-| `pnpm test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving the checkout at the site root on a run-time port so two checkouts can run at once |
-| `pnpm social-card` | Render `design/social-card/social-card.html` into `social-card.jpg`, on a Mac |
-| `pnpm fonts` | Rewrite `fonts/` from the `@fontsource/*` packages. `pnpm install` runs it through `prepare`, so nobody has to remember |
+| `pnpm test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving `site/` at the site root on a run-time port so two checkouts can run at once |
+| `pnpm social-card` | Render `design/social-card/social-card.html` into `site/social-card.jpg`, on a Mac |
+| `pnpm fonts` | Rewrite `site/fonts/` from the `@fontsource/*` packages. `pnpm install` runs it through `prepare`, so nobody has to remember |
 
 Biome is the single linter and formatter, pinned in `devDependencies` and configured in `biome.jsonc` so that each disabled rule carries its reason.
 
-The woff2 files in `fonts/` are committed, because the site has no build step and GitHub Pages serves the repository as it stands, but they are the output of `pnpm fonts` rather than assets to edit. To move a face or a weight, change the list in `scripts/copy-fonts.mjs` and run it again.
+The woff2 files in `site/fonts/` are committed, because the site has no build step and the deploy publishes `site/` as it stands, but they are the output of `pnpm fonts` rather than assets to edit. To move a face or a weight, change the list in `scripts/copy-fonts.mjs` and run it again.
 
 ---
 
@@ -82,12 +82,12 @@ The woff2 files in `fonts/` are committed, because the site has no build step an
 
 ## Deterministic palette
 
-Every background is chosen from a fixed curated catalog of colors declared in `js/palette-policy.js`.
+Every background is chosen from a fixed curated catalog of colors declared in `site/js/palette-policy.js`.
 The flag decides which catalog entries are chosen, never the color values themselves.
 
-The work is split across three modules: `js/palette-sampler.js` reads the flag in the browser and
-reports the colors it observed, `js/palette-policy.js` decides which curated colors represent them
-without touching the DOM, and `js/palette.js` is the facade that joins the two.
+The work is split across three modules: `site/js/palette-sampler.js` reads the flag in the browser and
+reports the colors it observed, `site/js/palette-policy.js` decides which curated colors represent them
+without touching the DOM, and `site/js/palette.js` is the facade that joins the two.
 
 1. The selected flag SVG is fetched in the browser.
 2. The flag is rasterized into a small offscreen canvas sized from its aspect ratio.
@@ -147,10 +147,10 @@ CORS-compatible responses. The app does not keep a full country list or flag set
 
 ## Deployment
 
-GitHub Pages publishes this repository directly. The deployment contract is:
+`.github/workflows/deploy.yml` publishes `site/` to GitHub Pages after `Validate` passes on `main`. The deployment contract is:
 
-- Serve files from the repository root.
-- Keep `CNAME` in place, and keep `_config.yml`'s exclude list covering every file that must not reach the published site.
+- Everything the site serves lives in `site/`, and nothing else does; the URL of a file is its path inside `site/`.
+- Keep `site/CNAME` in place.
 - Keep all local asset and module paths relative, such as `./js/app.js`.
 - Do not add server functions, backend routes, environment variables, API keys, secrets, SSR, or
   routing rewrites.

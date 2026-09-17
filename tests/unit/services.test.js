@@ -5,9 +5,9 @@ import {
   CATALOG_CACHE_KEY,
   COUNTRY_DATA_URL,
   fetchCountryCatalog,
-} from "../../js/country-service.js";
+} from "../../site/js/country-service.js";
 
-import { fetchFlagSvg } from "../../js/flag-service.js";
+import { fetchFlagSvg } from "../../site/js/flag-service.js";
 
 function createResponse({ ok = true, status = 200, json, text } = {}) {
   return {

@@ -1,5 +1,6 @@
 # Cheap validation: the Node test suite only. It needs no browser download, so
-# it runs on every change that can affect it.
+# it runs on every change that can affect it. A successful run on main starts
+# `deploy.yml`, so every published change under `site/` is watched here.
 #
 # The expensive Chromium acceptance suite lives in `browser.yml` and is gated on
 # the paths it can actually observe. Splitting them keeps a documentation-only
@@ -9,11 +10,7 @@ name: Validate
 on:
   pull_request:
     paths:
-      - "index.html"
-      - "sitemap.xml"
-      - "robots.txt"
-      - "css/**"
-      - "js/**"
+      - "site/**"
       - "tests/unit/**"
       - "biome.jsonc"
       - "package.json"
@@ -22,11 +19,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "index.html"
-      - "sitemap.xml"
-      - "robots.txt"
-      - "css/**"
-      - "js/**"
+      - "site/**"
       - "tests/unit/**"
       - "biome.jsonc"
       - "package.json"

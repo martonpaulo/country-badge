@@ -5,14 +5,14 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080 --directory site",
     "lint": "biome check .",
     "format": "biome check --write .",
     "test": "pnpm test:unit && pnpm test:browser",
     "validate": "pnpm lint && pnpm test",
     "test:unit": "node --test tests/unit/*.test.js",
     "test:browser": "playwright test",
-    "social-card": "playwright screenshot --viewport-size=1200,630 \"file://$PWD/design/social-card/social-card.html\" tmp-generated/social-card.png && magick tmp-generated/social-card.png -strip -quality 92 -sampling-factor 4:4:4 -interlace Plane social-card.jpg",
+    "social-card": "playwright screenshot --viewport-size=1200,630 \"file://$PWD/design/social-card/social-card.html\" tmp-generated/social-card.png && magick tmp-generated/social-card.png -strip -quality 92 -sampling-factor 4:4:4 -interlace Plane site/social-card.jpg",
     "fonts": "node scripts/copy-fonts.mjs",
     "prepare": "pnpm fonts"
   },

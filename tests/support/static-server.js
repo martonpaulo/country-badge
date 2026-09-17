@@ -1,11 +1,11 @@
-// The app is served from the repository root, exactly like the published site, on a port chosen
+// The app is served from site/, exactly like the published site, on a port chosen
 // at run time so several checkouts can run the suite concurrently.
 import { createServer } from "node:net";
 import { fileURLToPath } from "node:url";
 
 const SERVE_PORT_ENV = "CBG_SERVE_PORT";
 
-const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
+const siteRoot = fileURLToPath(new URL("../../site/", import.meta.url));
 
 function findFreePort() {
   return new Promise((resolve, reject) => {
@@ -28,9 +28,9 @@ export async function resolveServeTarget() {
   const port = Number(process.env[SERVE_PORT_ENV]);
 
   return {
-    serveRoot: repositoryRoot,
+    serveRoot: siteRoot,
     port,
-    command: `python3 -m http.server ${port} --directory "${repositoryRoot}"`,
+    command: `python3 -m http.server ${port} --directory "${siteRoot}"`,
     baseURL: `http://127.0.0.1:${port}/`,
   };
 }
