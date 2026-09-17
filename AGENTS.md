@@ -17,10 +17,6 @@
 - Commit policy: commit authorized work automatically when its required validation passes. Use Conventional Commits and keep each commit to one concern.
 - Push policy: push explicitly authorized work automatically once its required validation passes. Never push unrelated work or an unvalidated commit.
 - Product versioning: unversioned. `package.json` version `1.0.0` is non-public development metadata and changes only if an explicit release policy is introduced.
-- Agent automation: `enabled`
-- Implementation agent: `claude`
-- Review agent: `codex`
-- Orchestration agent: `codex`
 - Merge policy: merge commit only, `gh pr merge <number> --merge --delete-branch`, so every branch commit reaches `main` (martonpaulo/skill-deck#277). The pull request title becomes the merge commit's subject, and the leading `Closes` block preserves the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
@@ -29,7 +25,7 @@
 - Skills baseline revision: `18c3ac96955f83dfc985e180841c7896e23836da`
 - Skills baseline applied: `2026-09-04`
 
-Treat these values as stable project decisions. Change an established identifier, license, visibility, branch policy, versioning model, localization strategy, landing-page contract, automation decision, browser target, or release policy only through an explicit migration task.
+Treat these values as stable project decisions. Change an established identifier, license, visibility, branch policy, versioning model, localization strategy, landing-page contract, browser target, or release policy only through an explicit migration task.
 
 ## Instruction hierarchy and sources of truth
 
@@ -145,11 +141,11 @@ At wrap-up, consider only learnings that are verified, project-specific, likely 
 ## Git and pull requests
 
 - Check status and branch before editing and before the completion report.
-- Branch as `<type>/<agent>/issue-<n>/<short-slug>`; orchestrated branches add `ao/<session-id>/` before that project convention.
+- Branch as `<type>/<agent>/issue-<n>/<short-slug>`.
 - Use Conventional Commits in English, one concern per commit, ending issue commits with `(#<n>)`.
 - Pull request titles use `Issue #<n> - <description>` or `Issues #<a>, #<b> - <description>`.
 - Begin the body with one `Closes #<n>` line per fully satisfied issue, followed by problem, implementation, validation, and residual risk.
-- Merge with a merge commit and delete the branch. Never arm GitHub auto-merge from a worker; the owner or `skd merge` owns merge execution.
+- Merge with a merge commit and delete the branch. Never arm GitHub auto-merge; the owner or `skd merge` owns merge execution.
 - Do not publish a release or change a version unless explicitly requested under a recorded release policy.
 
 ## Agent skill paths
@@ -167,9 +163,9 @@ Rules for any executor working from a clone of this repository:
 - Branch as `<type>/<agent>/issue-<n>/<short-slug>`; commit with a Conventional Commit subject ending in `(#<n>)`.
 - Commit to `main` only after the complete suite passes; an outside contributor opens a pull request instead.
 - Start the PR body with one `Closes #<n>` line per resolved issue, then record the problem, implementation, tests with results, and residual risk.
-- Do not touch `.ao/` or `.github/workflows/` during ordinary issue implementation.
+- Do not touch `.github/workflows/` during ordinary issue implementation.
 - `AGENTS.md` is protected by section: `## Project identity and policy` is governance and never changes under an executor. Other sections update only when the delivered code would make a recorded pattern untrue.
-- When a needed decision is absent from the issue, post the exact missing choice, apply `status: needs-decision` with `in-progress`, read both back, and stop instead of guessing.
+- When a needed decision is absent from the issue, post the exact missing choice, apply `status: needs-decision`, read it back, and stop instead of guessing.
 
 ## Completion report
 

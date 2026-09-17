@@ -12,7 +12,6 @@
       "!playwright-report",
       "!tmp-generated",
       "!**/favicon.svg",
-      "!**/.ao",
       "!**/.agentastic",
       "!**/.conductor"
     ]
