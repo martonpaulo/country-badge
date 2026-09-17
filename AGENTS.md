@@ -2,7 +2,7 @@
 
 ## Project identity and policy
 
-- Project name: `country-badge-generator`
+- Project name: `country-badge`
 - Public name: `Country Badge Generator`
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge` (public)

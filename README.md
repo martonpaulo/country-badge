@@ -2,7 +2,7 @@
 
 <img src="social-card.jpg" width="100%" alt="Country Badge: square country badges with flag-inspired backgrounds, downloadable as SVG, PNG, or JPG">
 
-# Country Badge
+# Country Badge Generator
 
 Create square country badges with three deterministic, flag-inspired background colors and download each one as SVG, PNG, or JPG.
 
