@@ -2,8 +2,10 @@
 
 ## Project identity and policy
 
-- Project name: `country-badge`
-- Public name: `Country Badge Generator`
+- Display name: `Country Badge Generator`
+- Code name: `CountryBadgeGenerator`
+- Slug: `country-badge`
+- Identifier name: `countrybadge`
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge` (public)
 - Public identifiers: repository slug `country-badge`; the private npm package name is development metadata, not a published package.
