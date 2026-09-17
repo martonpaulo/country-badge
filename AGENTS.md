@@ -143,7 +143,7 @@ At wrap-up, consider only learnings that are verified, project-specific, likely 
 ## Git and pull requests
 
 - Check status and branch before editing and before the completion report.
-- Branch as `<type>/<agent>/issue-<n>/<short-slug>`.
+- Branch as `<type>/<issue numbers>-<short-description>` ([Conventional Branch](https://conventionalbranch.org/), e.g. `feature/70-pane-menu-actions`; `<type>/<short-description>` when no issue exists).
 - Use Conventional Commits in English, one concern per commit, ending issue commits with `(#<n>)`.
 - Pull request titles use `Issue #<n> - <description>` or `Issues #<a>, #<b> - <description>`.
 - Begin the body with one `Closes #<n>` line per fully satisfied issue, followed by problem, implementation, validation, and residual risk.
@@ -162,7 +162,7 @@ Rules for any executor working from a clone of this repository:
 
 - Restore dependencies with `pnpm install --frozen-lockfile`; lint and format with Biome via `pnpm lint` and `pnpm format`; run the full gate with `pnpm validate`.
 - Use Chromium for Testing through the Playwright-owned `chromium` browser and channel. Never substitute Brave.
-- Branch as `<type>/<agent>/issue-<n>/<short-slug>`; commit with a Conventional Commit subject ending in `(#<n>)`.
+- Branch as `<type>/<issue numbers>-<short-description>` ([Conventional Branch](https://conventionalbranch.org/), e.g. `feature/70-pane-menu-actions`; `<type>/<short-description>` when no issue exists); commit with a Conventional Commit subject ending in `(#<n>)`.
 - Commit to `main` only after the complete suite passes; an outside contributor opens a pull request instead.
 - Start the PR body with one `Closes #<n>` line per resolved issue, then record the problem, implementation, tests with results, and residual risk.
 - Do not touch `.github/workflows/` during ordinary issue implementation.
