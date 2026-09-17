@@ -333,24 +333,3 @@ test("storage failures never change what a request reports", async () => {
     /temporarily unavailable/,
   );
 });
-
-test("a legacy raw-payload cache entry is discarded on the next successful load", async () => {
-  const storage = createStorage({
-    initial: {
-      "country-badge-generator.country-data.v1": JSON.stringify(
-        createSourcePayload(),
-      ),
-    },
-  });
-
-  await fetchCountryCatalog({
-    fetcher: createRemoteFetcher(createSourcePayload()).fetcher,
-    storage,
-  });
-
-  assert.equal(
-    storage.entries.has("country-badge-generator.country-data.v1"),
-    false,
-  );
-  assert.equal(storage.entries.has(CATALOG_CACHE_KEY), true);
-});

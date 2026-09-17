@@ -6,9 +6,7 @@ export const COUNTRY_DATA_URL =
 // The cache holds the normalized catalog the application consumes, so its key
 // is versioned by the shape and the record carries the pinned source: a schema
 // or data-source change invalidates every older entry.
-export const CATALOG_CACHE_KEY = "country-badge-generator.country-catalog.v2";
-
-const LEGACY_PAYLOAD_CACHE_KEY = "country-badge-generator.country-data.v1";
+export const CATALOG_CACHE_KEY = "country-badge.country-catalog.v2";
 
 const CATALOG_SCHEMA_VERSION = 2;
 
@@ -81,7 +79,6 @@ function readCachedCatalog(storage) {
 }
 
 function writeCachedCatalog(storage, catalog) {
-  removeStoredValue(storage, LEGACY_PAYLOAD_CACHE_KEY);
   writeStoredValue(
     storage,
     CATALOG_CACHE_KEY,

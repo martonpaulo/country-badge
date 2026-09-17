@@ -20,7 +20,7 @@ import {
 const MAX_SUGGESTIONS = 8;
 
 const PALETTE_INPUT_NAME = "badge-background";
-const RECENT_COUNTRIES_KEY = "country-badge-generator.recent-countries.v1";
+const RECENT_COUNTRIES_KEY = "country-badge.recent-countries.v1";
 
 const OUTPUT_FORMATS = {
   svg: {
