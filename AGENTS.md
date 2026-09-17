@@ -21,7 +21,7 @@
 - Implementation agent: `claude`
 - Review agent: `codex`
 - Orchestration agent: `codex`
-- Merge policy: squash merge only. The pull request title and leading `Closes` block preserve the complete issue set.
+- Merge policy: merge commit only, `gh pr merge <number> --merge --delete-branch`, so every branch commit reaches `main` (martonpaulo/skill-deck#277). The pull request title becomes the merge commit's subject, and the leading `Closes` block preserves the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
 - Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit. In CI the cheap Node suite (`validate`) and the expensive Chromium suite (`browser-suite`) are separate workflows, each triggered only by the paths it can observe.
@@ -149,7 +149,7 @@ At wrap-up, consider only learnings that are verified, project-specific, likely 
 - Use Conventional Commits in English, one concern per commit, ending issue commits with `(#<n>)`.
 - Pull request titles use `Issue #<n> - <description>` or `Issues #<a>, #<b> - <description>`.
 - Begin the body with one `Closes #<n>` line per fully satisfied issue, followed by problem, implementation, validation, and residual risk.
-- Merge with squash and delete the branch. Never arm GitHub auto-merge from a worker; the owner or `skd merge` owns merge execution.
+- Merge with a merge commit and delete the branch. Never arm GitHub auto-merge from a worker; the owner or `skd merge` owns merge execution.
 - Do not publish a release or change a version unless explicitly requested under a recorded release policy.
 
 ## Agent skill paths
