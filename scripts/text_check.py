@@ -12,7 +12,10 @@ a Git repository; dot folders, `node_modules`, `vendor`, `third_party` and `.bui
   (U+1F3F4 then tags).
 - `links`: every relative Markdown link resolves, and its `#anchor` names a heading GitHub
   generates. Repeated headings take `-1`, `-2`; a `#` line inside a fence is no heading; a `#L12`
-  line anchor and an absolute or external link are not checked.
+  line anchor and an absolute or external link are not checked. In a documentation site that
+  declares itself (an `astro.config.*` file beside `src/content/docs/`), a page there may link to a
+  route, such as `/base/guide/` (the config's `base`) or `../guide/`: the route resolves when the
+  content folder holds a page for it, and a route with no page fails, naming it (#2170).
 - `contents`: a Markdown file under `docs/` (not `docs/research/`, whose dated notes are read once)
   longer than 100 lines and with two or more `##` sections starts with a Contents list (a
   `## Contents` heading, or a line that is exactly `Contents:`) linking every `##` section.
@@ -23,6 +26,7 @@ it in the project's gate; the `text-check` rule of `check_repository_conventions
 """
 from __future__ import annotations
 
+import posixpath
 import re
 import subprocess
 import sys
@@ -164,15 +168,63 @@ def _destinations(text: str) -> list[tuple[int, str]]:
     return found
 
 
-def check_links(path: Path, label: str, text: str, anchors: dict[Path, set[str]]) -> list[str]:
+def site_content(root: Path) -> tuple[Path, str] | None:
+    """A documentation site's content folder and route base, when ROOT declares one: an Astro
+    config beside `src/content/docs/`. The base is the config's `base: "/x"`, else empty."""
+    docs = root / "src" / "content" / "docs"
+    configs = sorted(root.glob("astro.config.*"))
+    if not docs.is_dir() or not configs:
+        return None
+    try:
+        found = re.search(r"""\bbase\s*:\s*['"]([^'"]*)['"]""", configs[0].read_text(encoding="utf-8"))
+    except (OSError, UnicodeError):
+        found = None
+    return docs, "/" + (found.group(1).strip("/") if found else "")
+
+
+def route_has_page(docs: Path, route: str) -> bool:
+    """Whether the content folder holds a page for ROUTE (`guide/setup`, no base, no slashes at the ends)."""
+    name = posixpath.normpath(route) if route else "."
+    if name == ".." or name.startswith("../"):
+        return False
+    stem = docs if name == "." else docs / name
+    return any(candidate.is_file() for candidate in
+               (stem.with_name(stem.name + ".md"), stem.with_name(stem.name + ".mdx"), stem / "index.md", stem / "index.mdx"))
+
+
+def route_of(site: tuple[Path, str], path: Path, destination: str) -> str | None:
+    """The route a link names from the page at PATH: a root-relative one under the site's base, or a
+    relative one read from the page's own address; None when the link is no route (an asset, another site)."""
+    docs, base = site
+    if posixpath.splitext(destination.rstrip("/"))[1]:
+        return None
+    if destination.startswith("/"):
+        prefix = base.rstrip("/") + "/"
+        return destination[len(prefix):] if destination.startswith(prefix) else None
+    page = path.relative_to(docs).with_suffix("").as_posix()
+    here = posixpath.dirname(page) if page == "index" or page.endswith("/index") else page
+    return posixpath.normpath(posixpath.join(here, destination))
+
+
+def check_links(path: Path, label: str, text: str, anchors: dict[Path, set[str]],
+                site: tuple[Path, str] | None = None) -> list[str]:
     problems = []
+    in_site = site is not None and path.is_relative_to(site[0])
     for number, raw in _destinations(text):
         destination = raw[1 : raw.index(">")] if raw.startswith("<") and ">" in raw else raw.split(maxsplit=1)[0]
         parsed = urlsplit(destination)
-        if not destination or parsed.scheme or parsed.netloc or destination.startswith("/"):
+        if not destination or parsed.scheme or parsed.netloc or (destination.startswith("/") and not in_site):
             continue
         fragment = unquote(parsed.fragment)
         target = path if not parsed.path else path.parent / unquote(parsed.path)
+        if in_site and parsed.path and (destination.startswith("/") or not target.exists()):
+            route = route_of(site, path, unquote(parsed.path))
+            if route is None and destination.startswith("/"):
+                continue  # an asset or another site's address
+            if route is not None:
+                if not route_has_page(site[0], route.strip("/")):
+                    problems.append(f"{label}:{number}: links: route has no page: {raw}")
+                continue
         if not target.exists():
             problems.append(f"{label}:{number}: links: target does not exist: {raw}")
             continue
@@ -235,6 +287,7 @@ def check_contents(label: str, text: str) -> list[str]:
 def check(root: Path) -> list[str]:
     problems: list[str] = []
     anchors: dict[Path, set[str]] = {}
+    site = site_content(root)
     for path in tracked_files(root):
         if path.suffix not in TEXT_SUFFIXES:
             continue
@@ -245,7 +298,7 @@ def check(root: Path) -> list[str]:
         label = path.relative_to(root).as_posix()
         problems.extend(check_invisible(label, text))
         if path.suffix == ".md":
-            problems.extend(check_links(path, label, text, anchors))
+            problems.extend(check_links(path, label, text, anchors, site))
             if label.startswith("docs/") and not label.startswith("docs/research/"):
                 problems.extend(check_contents(label, text))
     return problems
