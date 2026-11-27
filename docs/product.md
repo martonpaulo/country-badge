@@ -1,8 +1,8 @@
-# Country Badge Generator product definition
+# Country Badge product definition
 
 ## Product
 
-Country Badge Generator is a browser-only tool for turning a supported country into a ready-to-use square badge with a flag and one of three deterministic, flag-inspired backgrounds.
+Country Badge is a browser-only tool for turning a supported country into a ready-to-use square badge with a flag and one of three deterministic, flag-inspired backgrounds.
 
 ## Audience and job
 

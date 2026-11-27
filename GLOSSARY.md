@@ -1,6 +1,6 @@
 # Glossary
 
-The words Country Badge Generator and its code use for one thing each.
+The words Country Badge and its code use for one thing each.
 
 | Term       | Definition                                                                                          | Do not write          |
 | :--------- | :-------------------------------------------------------------------------------------------------- | :-------------------- |
