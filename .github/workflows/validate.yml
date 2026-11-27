@@ -9,22 +9,14 @@ name: Validate
 
 on:
   pull_request:
+    # Every path runs the cheap gate, so a new file is never skipped (fleet-conventions validate-paths).
     paths:
-      - "site/**"
-      - "tests/unit/**"
-      - "biome.jsonc"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/validate.yml"
+      - "**"
   push:
     branches: [main]
+    # Every path runs the cheap gate, so a new file is never skipped (fleet-conventions validate-paths).
     paths:
-      - "site/**"
-      - "tests/unit/**"
-      - "biome.jsonc"
-      - "package.json"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/validate.yml"
+      - "**"
 
 permissions:
   contents: read

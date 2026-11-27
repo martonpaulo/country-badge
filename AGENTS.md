@@ -6,6 +6,7 @@
 - Code name: `CountryBadgeGenerator`
 - Slug: `country-badge`
 - Identifier name: `countrybadge`
+- Icon: `site/favicon.svg`
 - Benefit-first description: Create downloadable SVG, PNG, and JPG country badges with three deterministic, flag-inspired backgrounds.
 - Repository: `martonpaulo/country-badge` (public)
 - Public identifiers: repository slug `country-badge`; the private npm package name is development metadata, not a published package.
@@ -19,15 +20,24 @@
 - Commit policy: commit authorized work automatically when its required validation passes. Use Conventional Commits and keep each commit to one concern.
 - Push policy: push explicitly authorized work automatically once its required validation passes. Never push unrelated work or an unvalidated commit.
 - Product versioning: unversioned. `package.json` version `1.0.0` is non-public development metadata and changes only if an explicit release policy is introduced.
-- Merge policy: merge commit only, `gh pr merge <number> --merge --delete-branch`, so every branch commit reaches `main` (martonpaulo/skill-deck#277). The pull request title becomes the merge commit's subject, and the leading `Closes` block preserves the complete issue set.
+- Merge policy: merge commit only, `gh pr merge <number> --merge --delete-branch`, so every branch commit reaches `main` ([martonpaulo/skill-deck#277](https://github.com/martonpaulo/skill-deck/issues/277)). The pull request title becomes the merge commit's subject, and the leading `Closes` block preserves the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Delete branches after merge: enabled.
 - Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit. In CI the cheap Node suite (`validate`) and the expensive Chromium suite (`browser-suite`) are separate workflows, each triggered only by the paths it can observe.
 - Release, signing, and secret-storage policy: GitHub Pages publishes `site/` from `main` through `deploy.yml` after `Validate` passes; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
-- Skills baseline revision: `18c3ac96955f83dfc985e180841c7896e23836da`
-- Skills baseline applied: `2026-09-04`
+- Skills baseline revision: `52a750a90f2a761592388dba46b50b0238e3964d`
+- Skills baseline applied: `2026-11-27`
 
 Treat these values as stable project decisions. Change an established identifier, license, visibility, branch policy, versioning model, localization strategy, landing-page contract, browser target, or release policy only through an explicit migration task.
+
+## Route map
+
+Before editing under a path, read the file its row names. A module with rules of its own keeps them in its own `AGENTS.md` of at most 150 lines, beside a `CLAUDE.md` symlink, and has a row here; this file stays at most 200 lines.
+
+| Path | Read first |
+| :--- | :--- |
+| `site/`, `tests/` | [Existing project patterns](#existing-project-patterns) below, then `docs/product.md` |
+| `.github/workflows/` | the `bench-setup` skill's `references/ci-pipelines.md` |
 
 ## Instruction hierarchy and sources of truth
 
@@ -40,7 +50,7 @@ Treat these values as stable project decisions. Change an established identifier
 
 ## Existing project patterns
 
-- Keep the app static: HTML, CSS, and native ES modules served directly from `site/`, with no build step. Inside `site/` the scripts stay in `js/` and the styles in `css/` rather than the layout standard's `scripts/` and `styles/`, so published URLs did not change when the site moved (martonpaulo/skill-deck#286).
+- Keep the app static: HTML, CSS, and native ES modules served directly from `site/`, with no build step. Inside `site/` the scripts stay in `js/` and the styles in `css/` rather than the layout standard's `scripts/` and `styles/`, so published URLs did not change when the site moved ([martonpaulo/skill-deck#286](https://github.com/martonpaulo/skill-deck/issues/286)).
 - Keep all local module and asset URLs relative so the site works from any origin or path.
 - Keep external I/O in focused adapters such as `country-service.js` and `flag-service.js`; keep deterministic country and palette rules out of transport code.
 - Keep `app.js` as the composition and DOM-event boundary. Move substantial pure policy or reusable service behavior behind a smaller module interface instead of adding more unrelated responsibility there.
@@ -93,7 +103,7 @@ When a change would break a recorded pattern or establish a new one, stop and as
 - Prefer native HTML controls and established platform behavior over custom semantics.
 - Cover idle, loading, content, empty, error, retry, disabled, cancellation, and success states where the flow can reach them.
 - Preserve keyboard navigation, focus, accessible names, live status, scalable text, contrast, touch behavior, reduced motion, and non-color cues.
-- Screen-reader passes are not run, and that is accepted debt: accessibility evidence is automated — native semantics, accessible names, live-region text and politeness, focus movement, Playwright accessibility assertions — and reports say it is weaker than a real pass. Do not add or block on a criterion that asks a person to hear a screen reader. Decided by the owner on 2026-09-13 (martonpaulo/skill-deck#266); the gap it closes out was #20, split from #1.
+- Screen-reader passes are not run, and that is accepted debt: accessibility evidence is automated — native semantics, accessible names, live-region text and politeness, focus movement, Playwright accessibility assertions — and reports say it is weaker than a real pass. Do not add or block on a criterion that asks a person to hear a screen reader. Decided by the owner on 2026-09-13 ([martonpaulo/skill-deck#266](https://github.com/martonpaulo/skill-deck/issues/266)); the gap it closes out was [#20](https://github.com/martonpaulo/country-badge/issues/20), split from [#1](https://github.com/martonpaulo/country-badge/issues/1).
 - Keep user-facing copy concise and consistent with the English-only strategy.
 - Keep expensive work out of input and render paths; measure before claiming or fixing a performance problem.
 

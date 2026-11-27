@@ -1,0 +1,56 @@
+{
+  "magicValues": {
+    "folders": [],
+    "exclude": [
+      "scripts/dry_check.py",
+      "scripts/issue_links.py",
+      "scripts/live_build_check.py",
+      "scripts/shortcut_check.py",
+      "scripts/sleep_guard.py",
+      "scripts/text_check.py",
+      "scripts/text_width_check.py",
+      "scripts/skd/**"
+    ],
+    "counts": {
+      "playwright.config.js": {
+        "number": 10
+      },
+      "site/js/app.js": {
+        "repeated": 3
+      },
+      "site/js/color.js": {
+        "number": 44
+      },
+      "site/js/countries.js": {
+        "number": 4,
+        "url": 1
+      },
+      "site/js/country-service.js": {
+        "url": 1
+      },
+      "site/js/palette-policy.js": {
+        "number": 35
+      },
+      "site/js/palette-sampler.js": {
+        "number": 16
+      },
+      "site/js/svg.js": {
+        "colour": 1,
+        "number": 1,
+        "url": 1
+      }
+    }
+  },
+  "duplicates": {
+    "depth": 1,
+    "exclude": ["scripts/skd/**"],
+    "counts": {
+      "tests": 1
+    }
+  },
+  "documents": {
+    "files": ["*.md", "docs/**/*.md"],
+    "exclude": [],
+    "repeated": {}
+  }
+}

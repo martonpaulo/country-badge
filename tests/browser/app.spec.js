@@ -1142,6 +1142,7 @@ test("cancelling an in-flight generation returns the palette section to idle", a
   held.release();
 
   // The superseded request must not resurrect the cancelled generation.
+  // timing-independent: the wait proves an absence; a slower stale reply can only make this pass, never fail.
   await page.waitForTimeout(250);
   await expectIdlePaletteSection(page);
 });
@@ -1173,6 +1174,7 @@ test("editing a selected country during generation cancels it and warns", async 
   await expect(page.locator("#download-button")).toBeDisabled();
 
   held.release();
+  // timing-independent: the wait proves an absence; a slower stale reply can only make this pass, never fail.
   await page.waitForTimeout(250);
 
   await expect(page.locator("#loading-state")).toBeHidden();
@@ -1204,6 +1206,7 @@ test("a stale generation cannot overwrite the country that replaced it", async (
   const paletteBefore = await getPaletteHexes(page);
 
   stale.release();
+  // timing-independent: the wait proves an absence; a slower stale reply can only make this pass, never fail.
   await page.waitForTimeout(250);
 
   await expect(page.locator("#selected-country")).toHaveText("Paraguay");

@@ -39,4 +39,4 @@ The product succeeds when a user can select a supported country, compare three v
 
 ## Accepted evidence gaps
 
-- Manual screen-reader passes: not run; accepted by the owner on 2026-09-13 (martonpaulo/skill-deck#266). Accessibility is verified through semantics, roles, accessible names, focus order, contrast and automated audits. The former verification issue, martonpaulo/country-badge#20, was closed as not planned.
+- Manual screen-reader passes: not run; accepted by the owner on 2026-09-13 ([martonpaulo/skill-deck#266](https://github.com/martonpaulo/skill-deck/issues/266)). Accessibility is verified through semantics, roles, accessible names, focus order, contrast and automated audits. The former verification issue, [martonpaulo/country-badge#20](https://github.com/martonpaulo/country-badge/issues/20), was closed as not planned.
