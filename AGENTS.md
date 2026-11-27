@@ -34,10 +34,10 @@ Treat these values as stable project decisions. Change an established identifier
 
 Before editing under a path, read the file its row names. A module with rules of its own keeps them in its own `AGENTS.md` of at most 150 lines, beside a `CLAUDE.md` symlink, and has a row here; this file stays at most 200 lines.
 
-| Path | Read first |
-| :--- | :--- |
-| `site/`, `tests/` | [Existing project patterns](#existing-project-patterns) below, then `docs/product.md` |
-| `.github/workflows/` | the `bench-setup` skill's `references/ci-pipelines.md` |
+| Path                 | Read first                                                                            |
+| :------------------- | :------------------------------------------------------------------------------------ |
+| `site/`, `tests/`    | [Existing project patterns](#existing-project-patterns) below, then `docs/product.md` |
+| `.github/workflows/` | the `bench-setup` skill's `references/ci-pipelines.md`                                |
 
 ## Instruction hierarchy and sources of truth
 
