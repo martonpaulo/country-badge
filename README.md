@@ -28,6 +28,7 @@ their own `sessionStorage`.
 <br />
 
 ## 🌱 Quick Start
+
 Requires **Node.js 24** and pnpm, plus network access for the initial country catalog, uncached flags, and the first Playwright browser download.
 
 ```bash
@@ -45,17 +46,18 @@ Do not test the app from `file://`: native ES modules and browser security behav
 <br />
 
 ## 🛠 Commands
-| Command | What it does |
-| --- | --- |
-| `pnpm validate` | Run the full gate before a commit: Biome, the unit suite, then the browser suite |
-| `pnpm start` | Serve `site/` over HTTP on port 8080 (`python3 -m http.server`) |
-| `pnpm lint` | Check lint and formatting with Biome, changing nothing |
-| `pnpm format` | Run the same checks with every safe fix written to disk |
-| `pnpm test` | Run both suites; `validate` is the name to reach for |
-| `pnpm test:unit` | Run `node --test` over `tests/unit/` |
+
+| Command             | What it does                                                                                                                                                                      |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm validate`     | Run the full gate before a commit: Biome, the unit suite, then the browser suite                                                                                                  |
+| `pnpm start`        | Serve `site/` over HTTP on port 8080 (`python3 -m http.server`)                                                                                                                   |
+| `pnpm lint`         | Check lint and formatting with Biome, changing nothing                                                                                                                            |
+| `pnpm format`       | Run the same checks with every safe fix written to disk                                                                                                                           |
+| `pnpm test`         | Run both suites; `validate` is the name to reach for                                                                                                                              |
+| `pnpm test:unit`    | Run `node --test` over `tests/unit/`                                                                                                                                              |
 | `pnpm test:browser` | Run the Playwright acceptance suite against the Playwright-owned Chromium for Testing build, serving `site/` at the site root on a run-time port so two checkouts can run at once |
-| `pnpm social-card` | Render `design/social-card/social-card.html` into `site/social-card.jpg`, on a Mac |
-| `pnpm fonts` | Rewrite `site/fonts/` from the `@fontsource/*` packages. `pnpm install` runs it through `prepare`, so nobody has to remember |
+| `pnpm social-card`  | Render `design/social-card/social-card.html` into `site/social-card.jpg`, on a Mac                                                                                                |
+| `pnpm fonts`        | Rewrite `site/fonts/` from the `@fontsource/*` packages. `pnpm install` runs it through `prepare`, so nobody has to remember                                                      |
 
 Biome is the single linter and formatter, pinned in `devDependencies` and configured in `biome.jsonc` so that each disabled rule carries its reason.
 
