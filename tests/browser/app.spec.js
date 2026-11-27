@@ -1,4 +1,61 @@
-import { expect, test } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
+
+// Every test reads the country list and the flags from the local fixtures
+// below, so a loaded machine or a slow network cannot keep the search
+// disabled or a palette from rendering. A test that installs its own catalog
+// or flag route overrides these, as Playwright runs the latest matching route
+// first. Only a test that sets `liveSources` reads the pinned CDNs.
+const test = base.extend({
+  liveSources: [false, { option: true }],
+  page: async ({ page, liveSources }, use) => {
+    if (!liveSources) {
+      await page.route(COUNTRY_DATA_PATTERN, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(createCatalogPayload()),
+        }),
+      );
+      await page.route(FLAG_PATTERN, (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "image/svg+xml",
+          body: createFixtureFlagSvg(route.request().url()),
+        }),
+      );
+    }
+
+    await use(page);
+  },
+});
+
+// Three horizontal stripes in each tested country's flag colors, so each
+// country keeps a palette of its own; any other code gets a neutral tricolor.
+// Paraguay's stripes are reordered, as a white middle stripe without its
+// emblem yields two near-identical light options.
+const FIXTURE_FLAG_STRIPES = {
+  br: ["#009739", "#FEDD00", "#012169"],
+  py: ["#FFFFFF", "#0038A8", "#D52B1E"],
+  bo: ["#D52B1E", "#F9E300", "#007934"],
+  es: ["#AA151B", "#F1BF00", "#AA151B"],
+};
+
+function createFixtureFlagSvg(url) {
+  const code = url.split("/").pop().replace(".svg", "");
+  const stripes = FIXTURE_FLAG_STRIPES[code] ?? [
+    "#0D9488",
+    "#F97316",
+    "#7C3AED",
+  ];
+  const rects = stripes
+    .map(
+      (fill, index) =>
+        `<rect y="${index}" width="3" height="1" fill="${fill}"/>`,
+    )
+    .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 3">${rects}</svg>`;
+}
 
 const testedCountries = [
   { name: "Paraguay", code: "PY" },
@@ -422,6 +479,46 @@ test("layout remains usable at desktop and mobile viewports", async ({
   }
 });
 
+test("a test reads the local country and flag fixtures unless it opts into the live sources", async ({
+  page,
+}) => {
+  await openApp(page);
+  // Neither source knows the code AA, so a listed option and a rendered
+  // palette prove both answers came from the fixtures.
+  await selectCountry(page, "Country AA", "AA");
+});
+
+test.describe("the live country source", () => {
+  test.use({ liveSources: true });
+
+  // The one test that reads the pinned CDNs, so a change of either source
+  // still shows. It allows the network longer than the local fixtures need.
+  test("the pinned country list and flag load and render a palette", async ({
+    page,
+  }) => {
+    const diagnostics = await installDiagnostics(page);
+
+    await page.goto("./", { waitUntil: "load" });
+    await expect(page.locator("#country-search")).toBeEnabled({
+      timeout: 30_000,
+    });
+    await expect(page.locator("#country-status")).toHaveText(
+      "Countries loaded.",
+    );
+    await searchCountry(page, "Paraguay");
+    await expect(
+      page.locator("#country-options [role='option']").first(),
+    ).toContainText("PY");
+    await page.locator("#country-options [role='option']").first().click();
+    await expect(page.locator(".palette-option")).toHaveCount(3, {
+      timeout: 30_000,
+    });
+
+    expect(diagnostics.consoleErrors).toEqual([]);
+    expect(diagnostics.failedRequests).toEqual([]);
+  });
+});
+
 test("the source note credits both data sources", async ({
   page,
   viewport,
@@ -455,6 +552,20 @@ function createCatalogPayload() {
       name: {
         common: "Paraguay",
         official: "Republic of Paraguay",
+      },
+    },
+    {
+      cca2: "BO",
+      name: {
+        common: "Bolivia",
+        official: "Plurinational State of Bolivia",
+      },
+    },
+    {
+      cca2: "ES",
+      name: {
+        common: "Spain",
+        official: "Kingdom of Spain",
       },
     },
   ];
