@@ -25,7 +25,7 @@
 - Delete branches after merge: enabled.
 - Required review policy: none. The `main` branch ruleset was removed on 2026-09-09 by owner decision because a solo repository cannot satisfy a second-account approval. The complete unit and Chromium for Testing suites must pass locally before a commit. In CI the cheap Node suite (`validate`) and the expensive Chromium suite (`browser-suite`) are separate workflows, each triggered only by the paths it can observe.
 - Release, signing, and secret-storage policy: GitHub Pages publishes `site/` from `main` through `deploy.yml` after `Validate` passes; this is not a user-visible versioned release. No signing identity or release secret applies. Repository and provider credentials stay only in their secure stores.
-- Skills baseline revision: `52a750a90f2a761592388dba46b50b0238e3964d`
+- Skills baseline revision: `120b49891c76cff9576f1383eead52ef877e21a3`
 - Skills baseline applied: `2026-11-27`
 
 Treat these values as stable project decisions. Change an established identifier, license, visibility, branch policy, versioning model, localization strategy, landing-page contract, browser target, or release policy only through an explicit migration task.
