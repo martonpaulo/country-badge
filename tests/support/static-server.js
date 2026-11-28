@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const SERVE_PORT_ENV = "CBG_SERVE_PORT";
 
 const siteRoot = fileURLToPath(new URL("../../site/", import.meta.url));
+const serverScript = fileURLToPath(new URL("./serve.py", import.meta.url));
 
 function findFreePort() {
   return new Promise((resolve, reject) => {
@@ -30,7 +31,7 @@ export async function resolveServeTarget() {
   return {
     serveRoot: siteRoot,
     port,
-    command: `python3 -m http.server ${port} --directory "${siteRoot}"`,
+    command: `python3 "${serverScript}" ${port} "${siteRoot}"`,
     baseURL: `http://127.0.0.1:${port}/`,
   };
 }
