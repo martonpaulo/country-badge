@@ -22,7 +22,7 @@ const robots = await readFile(
 const CANONICAL = "https://countrybadge.martonpaulo.com/";
 
 // Home page title: the product name first, then what it does.
-const TITLE = "Country Badge Generator · Flag badges as SVG, PNG or JPG";
+const TITLE = "Country Badge · Flag badges as SVG, PNG or JPG";
 
 function metaContent(attribute, name) {
   const match = page.match(
@@ -95,7 +95,7 @@ test("the structured data describes this application and parses", () => {
 
   assert.equal(data["@type"], "WebApplication");
   assert.equal(data.url, CANONICAL);
-  assert.equal(data.name, "Country Badge Generator");
+  assert.equal(data.name, "Country Badge");
   assert.equal(data.description, metaContent("name", "description"));
 
   // The product is unversioned, so no version may appear in two places.

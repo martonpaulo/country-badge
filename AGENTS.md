@@ -2,8 +2,8 @@
 
 ## Project identity and policy
 
-- Display name: `Country Badge Generator`
-- Code name: `CountryBadgeGenerator`
+- Display name: `Country Badge`
+- Code name: `CountryBadge`
 - Slug: `country-badge`
 - Identifier name: `countrybadge`
 - Icon: `site/favicon.svg`
