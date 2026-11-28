@@ -3,7 +3,8 @@
 
     issue_links.py [ROOT] [--repo OWNER/NAME]
 
-Reads every `*.md` file under ROOT (default `.`); dot folders, `node_modules`, `vendor`,
+Reads every `*.md` file under ROOT (default `.`) that Git lists (tracked, or new and not ignored), so an ignored
+folder never fails a local run CI passes (#2169), else, outside a Git work tree, every one on disk; dot folders, `node_modules`, `vendor`,
 `third_party`, `.build` and symbolic links are left out. A bare reference is `#N`, `PR #N` or
 `owner/repo#N`; `[#N](https://github.com/OWNER/NAME/issues/N)` is the link form, and so is `[#N]` when the file
 defines `[#N]: <url>` (#822). Left as written: fenced blocks, code spans (a quoted commit subject
@@ -104,21 +105,47 @@ def origin(root: Path) -> str:
     return found.group("repo")
 
 
-def problems(root: Path, repo: str) -> list[str]:
-    found = []
+def skipped(parts: tuple[str, ...]) -> bool:
+    """A folder on the way to a file that the check leaves out."""
+    return any(part in SKIP_DIRS or part.startswith(".") for part in parts)
+
+
+def listed(root: Path) -> list[Path] | None:
+    """The Markdown files Git lists under `root` (tracked, plus new files not ignored), so an ignored
+    folder CI never sees cannot fail a local run (#2169); None outside a Git work tree."""
+    try:
+        run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others", "--exclude-standard",
+                              "--", "*.md"], capture_output=True, text=True, timeout=GIT_TIMEOUT)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if run.returncode != 0:
+        return None
+    names = sorted(set(name for name in run.stdout.split("\0") if name))
+    return [root / name for name in names if not skipped(Path(name).parts[:-1])]
+
+
+def walked(root: Path) -> list[Path]:
+    """Every Markdown file under `root` on disk, for a folder that is no Git work tree."""
+    paths = []
     for folder, dirs, files in os.walk(root):
         dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith("."))
-        for name in sorted(files):
-            path = Path(folder, name)
-            if not name.endswith(".md") or path.is_symlink():
-                continue
-            try:
-                text = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeError):
-                continue
-            relative = path.relative_to(root).as_posix()
-            for number, ref in bare(text):
-                found.append(f"{relative}:{number}: bare reference {ref}; link it as {suggestion(ref, repo)}")
+        paths.extend(Path(folder, name) for name in sorted(files) if name.endswith(".md"))
+    return paths
+
+
+def problems(root: Path, repo: str) -> list[str]:
+    found = []
+    paths = listed(root)
+    for path in walked(root) if paths is None else paths:
+        if path.is_symlink() or not path.is_file():
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            continue
+        relative = path.relative_to(root).as_posix()
+        for number, ref in bare(text):
+            found.append(f"{relative}:{number}: bare reference {ref}; link it as {suggestion(ref, repo)}")
     return found
 
 

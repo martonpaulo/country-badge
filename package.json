@@ -7,7 +7,7 @@
   "scripts": {
     "start": "python3 -m http.server 8080 --directory site",
     "lint": "biome check . && pnpm text-check",
-    "text-check": "python3 scripts/text_check.py . && python3 scripts/issue_links.py . && python3 scripts/dry_check.py && python3 scripts/sleep_guard.py . && python3 scripts/shortcut_check.py .",
+    "text-check": "python3 scripts/text_check.py . && python3 scripts/issue_links.py . && python3 scripts/dry_check.py && python3 scripts/sleep_guard.py . && python3 scripts/shortcut_check.py . && python3 scripts/text_width_check.py site",
     "format": "biome check --write .",
     "test": "pnpm test:unit && pnpm test:browser",
     "validate": "pnpm lint && pnpm test",

@@ -80,6 +80,7 @@
 
   html {
     color-scheme: light;
+    scrollbar-gutter: stable;
   }
 
   body,
@@ -190,9 +191,6 @@
     --weight-body: 400;
     --weight-strong: 600;
     --weight-display: 700;
-    --measure: 68ch;
-    --measure-narrow: 44ch;
-    --measure-title: 16ch;
 
     /* Recurring scales with more than one proven consumer. Responsive density
        overrides these owners instead of restating each component decision. */
@@ -379,7 +377,6 @@
   }
 
   .intro p {
-    max-width: var(--measure);
     margin-top: 8px;
     color: var(--text-soft);
     font-size: var(--text-md);
@@ -792,13 +789,14 @@
   }
 
   .detail-row > span:first-child {
+    flex-shrink: 0;
     color: var(--text-muted);
     font-size: var(--text-sm);
   }
 
   .detail-row strong {
     overflow: hidden;
-    max-width: 68%;
+    min-width: 0;
     font-size: var(--text-support);
     font-variant-numeric: tabular-nums;
     text-align: right;
