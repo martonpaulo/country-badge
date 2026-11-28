@@ -1,0 +1,1025 @@
+[
+  {
+    "cca2": "BR",
+    "cca3": "BRA",
+    "cioc": "BRA",
+    "name": {
+      "common": "Brazil",
+      "official": "Federative Republic of Brazil",
+      "native": {
+        "por": {
+          "official": "República Federativa do Brasil",
+          "common": "Brasil"
+        }
+      }
+    },
+    "altSpellings": [
+      "BR",
+      "Brasil",
+      "Federative Republic of Brazil",
+      "República Federativa do Brasil"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Brazilian",
+        "m": "Brazilian"
+      },
+      "fra": {
+        "f": "Brésilienne",
+        "m": "Brésilien"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "جمهورية البرازيل الاتحادية",
+        "common": "البرازيل"
+      },
+      "ces": {
+        "official": "Brazilská federativní republika",
+        "common": "Brazílie"
+      },
+      "deu": {
+        "official": "Föderative Republik Brasilien",
+        "common": "Brasilien"
+      },
+      "est": {
+        "official": "Brasiilia Liitvabariik",
+        "common": "Brasiilia"
+      },
+      "fin": {
+        "official": "Brasilian liittotasavalta",
+        "common": "Brasilia"
+      },
+      "fra": {
+        "official": "République fédérative du Brésil",
+        "common": "Brésil"
+      },
+      "hrv": {
+        "official": "Savezne Republike Brazil",
+        "common": "Brazil"
+      },
+      "hun": {
+        "official": "Brazil Szövetségi Köztársaság",
+        "common": "Brazília"
+      },
+      "ita": {
+        "official": "Repubblica federativa del Brasile",
+        "common": "Brasile"
+      },
+      "jpn": {
+        "official": "ブラジル連邦共和国",
+        "common": "ブラジル"
+      },
+      "kor": {
+        "official": "브라질 연방 공화국",
+        "common": "브라질"
+      },
+      "nld": {
+        "official": "Federale Republiek Brazilië",
+        "common": "Brazilië"
+      },
+      "per": {
+        "official": "جمهوری فدراتیو برزیل",
+        "common": "برزیل"
+      },
+      "pol": {
+        "official": "Federacyjna Republika Brazylii",
+        "common": "Brazylia"
+      },
+      "por": {
+        "official": "República Federativa do Brasil",
+        "common": "Brasil"
+      },
+      "rus": {
+        "official": "Федеративная Республика Бразилия",
+        "common": "Бразилия"
+      },
+      "slk": {
+        "official": "Brazílska federatívna republika",
+        "common": "Brazília"
+      },
+      "spa": {
+        "official": "República Federativa del Brasil",
+        "common": "Brasil"
+      },
+      "srp": {
+        "official": "Federativna Republika Brazil",
+        "common": "Brazil"
+      },
+      "swe": {
+        "official": "Förbundsrepubliken Brasilien",
+        "common": "Brasilien"
+      },
+      "tur": {
+        "official": "Brezilya Federal Cumhuriyeti",
+        "common": "Brezilya"
+      },
+      "urd": {
+        "official": "وفاقی جمہوریہ برازیل",
+        "common": "برازیل"
+      },
+      "zho": {
+        "official": "巴西联邦共和国",
+        "common": "巴西"
+      }
+    }
+  },
+  {
+    "cca2": "CW",
+    "cca3": "CUW",
+    "cioc": "",
+    "name": {
+      "common": "Curaçao",
+      "official": "Country of Curaçao",
+      "native": {
+        "eng": {
+          "official": "Country of Curaçao",
+          "common": "Curaçao"
+        },
+        "nld": {
+          "official": "Land Curaçao",
+          "common": "Curaçao"
+        },
+        "pap": {
+          "official": "Pais Kòrsou",
+          "common": "Pais Kòrsou"
+        }
+      }
+    },
+    "altSpellings": [
+      "CW",
+      "Curacao",
+      "Kòrsou",
+      "Country of Curaçao",
+      "Land Curaçao",
+      "Pais Kòrsou"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Curaçaoan",
+        "m": "Curaçaoan"
+      },
+      "fra": {
+        "f": "Curacienne",
+        "m": "Curacien"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "دولة كوراساو",
+        "common": "كوراساو"
+      },
+      "ces": {
+        "official": "Autonomní země Curaçao",
+        "common": "Curaçao"
+      },
+      "deu": {
+        "official": "Land Curaçao",
+        "common": "Curaçao"
+      },
+      "est": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "fin": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "fra": {
+        "official": "Pays de Curaçao",
+        "common": "Curaçao"
+      },
+      "hrv": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "hun": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "ita": {
+        "official": "Paese di Curaçao",
+        "common": "Curaçao"
+      },
+      "jpn": {
+        "official": "キュラソー",
+        "common": "キュラソー"
+      },
+      "kor": {
+        "official": "퀴라소",
+        "common": "퀴라소"
+      },
+      "nld": {
+        "official": "Land Curaçao",
+        "common": "Curaçao"
+      },
+      "per": {
+        "official": "کوراسائو",
+        "common": "کوراسائو"
+      },
+      "pol": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "por": {
+        "official": "País de Curaçao",
+        "common": "ilha da Curação"
+      },
+      "rus": {
+        "official": "Страна Кюрасао",
+        "common": "Кюрасао"
+      },
+      "slk": {
+        "official": "Curacao",
+        "common": "Curacao"
+      },
+      "spa": {
+        "official": "País de Curazao",
+        "common": "Curazao"
+      },
+      "srp": {
+        "official": "Država Kurasao",
+        "common": "Kurasao"
+      },
+      "swe": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "tur": {
+        "official": "Curaçao",
+        "common": "Curaçao"
+      },
+      "urd": {
+        "official": "مملکتِ کیوراساؤ",
+        "common": "کیوراساؤ"
+      },
+      "zho": {
+        "official": "库拉索",
+        "common": "库拉索"
+      }
+    }
+  },
+  {
+    "cca2": "ES",
+    "cca3": "ESP",
+    "cioc": "ESP",
+    "name": {
+      "common": "Spain",
+      "official": "Kingdom of Spain",
+      "native": {
+        "spa": {
+          "official": "Reino de España",
+          "common": "España"
+        }
+      }
+    },
+    "altSpellings": ["ES", "Kingdom of Spain", "Reino de España"],
+    "demonyms": {
+      "eng": {
+        "f": "Spanish",
+        "m": "Spanish"
+      },
+      "fra": {
+        "f": "Espagnole",
+        "m": "Espagnol"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "مملكة إسبانيا",
+        "common": "إسبانيا"
+      },
+      "ces": {
+        "official": "Španělské království",
+        "common": "Španělsko"
+      },
+      "deu": {
+        "official": "Königreich Spanien",
+        "common": "Spanien"
+      },
+      "est": {
+        "official": "Hispaania Kuningriik",
+        "common": "Hispaania"
+      },
+      "fin": {
+        "official": "Espanjan kuningaskunta",
+        "common": "Espanja"
+      },
+      "fra": {
+        "official": "Royaume d'Espagne",
+        "common": "Espagne"
+      },
+      "hrv": {
+        "official": "Kraljevina Španjolska",
+        "common": "Španjolska"
+      },
+      "hun": {
+        "official": "Spanyol Királyság",
+        "common": "Spanyolország"
+      },
+      "ita": {
+        "official": "Regno di Spagna",
+        "common": "Spagna"
+      },
+      "jpn": {
+        "official": "スペイン",
+        "common": "スペイン"
+      },
+      "kor": {
+        "official": "에스파냐 왕국",
+        "common": "스페인"
+      },
+      "nld": {
+        "official": "Koninkrijk Spanje",
+        "common": "Spanje"
+      },
+      "per": {
+        "official": "پادشاهی اسپانیا",
+        "common": "اسپانیا"
+      },
+      "pol": {
+        "official": "Królestwo Hiszpanii ",
+        "common": "Hiszpania"
+      },
+      "por": {
+        "official": "Reino de Espanha",
+        "common": "Espanha"
+      },
+      "rus": {
+        "official": "Королевство Испания",
+        "common": "Испания"
+      },
+      "slk": {
+        "official": "Španielske kráľovstvo",
+        "common": "Španielsko"
+      },
+      "spa": {
+        "official": "Reino de España",
+        "common": "España"
+      },
+      "srp": {
+        "official": "Kraljevina Španija",
+        "common": "Španija"
+      },
+      "swe": {
+        "official": "Konungariket Spanien",
+        "common": "Spanien"
+      },
+      "tur": {
+        "official": "İspanya Krallığı",
+        "common": "İspanya"
+      },
+      "urd": {
+        "official": "مملکتِ ہسپانیہ",
+        "common": "ہسپانیہ"
+      },
+      "zho": {
+        "official": "西班牙王国",
+        "common": "西班牙"
+      }
+    }
+  },
+  {
+    "cca2": "GN",
+    "cca3": "GIN",
+    "cioc": "GUI",
+    "name": {
+      "common": "Guinea",
+      "official": "Republic of Guinea",
+      "native": {
+        "fra": {
+          "official": "République de Guinée",
+          "common": "Guinée"
+        }
+      }
+    },
+    "altSpellings": ["GN", "Republic of Guinea", "République de Guinée"],
+    "demonyms": {
+      "eng": {
+        "f": "Guinean",
+        "m": "Guinean"
+      },
+      "fra": {
+        "f": "Guinéenne",
+        "m": "Guinéen"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "جمهورية غينيا",
+        "common": "غينيا"
+      },
+      "ces": {
+        "official": "Guinejská republika",
+        "common": "Guinea"
+      },
+      "deu": {
+        "official": "Republik Guinea",
+        "common": "Guinea"
+      },
+      "est": {
+        "official": "Guinea Vabariik",
+        "common": "Guinea"
+      },
+      "fin": {
+        "official": "Guinean tasavalta",
+        "common": "Guinea"
+      },
+      "fra": {
+        "official": "République de Guinée",
+        "common": "Guinée"
+      },
+      "hrv": {
+        "official": "Republika Gvineja",
+        "common": "Gvineja"
+      },
+      "hun": {
+        "official": "Guineai Köztársaság",
+        "common": "Guinea"
+      },
+      "ita": {
+        "official": "Repubblica di Guinea",
+        "common": "Guinea"
+      },
+      "jpn": {
+        "official": "ギニア共和国",
+        "common": "ギニア"
+      },
+      "kor": {
+        "official": "기니 공화국",
+        "common": "기니"
+      },
+      "nld": {
+        "official": "Republiek Guinee",
+        "common": "Guinee"
+      },
+      "per": {
+        "official": "مملکت مستقل پاپوآ گینه نو",
+        "common": "پاپوآ گینه نو"
+      },
+      "pol": {
+        "official": "Republika Gwinei",
+        "common": "Gwinea"
+      },
+      "por": {
+        "official": "República da Guiné",
+        "common": "Guiné"
+      },
+      "rus": {
+        "official": "Республика Гвинея",
+        "common": "Гвинея"
+      },
+      "slk": {
+        "official": "Guinejská republika",
+        "common": "Guinea"
+      },
+      "spa": {
+        "official": "República de Guinea",
+        "common": "Guinea"
+      },
+      "srp": {
+        "official": "Republika Gvineja",
+        "common": "Gvineja"
+      },
+      "swe": {
+        "official": "Republiken Guinea",
+        "common": "Guinea"
+      },
+      "tur": {
+        "official": "Gine Cumhuriyeti",
+        "common": "Gine"
+      },
+      "urd": {
+        "official": "جمہوریہ گنی",
+        "common": "گنی"
+      },
+      "zho": {
+        "official": "几内亚共和国",
+        "common": "几内亚"
+      }
+    }
+  },
+  {
+    "cca2": "GW",
+    "cca3": "GNB",
+    "cioc": "GBS",
+    "name": {
+      "common": "Guinea-Bissau",
+      "official": "Republic of Guinea-Bissau",
+      "native": {
+        "por": {
+          "official": "República da Guiné-Bissau",
+          "common": "Guiné-Bissau"
+        },
+        "pov": {
+          "official": "República da Guiné-Bissau",
+          "common": "Guiné-Bissau"
+        }
+      }
+    },
+    "altSpellings": [
+      "GW",
+      "Republic of Guinea-Bissau",
+      "República da Guiné-Bissau"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Guinea-Bissauan",
+        "m": "Guinea-Bissauan"
+      },
+      "fra": {
+        "f": "Bissau-Guinéenne",
+        "m": "Bissau-Guinéen"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "جمهورية غينيا بيساو",
+        "common": "غينيا بيساو"
+      },
+      "ces": {
+        "official": "Republika Guinea-Bissau",
+        "common": "Guinea-Bissau"
+      },
+      "deu": {
+        "official": "Republik Guinea-Bissau",
+        "common": "Guinea-Bissau"
+      },
+      "est": {
+        "official": "Guinea-Bissau Vabariik",
+        "common": "Guinea-Bissau"
+      },
+      "fin": {
+        "official": "Guinea-Bissaun tasavalta",
+        "common": "Guinea-Bissau"
+      },
+      "fra": {
+        "official": "République de Guinée-Bissau",
+        "common": "Guinée-Bissau"
+      },
+      "hrv": {
+        "official": "Republika Gvineja Bisau",
+        "common": "Gvineja Bisau"
+      },
+      "hun": {
+        "official": "Bissau-Guineai Köztársaság",
+        "common": "Bissau-Guinea"
+      },
+      "ita": {
+        "official": "Repubblica di Guinea-Bissau",
+        "common": "Guinea-Bissau"
+      },
+      "jpn": {
+        "official": "ギニアビサウ共和国",
+        "common": "ギニアビサウ"
+      },
+      "kor": {
+        "official": "기니비사우 공화국",
+        "common": "기니비사우"
+      },
+      "nld": {
+        "official": "Republiek Guinee-Bissau",
+        "common": "Guinee-Bissau"
+      },
+      "per": {
+        "official": "جمهوری گینه بیسائو",
+        "common": "گینه بیسائو"
+      },
+      "pol": {
+        "official": "Republika Gwinei Bissau",
+        "common": "Gwinea Bissau"
+      },
+      "por": {
+        "official": "República da Guiné-Bissau",
+        "common": "Guiné-Bissau"
+      },
+      "rus": {
+        "official": "Республика Гвинея -Бисау",
+        "common": "Гвинея-Бисау"
+      },
+      "slk": {
+        "official": "Guinejsko-bissauská republika",
+        "common": "Guinea-Bissau"
+      },
+      "spa": {
+        "official": "República de Guinea-Bissau",
+        "common": "Guinea-Bisáu"
+      },
+      "srp": {
+        "official": "Republika Gvineja Bisao",
+        "common": "Gvineja Bisao"
+      },
+      "swe": {
+        "official": "Republiken Guinea-Bissau",
+        "common": "Guinea-Bissau"
+      },
+      "tur": {
+        "official": "Gine-Bissau Cumhuriyeti",
+        "common": "Gine-Bissau"
+      },
+      "urd": {
+        "official": "جمہوریہ گنی بساؤ",
+        "common": "گنی بساؤ"
+      },
+      "zho": {
+        "official": "几内亚比绍共和国",
+        "common": "几内亚比绍"
+      }
+    }
+  },
+  {
+    "cca2": "GQ",
+    "cca3": "GNQ",
+    "cioc": "GEQ",
+    "name": {
+      "common": "Equatorial Guinea",
+      "official": "Republic of Equatorial Guinea",
+      "native": {
+        "fra": {
+          "official": "République de la Guinée Équatoriale",
+          "common": "Guinée équatoriale"
+        },
+        "por": {
+          "official": "República da Guiné Equatorial",
+          "common": "Guiné Equatorial"
+        },
+        "spa": {
+          "official": "República de Guinea Ecuatorial",
+          "common": "Guinea Ecuatorial"
+        }
+      }
+    },
+    "altSpellings": [
+      "GQ",
+      "Republic of Equatorial Guinea",
+      "República de Guinea Ecuatorial",
+      "République de Guinée équatoriale",
+      "República da Guiné Equatorial"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Equatorial Guinean",
+        "m": "Equatorial Guinean"
+      },
+      "fra": {
+        "f": "Équato-guinéenne",
+        "m": "Équato-guinéen"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "جمهورية غينيا الاستوائية",
+        "common": "غينيا الاستوائية"
+      },
+      "ces": {
+        "official": "Republika Rovníková Guinea",
+        "common": "Rovníková Guinea"
+      },
+      "deu": {
+        "official": "Republik Äquatorialguinea",
+        "common": "Äquatorialguinea"
+      },
+      "est": {
+        "official": "Ekvatoriaal-Guinea Vabariik",
+        "common": "Ekvatoriaal-Guinea"
+      },
+      "fin": {
+        "official": "Päiväntasaajan Guinean tasavalta",
+        "common": "Päiväntasaajan Guinea"
+      },
+      "fra": {
+        "official": "République de Guinée équatoriale",
+        "common": "Guinée équatoriale"
+      },
+      "hrv": {
+        "official": "Republika Ekvatorska Gvineja",
+        "common": "Ekvatorijalna Gvineja"
+      },
+      "hun": {
+        "official": "Egyenlítői-Guinea-i Köztársaság",
+        "common": "Egyenlítői-Guinea"
+      },
+      "ita": {
+        "official": "Repubblica della Guinea Equatoriale",
+        "common": "Guinea Equatoriale"
+      },
+      "jpn": {
+        "official": "赤道ギニア共和国",
+        "common": "赤道ギニア"
+      },
+      "kor": {
+        "official": "적도 기니 공화국",
+        "common": "적도 기니"
+      },
+      "nld": {
+        "official": "Republiek Equatoriaal-Guinea",
+        "common": "Equatoriaal-Guinea"
+      },
+      "per": {
+        "official": "جمهوری گینه استوایی",
+        "common": "گینه استوایی"
+      },
+      "pol": {
+        "official": "Republika Gwinei Równikowej",
+        "common": "Gwinea Równikowa"
+      },
+      "por": {
+        "official": "República da Guiné Equatorial",
+        "common": "Guiné Equatorial"
+      },
+      "rus": {
+        "official": "Республика Экваториальная Гвинея",
+        "common": "Экваториальная Гвинея"
+      },
+      "slk": {
+        "official": "Republika rovníkovej Guiney",
+        "common": "Rovníková Guinea"
+      },
+      "spa": {
+        "official": "República de Guinea Ecuatorial",
+        "common": "Guinea Ecuatorial"
+      },
+      "srp": {
+        "official": "Republika Ekvatorijalna Gvineja",
+        "common": "Ekvatorijalna Gvineja"
+      },
+      "swe": {
+        "official": "Republiken Ekvatorialguinea",
+        "common": "Ekvatorialguinea"
+      },
+      "tur": {
+        "official": "Ekvator Ginesi Cumhuriyeti",
+        "common": "Ekvator Ginesi"
+      },
+      "urd": {
+        "official": "جمہوریہ استوائی گنی",
+        "common": "استوائی گنی"
+      },
+      "zho": {
+        "official": "赤道几内亚共和国",
+        "common": "赤道几内亚"
+      }
+    }
+  },
+  {
+    "cca2": "PG",
+    "cca3": "PNG",
+    "cioc": "PNG",
+    "name": {
+      "common": "Papua New Guinea",
+      "official": "Independent State of Papua New Guinea",
+      "native": {
+        "eng": {
+          "official": "Independent State of Papua New Guinea",
+          "common": "Papua New Guinea"
+        },
+        "hmo": {
+          "official": "Independen Stet bilong Papua Niugini",
+          "common": "Papua Niu Gini"
+        },
+        "tpi": {
+          "official": "Independen Stet bilong Papua Niugini",
+          "common": "Papua Niugini"
+        }
+      }
+    },
+    "altSpellings": [
+      "PG",
+      "Independent State of Papua New Guinea",
+      "Independen Stet bilong Papua Niugini"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Papua New Guinean",
+        "m": "Papua New Guinean"
+      },
+      "fra": {
+        "f": "Papouasienne",
+        "m": "Papouasien"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "دولة بابوا غينيا الجديدة",
+        "common": "بابوا غينيا الجديدة"
+      },
+      "ces": {
+        "official": "Nezávislý stát Papua Nová Guinea",
+        "common": "Papua-Nová Guinea"
+      },
+      "deu": {
+        "official": "Unabhängiger Staat Papua-Neuguinea",
+        "common": "Papua-Neuguinea"
+      },
+      "est": {
+        "official": "Paapua Uus-Guinea Iseseisvusriik",
+        "common": "Paapua Uus-Guinea"
+      },
+      "fin": {
+        "official": "Papua-Uuden-Guinean Itsenäinen valtio",
+        "common": "Papua-Uusi-Guinea"
+      },
+      "fra": {
+        "official": "État indépendant de Papouasie-Nouvelle-Guinée",
+        "common": "Papouasie-Nouvelle-Guinée"
+      },
+      "hrv": {
+        "official": "Nezavisna Država Papui Novoj Gvineji",
+        "common": "Papua Nova Gvineja"
+      },
+      "hun": {
+        "official": "Pápua Új-Guinea Független Állam",
+        "common": "Pápua Új-Guinea"
+      },
+      "ita": {
+        "official": "Stato indipendente di Papua Nuova Guinea",
+        "common": "Papua Nuova Guinea"
+      },
+      "jpn": {
+        "official": "パプアニューギニア独立国",
+        "common": "パプアニューギニア"
+      },
+      "kor": {
+        "official": "파푸아뉴기니 독립국",
+        "common": "파푸아뉴기니"
+      },
+      "nld": {
+        "official": "Onafhankelijke Staat Papoea -Nieuw-Guinea",
+        "common": "Papoea-Nieuw-Guinea"
+      },
+      "per": {
+        "official": "مملکت مستقل پاپوآ گینهٔ نو",
+        "common": "پاپوآ گینه نو"
+      },
+      "pol": {
+        "official": "Niezależne Państwo Papui-Nowej Gwinei",
+        "common": "Papua-Nowa Gwinea"
+      },
+      "por": {
+        "official": "Estado Independente da Papua Nova Guiné",
+        "common": "Papua Nova Guiné"
+      },
+      "rus": {
+        "official": "Независимое Государство Папуа-Новой Гвинеи",
+        "common": "Папуа — Новая Гвинея"
+      },
+      "slk": {
+        "official": "Nezávislý štát Papua-Nová Guinea",
+        "common": "Papua-Nová Guinea"
+      },
+      "spa": {
+        "official": "Estado Independiente de Papúa Nueva Guinea",
+        "common": "Papúa Nueva Guinea"
+      },
+      "srp": {
+        "official": "Nezavisna Država Papua Nova Gvineja",
+        "common": "Papua Nova Gvineja"
+      },
+      "swe": {
+        "official": "Den oberoende staten Papua Nya Guinea",
+        "common": "Papua Nya Guinea"
+      },
+      "tur": {
+        "official": "Papua Yeni Gine Bağımsız Devleti",
+        "common": "Papua Yeni Gine"
+      },
+      "urd": {
+        "official": "آزاد ریاستِ پاپوا نیو گنی",
+        "common": "پاپوا نیو گنی"
+      },
+      "zho": {
+        "official": "巴布亚新几内亚",
+        "common": "巴布亚新几内亚"
+      }
+    }
+  },
+  {
+    "cca2": "PY",
+    "cca3": "PRY",
+    "cioc": "PAR",
+    "name": {
+      "common": "Paraguay",
+      "official": "Republic of Paraguay",
+      "native": {
+        "grn": {
+          "official": "Tetã Paraguái",
+          "common": "Paraguái"
+        },
+        "spa": {
+          "official": "República de Paraguay",
+          "common": "Paraguay"
+        }
+      }
+    },
+    "altSpellings": [
+      "PY",
+      "Republic of Paraguay",
+      "República del Paraguay",
+      "Tetã Paraguái"
+    ],
+    "demonyms": {
+      "eng": {
+        "f": "Paraguayan",
+        "m": "Paraguayan"
+      },
+      "fra": {
+        "f": "Paraguayenne",
+        "m": "Paraguayen"
+      }
+    },
+    "translations": {
+      "ara": {
+        "official": "جمهورية باراغواي",
+        "common": "باراغواي"
+      },
+      "ces": {
+        "official": "Paraguayská republika",
+        "common": "Paraguay"
+      },
+      "deu": {
+        "official": "Republik Paraguay",
+        "common": "Paraguay"
+      },
+      "est": {
+        "official": "Paraguay Vabariik",
+        "common": "Paraguay"
+      },
+      "fin": {
+        "official": "Paraguayn tasavalta",
+        "common": "Paraguay"
+      },
+      "fra": {
+        "official": "République du Paraguay",
+        "common": "Paraguay"
+      },
+      "hrv": {
+        "official": "Republika Paragvaj",
+        "common": "Paragvaj"
+      },
+      "hun": {
+        "official": "Paraguayi Köztársaság",
+        "common": "Paraguay"
+      },
+      "ita": {
+        "official": "Repubblica del Paraguay",
+        "common": "Paraguay"
+      },
+      "jpn": {
+        "official": "パラグアイ共和国",
+        "common": "パラグアイ"
+      },
+      "kor": {
+        "official": "파라과이 공화국",
+        "common": "파라과이"
+      },
+      "nld": {
+        "official": "Republiek Paraguay",
+        "common": "Paraguay"
+      },
+      "per": {
+        "official": "جمهوری پاراگوئه",
+        "common": "پاراگوئه"
+      },
+      "pol": {
+        "official": "Republika Paragwaju",
+        "common": "Paragwaj"
+      },
+      "por": {
+        "official": "República do Paraguai",
+        "common": "Paraguai"
+      },
+      "rus": {
+        "official": "Республика Парагвай",
+        "common": "Парагвай"
+      },
+      "slk": {
+        "official": "Paraguajská republika",
+        "common": "Paraguaj"
+      },
+      "spa": {
+        "official": "República de Paraguay",
+        "common": "Paraguay"
+      },
+      "srp": {
+        "official": "Republika Paragvaj",
+        "common": "Paragvaj"
+      },
+      "swe": {
+        "official": "Republiken Paraguay",
+        "common": "Paraguay"
+      },
+      "tur": {
+        "official": "Paraguay Cumhuriyeti",
+        "common": "Paraguay"
+      },
+      "urd": {
+        "official": "جمہوریہ پیراگوئے",
+        "common": "پیراگوئے"
+      },
+      "zho": {
+        "official": "巴拉圭共和国",
+        "common": "巴拉圭"
+      }
+    }
+  }
+]

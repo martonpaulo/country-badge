@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -8,20 +9,15 @@ import {
   searchCountries,
 } from "../../site/js/countries.js";
 
-import { COUNTRY_DATA_URL } from "../../site/js/country-service.js";
-
-let catalogPromise;
-
-async function getCatalog() {
-  catalogPromise ??= fetch(COUNTRY_DATA_URL)
-    .then((response) => {
-      assert.equal(response.ok, true);
-      return response.json();
-    })
-    .then((payload) => createCountryCatalog(payload));
-
-  return catalogPromise;
-}
+// An excerpt of the pinned `world-countries` list (see tests/fixtures/README.md), so the unit
+// suite needs no network. The live source stays covered by the opt-in browser test.
+const payload = JSON.parse(
+  await readFile(
+    new URL("../fixtures/countries.json", import.meta.url),
+    "utf8",
+  ),
+);
+const catalog = createCountryCatalog(payload, { minCountries: 1 });
 
 test("normalizes search text case and diacritics", () => {
   assert.equal(normalizeSearch("  Curacao  "), "curacao");
@@ -29,9 +25,7 @@ test("normalizes search text case and diacritics", () => {
   assert.equal(normalizeSearch("COTE D'IVOIRE"), "cote divoire");
 });
 
-test("searches countries by English names and ISO alpha-2 codes", async () => {
-  const catalog = await getCatalog();
-
+test("searches countries by English names and ISO alpha-2 codes", () => {
   assert.equal(searchCountries(catalog, "Paraguay")[0]?.code, "PY");
   assert.equal(searchCountries(catalog, "PY")[0]?.code, "PY");
   assert.equal(searchCountries(catalog, "Brazil")[0]?.code, "BR");
@@ -40,8 +34,7 @@ test("searches countries by English names and ISO alpha-2 codes", async () => {
   assert.equal(searchCountries(catalog, "ES")[0]?.code, "ES");
 });
 
-test("ranks exact matches before substring matches", async () => {
-  const catalog = await getCatalog();
+test("ranks exact matches before substring matches", () => {
   const results = searchCountries(catalog, "Guinea");
 
   assert.equal(results[0]?.name, "Guinea");
@@ -51,16 +44,12 @@ test("ranks exact matches before substring matches", async () => {
   );
 });
 
-test("search ignores case and diacritics", async () => {
-  const catalog = await getCatalog();
-
+test("search ignores case and diacritics", () => {
   assert.equal(searchCountries(catalog, "bRaZiL")[0]?.code, "BR");
   assert.equal(searchCountries(catalog, "curacao")[0]?.code, "CW");
 });
 
-test("no-results queries do not become valid countries", async () => {
-  const catalog = await getCatalog();
-
+test("no-results queries do not become valid countries", () => {
   assert.deepEqual(searchCountries(catalog, "Atlantis"), []);
   assert.equal(getCountryByCode(catalog, "Atlantis"), null);
 });
