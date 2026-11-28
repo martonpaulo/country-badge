@@ -19,6 +19,7 @@
 - Branch policy: the owner and the owner's agents commit validated work directly to `main` in focused single-concern commits. Short-lived branches and pull requests remain available for work that benefits from review, and are required for any outside contributor.
 - Commit policy: commit authorized work automatically when its required validation passes. Use Conventional Commits and keep each commit to one concern.
 - Push policy: push explicitly authorized work automatically once its required validation passes. Never push unrelated work or an unvalidated commit. A cloud session pushes `main` too, only for a `runs: cloud` issue whose gates all ran there (owner, 2026-11-27). Cloud setup command: `bash scripts/cloud-setup.sh`.
+- Cloud hand-off: on (owner, 2026-11-28): a cloud session also delivers the `[cloud]` Tasks of a split issue, on `cloud/<issue>` when it cannot push `main`.
 - Product versioning: unversioned. `package.json` version `1.0.0` is non-public development metadata and changes only if an explicit release policy is introduced.
 - Merge policy: merge commit only, `gh pr merge <number> --merge --delete-branch`, so every branch commit reaches `main` ([martonpaulo/skill-deck#277](https://github.com/martonpaulo/skill-deck/issues/277)). The pull request title becomes the merge commit's subject, and the leading `Closes` block preserves the complete issue set.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
